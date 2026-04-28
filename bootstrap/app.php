@@ -11,7 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Disabilitiamo il blocco CSRF solo per questa specifica rotta
+        $middleware->validateCsrfTokens(except: [
+            'webhook/checkfront'
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
