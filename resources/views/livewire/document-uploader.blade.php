@@ -54,7 +54,7 @@ $processUpload = function (DocumentAIService $aiService, $guestIndex, $docType) 
     $path = $file->store('documents', 'public');
     $this->guestSlots[$guestIndex]['documents'][$docType]['file_path'] = $path;
 
-    // 3. CHIAMATA AL SERVIZIO AI (Per ora simulata)
+    // 3. CHIAMATA AL SERVIZIO AI (Ora Reale e connessa a Google Cloud!)
     try {
         if (str_contains($docType, 'id_')) {
             $result = $aiService->analyzeIdentityDocument($file);
@@ -65,10 +65,23 @@ $processUpload = function (DocumentAIService $aiService, $guestIndex, $docType) 
         // Se l'AI restituisce successo, aggiorniamo il semaforo a verde
         if ($result['status'] === 'success') {
             $this->guestSlots[$guestIndex]['documents'][$docType]['status'] = 'approved';
+            
+            // AGGIUNTA FONDAMENTALE: Salviamo i dati estratti per iniettarli nel contratto!
+            if (isset($result['extracted_data'])) {
+                // Inizializziamo l'array 'data' se non esiste ancora per questo ospite
+                if (!isset($this->guestSlots[$guestIndex]['data'])) {
+                    $this->guestSlots[$guestIndex]['data'] = [];
+                }
+                
+                foreach ($result['extracted_data'] as $key => $val) {
+                    $this->guestSlots[$guestIndex]['data'][$key] = $val;
+                }
+            }
         } else {
             $this->guestSlots[$guestIndex]['documents'][$docType]['status'] = 'error';
         }
     } catch (\Exception $e) {
+        // In caso di errore (es. Google Cloud irraggiungibile) mettiamo in errore
         $this->guestSlots[$guestIndex]['documents'][$docType]['status'] = 'error';
     }
 
@@ -259,10 +272,11 @@ $checkCompletion = function () {
 @endforeach
 
     {{-- Sezione Contratto (Si sblocca solo quando isLocked è false) --}}
+    {{-- Sezione Contratto --}}
     @if(!$isLocked)
         <div class="mt-8 transition-all duration-500 transform translate-y-0 opacity-100">
-            {{-- Chiamiamo il nuovo componente passando la prenotazione --}}
-            <livewire:contract-manager :reservation="$reservation" />
+            {{-- Passiamo sia la reservation che i dati degli ospiti ($guestSlots) --}}
+            <livewire:contract-manager :reservation="$reservation" :guests="$guestSlots" />
         </div>
     @else
         <div class="mt-8 p-6 bg-gray-50 border border-gray-200 rounded-2xl text-center text-gray-500 opacity-75">
