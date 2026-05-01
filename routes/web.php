@@ -19,4 +19,17 @@ Route::get('/checkin/{token}', [CheckinController::class, 'show'])->name('checki
 Route::get('/checkin/{token}/documents', [App\Http\Controllers\CheckinController::class, 'documents'])->name('checkin.documents');
 
 
-Volt::route('/test-ia', 'gemini-test');
+// =========================================================
+// ROTTA TEMPORANEA PER TESTARE LA HOME (WELCOME KIT)
+// =========================================================
+Route::get('/test-home', function () {
+    // Prende la prima prenotazione a caso per fare il test
+    $reservation = Reservation::first(); 
+    
+    if (!$reservation) {
+        return "Attenzione: Crea prima una prenotazione nel database per testare l'app!";
+    }
+
+    // Richiama un file contenitore (che devi creare, vedi sotto)
+    return view('checkin.test-home', ['reservation' => $reservation]);
+});
