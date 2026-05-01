@@ -40,4 +40,17 @@ class CheckinController extends Controller
             'is_unlocked'
         ));
     }
-}
+
+    public function documents($token)
+    {
+        $reservation = \App\Models\Reservation::where('token', $token)->firstOrFail();
+        $apartment = $reservation->apartment;
+
+        // Se non ha pagato, lo rimandiamo alla home del check-in
+        if (!$reservation->is_paid) {
+            return redirect()->route('checkin.show', ['token' => $token])->with('error', 'Devi prima completare il pagamento.');
+        }
+
+        return view('checkin.documents', compact('reservation', 'apartment'));
+    }
+} // <-- QUESTA È LA GRAFFA CHE MANCAVA!
