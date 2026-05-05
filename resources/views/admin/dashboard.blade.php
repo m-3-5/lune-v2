@@ -1,4 +1,4 @@
-<x-layouts.app title="Gestione JLune">
+<x-layouts.admin title="Gestione JLune">
     <div class="min-h-screen bg-gray-50 pb-20">
         
         <!-- Header stile App -->
@@ -90,4 +90,4 @@
 
         </div>
     </div>
-</x-layouts.app>
+</x-layouts.admin>

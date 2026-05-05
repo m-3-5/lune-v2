@@ -3,9 +3,11 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout; // <-- 1. Importiamo l'attributo
 use App\Models\Reservation;
 use App\Models\GuestDocument; // Assicurati di avere il modello per i singoli file
 
+#[Layout('components.layouts.admin')] // <-- 2. Diciamo a Livewire di usare il layout admin
 class DettaglioArrivo extends Component
 {
     public Reservation $reservation;
@@ -41,6 +43,7 @@ class DettaglioArrivo extends Component
 
     public function render()
     {
-        return view('livewire.admin.dettaglio-arrivo')->layout('components.layouts.app');
+        // 3. Ritorna solo la vista. Il layout è già dichiarato in alto!
+        return view('livewire.admin.dettaglio-arrivo'); 
     }
 }
