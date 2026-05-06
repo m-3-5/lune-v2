@@ -10,22 +10,21 @@ class ApartmentSeeder extends Seeder
     public function run(): void
     {
         $apartments = [
-            ['name' => 'Némula', 'checkfront_name' => 'Monolocale Vista Mare Némula'],
-            ['name' => 'Armidda', 'checkfront_name' => 'Monolocale Vista Mare Armidda'],
-            ['name' => 'Iscrarìa', 'checkfront_name' => 'Appartamento Balcone Iscrarìa'],
-            ['name' => 'Kalavriche', 'checkfront_name' => 'Appartamento Kalavriche 4-5pax'],
-            ['name' => 'Tiria', 'checkfront_name' => 'Appartamento 2 Camere Da Letto'],
-            ['name' => 'Tùora', 'checkfront_name' => '"Tùora" Monolocale standard'],
-            ['name' => 'Zinnibiri', 'checkfront_name' => 'Monolocale Con Balcone'],
+            ['name' => '"Tùora" Monolocale standard', 'sku' => 'tuora'],
+            ['name' => '"Chessa \'e Monte" Monolocale c...', 'sku' => 'chessa'],
+            ['name' => '"Armidda" Monolocale vista mare', 'sku' => 'armidda'],
+            ['name' => '"Nèmula" Monolocale vista mare', 'sku' => 'nemula'],
+            ['name' => '"Kalàvriche" Bilocale vista mare', 'sku' => 'kalavriche'],
+            ['name' => '"Iscrarìa" Bilocale con balcone', 'sku' => 'iscra'],
+            ['name' => 'Casa Tiziana', 'sku' => 'bilocalevist_copy'],
+            ['name' => '"Tirìa" Trilocale', 'sku' => 'tiria']
         ];
 
         foreach ($apartments as $apt) {
+            // updateOrCreate evita di creare doppioni se lanci il comando due volte
             Apartment::updateOrCreate(
-                ['checkfront_name' => $apt['checkfront_name']], // Cerca se esiste già
-                [
-                    'name' => $apt['name'],
-                    'address' => 'Lungomare Palmasera, 6, 08022 Cala Gonone' // <-- Aggiunto per accontentare il database!
-                ]
+                ['sku' => $apt['sku']], // Cerca per SKU
+                ['name' => $apt['name']] // Se lo trova aggiorna il nome, altrimenti crea nuovo
             );
         }
     }
