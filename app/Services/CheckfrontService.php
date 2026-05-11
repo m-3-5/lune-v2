@@ -25,33 +25,43 @@ class CheckfrontService
     public function isBookingFullyPaid($bookingId)
     {
         try {
-            // Facciamo una chiamata protetta (Basic Auth) all'API di Checkfront
+            // Chiamata API a Checkfront
             $response = Http::withBasicAuth($this->apiKey, $this->apiSecret)
                 ->get("https://{$this->host}/api/3.0/booking/{$bookingId}");
 
             if ($response->successful()) {
                 $data = $response->json();
                 
-                // Entriamo nei dati della prenotazione
+                // I dati della prenotazione sono nella chiave 'booking'
                 $booking = $data['booking'] ?? null;
 
                 if ($booking) {
-                    $total = (float) $booking['total'];
-                    $paid = (float) $booking['paid'];
-                    $balance = (float) $booking['balance']; // Quanto manca da pagare
+                    // Checkfront organizza i dati economici sotto l'oggetto 'order'
+                    $order = $booking['order'] ?? [];
+                    
+                    // Usiamo 'total' e 'paid_total' come confermato dai log del Webhook
+                    $total = (float) ($order['total'] ?? 0);
+                    $paid = (float) ($order['paid_total'] ?? 0);
+                    
+                    // Calcoliamo quanto manca (balance)
+                    $balance = $total - $paid;
 
-                    // Se il bilancio rimanente è 0 o minore, è pagata!
-                    if ($balance <= 0) {
+                    // Se il totale è superiore a 0 e il bilancio è 0 o inferiore, è saldata
+                    if ($total > 0 && $balance <= 0) {
                         return true; 
                     }
+                    
+                    // Log di debug opzionale per vedere i numeri in caso di mancato saldo
+                    Log::info("Booking {$bookingId}: Totale {$total}, Pagato {$paid}, Saldo {$balance}");
                 }
             } else {
                 Log::error("Errore API Checkfront per Booking ID {$bookingId}: " . $response->body());
             }
         } catch (\Exception $e) {
-            Log::error("Eccezione durante chiamata API Checkfront: " . $e->getMessage());
+            // L'uso di ?? e dei controlli sopra previene l'errore "Undefined array key"
+            Log::error("Eccezione durante chiamata API Checkfront per {$bookingId}: " . $e->getMessage());
         }
 
-        return false; // Nel dubbio, diciamo che non è pagata per sicurezza
+        return false; // Di default non sblocchiamo il check-in se il calcolo fallisce
     }
 }

@@ -23,9 +23,13 @@ class CheckfrontWebhookController extends Controller
         $checkfrontBookingId = $data['booking']['@attributes']['booking_id'] ?? null;
         $bookingCode = $request->input('booking.code'); // Es: XCSD-060526
         
-        // Estraiamo lo SKU e il Nome dell'articolo (appartamento)
-        $sku = $request->input('booking.order.items.item.sku');
-        $itemName = $request->input('booking.order.items.item.name'); // Se presente nel sotto-oggetto
+        // Estrazione SKU intelligente (gestisce sia item singolo che array)
+        $items = $request->input('booking.order.items.item');
+        if (isset($items['sku'])) {
+        $sku = $items['sku']; // Caso item singolo
+}       else {
+        $sku = $items[0]['sku'] ?? null; // Caso array: prendiamo il primo (che è l'appartamento)
+}
 
         // Dati Cliente
         $guestName = $request->input('booking.customer.name') ?? $request->input('booking.fields.customer_name', 'Ospite Sconosciuto');
@@ -45,6 +49,11 @@ class CheckfrontWebhookController extends Controller
         $totalPrice = $request->input('booking.order.total', 0);
         $paidAmount = $request->input('booking.order.paid_total', 0);
         $bookingStatus = $request->input('booking.status'); // Es: PEND, PAID
+
+        // AGGIUNGIAMO QUESTA LOGICA: Mappatura cancellazione
+        if ($bookingStatus === 'STOP') {
+        $bookingStatus = 'CANCELLED';
+        }
 
         // 3. RICERCA APPARTAMENTO (Doppia Sicurezza: SKU prima, Nome poi)
         $apartment = Apartment::where('sku', $sku)
