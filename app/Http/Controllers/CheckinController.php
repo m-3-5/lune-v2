@@ -43,7 +43,7 @@ class CheckinController extends Controller
 
     public function documents($token)
     {
-        $reservation = \App\Models\Reservation::where('token', $token)->firstOrFail();
+        $reservation = Reservation::with('apartment')->where('token', $token)->firstOrFail();
         $apartment = $reservation->apartment;
 
         // Se non ha pagato, lo rimandiamo alla home del check-in

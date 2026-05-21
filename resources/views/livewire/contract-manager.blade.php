@@ -13,8 +13,8 @@ state([
 
 // Aggiungiamo $guests alla funzione mount
 mount(function (Reservation $reservation, $guests = []) {
-    $this->reservation = $reservation;
-    $this->guests = $guests;
+    $this->reservation = $reservation->fresh();
+    $this->guests = $guests ?: ($reservation->extracted_guests ?? []);
     
     // Se il contratto era già stato accettato in precedenza, impostiamo lo stato
     $this->isContractSigned = $this->reservation->contract_accepted ?? false;
@@ -63,50 +63,8 @@ $signContract = function () {
         </div>
     @else
         <div class="p-6">
-            {{-- Testo del contratto (scorrevole) --}}
-            <div class="h-64 overflow-y-auto p-5 bg-gray-50 border border-gray-200 rounded-xl mb-6 text-sm text-gray-700 space-y-4">
-                <div class="text-center mb-6">
-                    <p class="text-lg font-black text-gray-900 uppercase">Contratto di Locazione Turistica</p>
-                    <p class="text-xs text-gray-500">(Bozza Fac-simile in attesa di validazione)</p>
-                </div>
-
-                <p>Tra la struttura ricettiva <strong>JLune</strong> (di seguito "Locatore") e i seguenti ospiti (di seguito "Conduttori"):</p>
-                
-                {{-- RIQUADRO DATI ESTRATTI DALL'INTELLIGENZA ARTIFICIALE --}}
-                <div class="bg-white p-4 border border-indigo-100 rounded-lg my-4 shadow-sm">
-                    <ul class="space-y-3">
-                        @forelse($guests as $index => $guest)
-                            <li class="border-b border-gray-100 pb-2 last:border-0 last:pb-0">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <span class="font-bold text-indigo-900">Ospite {{ $index }}:</span> 
-                                        <span class="text-gray-900">
-                                            {{ data_get($guest, 'data.first_name', data_get($guest, 'name', 'N.D.')) }} 
-                                            {{ data_get($guest, 'data.last_name', '') }}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="text-xs mt-1">
-                                    @if(!data_get($guest, 'is_foreigner', false))
-                                        <span class="text-gray-600">Codice Fiscale: </span>
-                                        <span class="font-mono text-gray-900">{{ data_get($guest, 'data.tax_code', 'Acquisito a sistema') }}</span>
-                                    @else
-                                        <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-semibold">Cittadino Straniero (CF Non Richiesto)</span>
-                                    @endif
-                                </div>
-                            </li>
-                        @empty
-                            <li class="text-gray-500 italic">Dati ospiti in fase di elaborazione...</li>
-                        @endforelse
-                    </ul>
-                </div>
-
-                <p>Si conviene e si stipula quanto segue:</p>
-                
-                <p><strong>1. Oggetto e Uso dell'Immobile:</strong> Il Locatore concede in locazione per esclusive finalità turistiche l'immobile prenotato. È severamente vietato l'uso per scopi diversi o da parte di un numero di persone superiore a quello indicato nei documenti caricati a sistema.</p>
-                <p><strong>2. Check-in e Check-out:</strong> Il check-in è consentito a partire dalle ore 16:00. Il check-out deve avvenire tassativamente entro le ore 10:00 del giorno di partenza, salvo accordi scritti con l'Host.</p>
-                <p><strong>3. Regole di Comportamento:</strong> L'ospite si impegna a mantenere un comportamento rispettoso del riposo altrui e delle norme di civile convivenza. Non è consentito organizzare feste o eventi all'interno dell'appartamento.</p>
-                <p><strong>4. Danni e Responsabilità:</strong> Il Conduttore è responsabile per qualsiasi danno arrecato all'immobile, agli arredi o agli elettrodomestici durante il soggiorno, e ne risponderà economicamente.</p>
+            <div class="h-80 overflow-y-auto p-5 bg-gray-50 border border-gray-200 rounded-xl mb-6 text-sm">
+                {!! app(\App\Services\ContractRenderService::class)->html($reservation) !!}
             </div>
 
             <form wire:submit="signContract" class="space-y-4">

@@ -116,22 +116,26 @@ class DocumentUploader extends Component
 
         // --- COLLEGAMENTO AL DATABASE: SALVATAGGIO REALE DEI DOCUMENTI ---
         $this->reservation->guestDocuments()->delete(); // 1. Pulisce eventuali vecchi tentativi
-        foreach ($this->guestSlots as $slot) { // 2. Scorre tutti gli ospiti
-            foreach (['id_front', 'id_back', 'tax_front', 'tax_back'] as $type) { // 3. Scorre i 4 tipi di file
-                if (!empty($slot['documents'][$type]['file_path'])) {
+        foreach ($this->guestSlots as $index => $slot) {
+            foreach (['id_front', 'id_back', 'tax_front', 'tax_back'] as $type) {
+                if (! empty($slot['documents'][$type]['file_path'])) {
                     $this->reservation->guestDocuments()->create([
-                        'guest_name' => $slot['name'] ?: 'Ospite', 
-                        'document_type' => $type, 
-                        'file_path' => $slot['documents'][$type]['file_path']
-                    ]); // 4. Salva nel DB!
+                        'guest_slot' => (int) $index,
+                        'guest_name' => $slot['name'] ?: "Ospite {$index}",
+                        'is_foreigner' => (bool) ($slot['is_foreigner'] ?? false),
+                        'document_type' => $type,
+                        'file_path' => $slot['documents'][$type]['file_path'],
+                        'status' => 'pending',
+                    ]);
                 }
             }
         }
         // ------------------------------------------------------------------
 
-        // Aggiorniamo lo stato della prenotazione
+        // In attesa di verifica Serenella (non sbloccare contratto/ingresso)
         $this->reservation->update([
-            'documents_validated' => true
+            'documents_validated' => false,
+            'documents_submitted_at' => now(),
         ]);
 
         // =========================================================================
@@ -140,7 +144,8 @@ class DocumentUploader extends Component
         // =========================================================================
 
         // Andiamo alla firma del contratto
-        return redirect()->route('checkin.documents', ['token' => $this->reservation->token])->with('success', 'Documenti acquisiti. Procedi alla firma.');
+        return redirect()->route('checkin.show', ['token' => $this->reservation->token])
+            ->with('success', 'Documenti inviati. Serenella li verificherà a breve: riceverai accesso al contratto dopo l\'approvazione.');
     }
 
     public function render()

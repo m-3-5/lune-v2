@@ -2,66 +2,135 @@
 
 namespace App\Services;
 
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class CheckfrontService
 {
-    protected $host;
-    protected $apiKey;
-    protected $apiSecret;
+    protected string $host;
+
+    protected ?string $apiKey;
+
+    protected ?string $apiSecret;
 
     public function __construct()
     {
-        // Peschiamo le chiavi sicure dal file .env
-        $this->host = env('CHECKFRONT_HOST');
-        $this->apiKey = env('CHECKFRONT_API_KEY');
-        $this->apiSecret = env('CHECKFRONT_API_SECRET');
+        $this->host = config('checkfront.host');
+        $this->apiKey = config('checkfront.api_key');
+        $this->apiSecret = config('checkfront.api_secret');
+    }
+
+    public function isConfigured(): bool
+    {
+        return filled($this->host) && filled($this->apiKey) && filled($this->apiSecret);
     }
 
     /**
-     * Interroga Checkfront per sapere se una prenotazione è saldata al 100%
+     * GET sicuro verso API Checkfront 3.0 (credenziali solo server-side).
      */
-    public function isBookingFullyPaid($bookingId)
+    public function apiGet(string $path, array $query = []): ?Response
     {
-        try {
-            // Chiamata API a Checkfront
-            $response = Http::withBasicAuth($this->apiKey, $this->apiSecret)
-                ->get("https://{$this->host}/api/3.0/booking/{$bookingId}");
+        if (! $this->isConfigured()) {
+            Log::warning('Checkfront API: credenziali mancanti in .env');
 
-            if ($response->successful()) {
-                $data = $response->json();
-                
-                // I dati della prenotazione sono nella chiave 'booking'
-                $booking = $data['booking'] ?? null;
-
-                if ($booking) {
-                    // Checkfront organizza i dati economici sotto l'oggetto 'order'
-                    $order = $booking['order'] ?? [];
-                    
-                    // Usiamo 'total' e 'paid_total' come confermato dai log del Webhook
-                    $total = (float) ($order['total'] ?? 0);
-                    $paid = (float) ($order['paid_total'] ?? 0);
-                    
-                    // Calcoliamo quanto manca (balance)
-                    $balance = $total - $paid;
-
-                    // Se il totale è superiore a 0 e il bilancio è 0 o inferiore, è saldata
-                    if ($total > 0 && $balance <= 0) {
-                        return true; 
-                    }
-                    
-                    // Log di debug opzionale per vedere i numeri in caso di mancato saldo
-                    Log::info("Booking {$bookingId}: Totale {$total}, Pagato {$paid}, Saldo {$balance}");
-                }
-            } else {
-                Log::error("Errore API Checkfront per Booking ID {$bookingId}: " . $response->body());
-            }
-        } catch (\Exception $e) {
-            // L'uso di ?? e dei controlli sopra previene l'errore "Undefined array key"
-            Log::error("Eccezione durante chiamata API Checkfront per {$bookingId}: " . $e->getMessage());
+            return null;
         }
 
-        return false; // Di default non sblocchiamo il check-in se il calcolo fallisce
+        $path = ltrim($path, '/');
+
+        try {
+            $response = Http::withBasicAuth($this->apiKey, $this->apiSecret)
+                ->acceptJson()
+                ->timeout(30)
+                ->get("https://{$this->host}/api/3.0/{$path}", $query);
+
+            if (! $response->successful()) {
+                Log::error("Checkfront API {$path} HTTP {$response->status()}", [
+                    'body' => $response->body(),
+                ]);
+            }
+
+            return $response;
+        } catch (\Throwable $e) {
+            Log::error("Checkfront API {$path} eccezione: ".$e->getMessage());
+
+            return null;
+        }
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function fetchItems(): array
+    {
+        $response = $this->apiGet('item');
+
+        if (! $response?->successful()) {
+            return [];
+        }
+
+        $items = $response->json('items') ?? $response->json('item') ?? [];
+
+        if (isset($items['item_id']) || isset($items['sku'])) {
+            return [$items];
+        }
+
+        return is_array($items) ? array_values($items) : [];
+    }
+
+    public function fetchBooking(string $bookingId): ?array
+    {
+        $response = $this->apiGet("booking/{$bookingId}");
+
+        if (! $response?->successful()) {
+            return null;
+        }
+
+        return $response->json('booking');
+    }
+
+    /**
+     * Acconto o saldo completo: paid_total > 0 (regola sblocco documenti).
+     */
+    public function hasDepositOrPaid(float $paidTotal, float $total = 0): bool
+    {
+        if ($paidTotal > 0) {
+            return true;
+        }
+
+        return $total > 0 && $paidTotal >= $total;
+    }
+
+    /**
+     * Saldo a zero (pagamento completo).
+     */
+    public function isBookingFullyPaid(string $bookingId): bool
+    {
+        $booking = $this->fetchBooking($bookingId);
+
+        if (! $booking) {
+            return false;
+        }
+
+        $order = $booking['order'] ?? [];
+        $total = (float) ($order['total'] ?? 0);
+        $paid = (float) ($order['paid_total'] ?? 0);
+        $balance = $total - $paid;
+
+        Log::info("Booking {$bookingId}: Totale {$total}, Pagato {$paid}, Saldo {$balance}");
+
+        return $total > 0 && $balance <= 0;
+    }
+
+    public function paymentUrlForCode(?string $bookingCode): ?string
+    {
+        if (! $bookingCode) {
+            return null;
+        }
+
+        $base = rtrim(config('checkfront.payment_url'), '/');
+
+        return "{$base}/?code={$bookingCode}";
     }
 }
