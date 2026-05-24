@@ -1,4 +1,4 @@
-<x-layouts.admin title="Gestione JLune">
+<x-layouts.admin title="Gestione Jlune">
     @php
         $docsPending = \App\Models\AdminNotification::unreadCount();
     @endphp

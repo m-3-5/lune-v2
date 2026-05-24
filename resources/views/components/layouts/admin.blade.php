@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'Lune Gestione' }}</title>
+    <title>{{ $title ?? 'Jlune Gestione' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
@@ -34,7 +34,7 @@
                 </div>
 
                 <div class="flex px-4 items-center h-12">
-                    <h1 class="text-2xl font-black tracking-widest uppercase text-indigo-400">Lune Admin</h1>
+                    <h1 class="text-2xl font-black tracking-widest uppercase text-indigo-400">Jlune Admin</h1>
                 </div>
                 <nav class="mt-5 h-full overflow-y-auto px-4 space-y-2">
                     <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">📊 Dashboard</a>
@@ -51,7 +51,7 @@
     <div class="hidden md:fixed md:inset-y-0 md:z-50 md:flex md:w-64 md:flex-col">
         <div class="flex grow flex-col overflow-y-auto bg-slate-900 px-6 pb-4 shadow-2xl text-white">
             <div class="flex h-20 shrink-0 items-center border-b border-slate-700 mb-6">
-                <h1 class="text-2xl font-black tracking-widest uppercase text-indigo-400">Lune Admin</h1>
+                <h1 class="text-2xl font-black tracking-widest uppercase text-indigo-400">Jlune Admin</h1>
             </div>
             <nav class="flex flex-1 flex-col">
                 <ul role="list" class="flex flex-1 flex-col gap-y-7">

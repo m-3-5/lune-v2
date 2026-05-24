@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'Lune - Gestione Soggiorno' }}</title>
+    <title>{{ $title ?? 'Jlune App - Gestione Soggiorno' }}</title>
     
     <!-- Caricamento script e stili di Laravel (Vite) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -43,7 +43,7 @@
     <header class="fixed top-0 left-0 w-full bg-indigo-700 text-white shadow-md z-50">
         <div class="max-w-md mx-auto flex justify-between items-center p-4">
             <h1 class="text-xl font-extrabold tracking-tight">
-                {{ $apartmentName ?? 'Lune App' }}
+                {{ $apartmentName ?? 'Jlune App' }}
             </h1>
 
             <div class="flex items-center gap-2">

@@ -109,6 +109,6 @@
 
     <div class="mt-8 border-t pt-4 grid grid-cols-2 text-xs text-gray-500">
         <div>Contract electronically generated on {{ now()->format('d/m/Y H:i') }}</div>
-        <div class="text-right">JLune Management System</div>
+        <div class="text-right">Jlune App</div>
     </div>
 </div>
