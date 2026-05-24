@@ -20,6 +20,8 @@ Route::get('/checkin/{token}', [CheckinController::class, 'show'])->name('checki
 
 Route::get('/checkin/{token}/documents', [App\Http\Controllers\CheckinController::class, 'documents'])->name('checkin.documents');
 
+Route::get('/checkin/{token}/contract', [CheckinController::class, 'contract'])->name('checkin.contract');
+
 // Rotta per la Dashboard di Serenella
 Route::get('/admin', function () {
     return view('admin.dashboard');

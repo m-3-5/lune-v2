@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Reservation extends Model
@@ -20,8 +22,13 @@ class Reservation extends Model
         'paid_total' => 'decimal:2',
         'balance' => 'decimal:2',
         'checkfront_line_items' => 'array',
+        'checkfront_fields' => 'array',
+        'checkfront_taxes' => 'array',
+        'sub_total' => 'decimal:2',
+        'tax_total' => 'decimal:2',
         'extracted_guests' => 'array',
         'contract_ready_for_guest' => 'boolean',
+        'contract_accepted' => 'boolean',
         'contract_extracted_at' => 'datetime',
     ];
 
@@ -39,6 +46,16 @@ class Reservation extends Model
         return $this->documents_submitted_at !== null && ! $this->documents_validated;
     }
 
+    public static function pendingDocumentReviewCount(): int
+    {
+        return static::query()
+            ->notCancelled()
+            ->notPast()
+            ->whereNotNull('documents_submitted_at')
+            ->where('documents_validated', false)
+            ->count();
+    }
+
     public function paymentLabel(): string
     {
         if (! $this->is_paid) {
@@ -49,6 +66,134 @@ class Reservation extends Model
         }
 
         return 'Saldo OK';
+    }
+
+    public function nightsCount(): int
+    {
+        if (! $this->check_in || ! $this->check_out) {
+            return 0;
+        }
+
+        return max(1, (int) $this->check_in->copy()->startOfDay()->diffInDays(
+            $this->check_out->copy()->startOfDay()
+        ));
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function apartmentLineItems(): array
+    {
+        return array_values(array_filter(
+            $this->checkfront_line_items ?? [],
+            fn ($line) => ($line['line_type'] ?? '') === 'apartment'
+        ));
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function extraLineItems(): array
+    {
+        return array_values(array_filter(
+            $this->checkfront_line_items ?? [],
+            fn ($line) => ($line['line_type'] ?? '') === 'extra'
+        ));
+    }
+
+    public function guestDisplayName(): string
+    {
+        $parts = array_filter([$this->guest_name, $this->guest_cognome]);
+
+        return implode(' ', $parts) ?: ($this->guest_name ?? 'Ospite');
+    }
+
+    public function checkfrontField(string $key, ?string $default = null): ?string
+    {
+        $fields = $this->checkfront_fields ?? [];
+
+        return $fields[$key] ?? $default;
+    }
+
+    public function guestCountDisplay(): string
+    {
+        $numpax = $this->checkfrontField('numpax');
+        if ($numpax !== null && $numpax !== '') {
+            return $numpax.' ospiti';
+        }
+
+        $total = (int) ($this->adults ?? 0) + (int) ($this->children ?? 0);
+
+        return $total > 0 ? $total.' ospiti' : '—';
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function operationalExtrasLabels(): array
+    {
+        $labels = [];
+        $skip = ['tassadisoggiorno', 'fraisbancaires'];
+
+        foreach ($this->extraLineItems() as $line) {
+            $sku = strtolower((string) ($line['sku'] ?? ''));
+            if ($sku === '' || in_array($sku, $skip, true)) {
+                continue;
+            }
+            $labels[] = config('checkfront.extra_item_labels.'.$sku)
+                ?? ($line['name'] ?? $line['label'] ?? $sku);
+        }
+
+        $queen = $this->checkfrontField('queen');
+        if ($queen !== null && $queen !== '') {
+            $labels[] = 'Letto: '.$queen;
+        }
+
+        return array_values(array_unique($labels));
+    }
+
+    public function scopeNotCancelled(Builder $query): Builder
+    {
+        return $query->where('status', '!=', 'CANCELLED');
+    }
+
+    public function scopeNotPast(Builder $query): Builder
+    {
+        return $query->whereDate('check_out', '>=', today());
+    }
+
+    public function scopePast(Builder $query): Builder
+    {
+        return $query->whereDate('check_out', '<', today());
+    }
+
+    public function scopeCancelled(Builder $query): Builder
+    {
+        return $query->where('status', 'CANCELLED');
+    }
+
+    public function scopeArrivingOn(Builder $query, Carbon|string $date): Builder
+    {
+        $d = $date instanceof Carbon ? $date : Carbon::parse($date);
+
+        return $query->whereDate('check_in', $d->toDateString());
+    }
+
+    public function scopeDepartingOn(Builder $query, Carbon|string $date): Builder
+    {
+        $d = $date instanceof Carbon ? $date : Carbon::parse($date);
+
+        return $query->whereDate('check_out', $d->toDateString());
+    }
+
+    public function scopeInHouseOn(Builder $query, Carbon|string $date): Builder
+    {
+        $d = $date instanceof Carbon ? $date : Carbon::parse($date);
+
+        return $query
+            ->notCancelled()
+            ->whereDate('check_in', '<=', $d->toDateString())
+            ->whereDate('check_out', '>', $d->toDateString());
     }
 
     /**
@@ -65,6 +210,60 @@ class Reservation extends Model
     public function guestDocuments()
     {
         return $this->hasMany(GuestDocument::class);
+    }
+
+    public function guestNotifications()
+    {
+        return $this->hasMany(GuestNotification::class);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function contractGuests(): array
+    {
+        return $this->extracted_guests ?? [];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function italianGuestsMissingTaxCode(): array
+    {
+        return array_values(array_filter(
+            $this->contractGuests(),
+            fn ($g) => ! ($g['is_foreigner'] ?? false) && blank($g['data']['tax_code'] ?? null)
+        ));
+    }
+
+    public function requiresTaxCodeForContract(): bool
+    {
+        return count($this->italianGuestsMissingTaxCode()) > 0;
+    }
+
+    public function setGuestTaxCode(int $slot, string $taxCode): void
+    {
+        $taxCode = strtoupper(preg_replace('/\s+/', '', $taxCode));
+        $guests = $this->extracted_guests ?? [];
+
+        $updated = false;
+        foreach ($guests as &$guest) {
+            if ((int) ($guest['slot'] ?? 0) === $slot) {
+                $guest['data']['tax_code'] = $taxCode;
+                $updated = true;
+            }
+        }
+
+        if (! $updated) {
+            $guests[] = [
+                'slot' => $slot,
+                'name' => "Ospite {$slot}",
+                'is_foreigner' => false,
+                'data' => ['tax_code' => $taxCode],
+            ];
+        }
+
+        $this->update(['extracted_guests' => array_values($guests)]);
     }
 
     // Nota: Abbiamo rimosso temporaneamente l'invio automatico delle email

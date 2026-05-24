@@ -25,90 +25,173 @@
         <div class="bg-indigo-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
             <div class="relative z-10">
                 <p class="text-indigo-300 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Prenotazione {{ $reservation->booking_code ?? '—' }}</p>
-                <h2 class="text-3xl font-black mb-1">{{ $reservation->guest_name }}</h2>
+                <h2 class="text-3xl font-black mb-1">{{ $reservation->guestDisplayName() }}</h2>
                 <p class="text-indigo-200 font-medium italic text-lg">{{ $reservation->apartment->name }}</p>
-                <p class="text-indigo-300 text-xs mt-2">Checkfront: {{ $reservation->checkfront_status ?? '—' }} · {{ $reservation->paymentLabel() }}</p>
+                <p class="text-indigo-300 text-xs mt-2">
+                    Checkfront #{{ $reservation->checkfront_booking_id }} · {{ $reservation->checkfront_status ?? '—' }} · {{ $reservation->paymentLabel() }}
+                </p>
+                @if($reservation->guest_email || $reservation->guest_phone)
+                    <p class="text-indigo-200 text-sm mt-2">
+                        @if($reservation->guest_email)<a href="mailto:{{ $reservation->guest_email }}" class="underline">{{ $reservation->guest_email }}</a>@endif
+                        @if($reservation->guest_phone) · {{ $reservation->guest_phone }}@endif
+                    </p>
+                @endif
             </div>
             <svg class="absolute right-[-20px] bottom-[-20px] w-48 h-48 text-white opacity-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2H7a1 1 0 100-2h.01zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path></svg>
         </div>
 
-        <!-- Economico + link ospite -->
+        <!-- Dati Checkfront completi -->
         <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 space-y-4">
-            <h3 class="text-[10px] font-black uppercase tracking-widest text-gray-400">Checkfront & area ospite</h3>
-            <div class="grid grid-cols-2 gap-3 text-sm">
+            <h3 class="text-[10px] font-black uppercase tracking-widest text-gray-400">Dati Checkfront</h3>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                <div>
+                    <span class="text-gray-400 text-xs uppercase font-bold">Codice</span>
+                    <p class="font-bold">{{ $reservation->booking_code ?? '—' }}</p>
+                </div>
+                <div>
+                    <span class="text-gray-400 text-xs uppercase font-bold">Cliente CF</span>
+                    <p class="font-mono text-xs">{{ $reservation->checkfront_customer_code ?? '—' }}</p>
+                </div>
+                <div>
+                    <span class="text-gray-400 text-xs uppercase font-bold">Notti</span>
+                    <p class="font-bold">{{ $reservation->nightsCount() }}</p>
+                </div>
+                <div>
+                    <span class="text-gray-400 text-xs uppercase font-bold">Ospiti</span>
+                    <p class="font-bold">{{ $reservation->checkfrontField('numpax', $reservation->adults) }}</p>
+                </div>
+                <div class="col-span-2">
+                    <span class="text-gray-400 text-xs uppercase font-bold">Letti</span>
+                    <p class="font-bold">{{ $reservation->checkfrontField('queen', '—') }}</p>
+                </div>
+            </div>
+
+            @if($reservation->checkfrontField('note'))
+                <div class="bg-amber-50 border border-amber-100 rounded-xl p-3 text-sm">
+                    <span class="text-[10px] font-black uppercase text-amber-800">Note ospite</span>
+                    <p>{{ $reservation->checkfrontField('note') }}</p>
+                </div>
+            @endif
+
+            <div class="grid grid-cols-2 gap-3 text-sm border-t pt-3">
+                <div><span class="text-gray-400 text-xs uppercase font-bold">Subtotale</span><p>€ {{ number_format($reservation->sub_total ?? 0, 2, ',', '.') }}</p></div>
+                <div><span class="text-gray-400 text-xs uppercase font-bold">Tasse</span><p>€ {{ number_format($reservation->tax_total ?? 0, 2, ',', '.') }}</p></div>
                 <div><span class="text-gray-400 text-xs uppercase font-bold">Totale</span><p class="font-bold">€ {{ number_format($reservation->total_price ?? 0, 2, ',', '.') }}</p></div>
                 <div><span class="text-gray-400 text-xs uppercase font-bold">Pagato</span><p class="font-bold text-green-700">€ {{ number_format($reservation->paid_total ?? 0, 2, ',', '.') }}</p></div>
                 <div><span class="text-gray-400 text-xs uppercase font-bold">Saldo</span><p class="font-bold text-amber-700">€ {{ number_format($reservation->balance ?? 0, 2, ',', '.') }}</p></div>
-                <div><span class="text-gray-400 text-xs uppercase font-bold">Ospiti</span><p class="font-bold">{{ $reservation->adults }} adulti</p></div>
             </div>
-            <div class="bg-gray-50 p-3 rounded-xl">
-                <p class="text-[10px] font-black uppercase text-gray-400 mb-1">Link segreto cliente</p>
-                <code class="text-xs break-all text-indigo-800">{{ $reservation->guest_portal_url }}</code>
-            </div>
-            @if($reservation->checkfront_payment_url)
-                <a href="{{ $reservation->checkfront_payment_url }}" target="_blank" class="text-xs font-bold text-indigo-600 underline">Apri pagamento Checkfront</a>
-            @endif
-            @if(is_array($reservation->checkfront_line_items) && count($reservation->checkfront_line_items))
+
+            @if(count($reservation->extraLineItems()) > 0)
                 <div class="border-t pt-3">
-                    <p class="text-[10px] font-black uppercase text-gray-400 mb-2">Righe ordine</p>
-                    <ul class="text-xs space-y-1">
-                        @foreach($reservation->checkfront_line_items as $line)
-                            <li class="flex justify-between gap-2">
-                                <span>{{ $line['sku'] }} <span class="text-gray-400">(cat. {{ $line['category_id'] }})</span></span>
-                                <span class="font-bold">€ {{ $line['total'] }}</span>
+                    <p class="text-[10px] font-black uppercase text-gray-400 mb-2">Extra e servizi</p>
+                    <ul class="text-sm space-y-2">
+                        @foreach($reservation->extraLineItems() as $line)
+                            <li class="flex justify-between bg-gray-50 rounded-lg px-3 py-2">
+                                <span>{{ $line['label'] ?? $line['sku'] }}</span>
+                                <span class="font-bold">€ {{ number_format((float) ($line['total'] ?? 0), 2, ',', '.') }}</span>
                             </li>
                         @endforeach
                     </ul>
                 </div>
             @endif
+
+            @if(is_array($reservation->checkfront_taxes) && count($reservation->checkfront_taxes))
+                <div class="border-t pt-3">
+                    <p class="text-[10px] font-black uppercase text-gray-400 mb-2">Dettaglio tasse / pulizie</p>
+                    <ul class="text-xs text-gray-600 space-y-1">
+                        @foreach($reservation->checkfront_taxes as $tax)
+                            @if((float) ($tax['amount'] ?? 0) > 0)
+                                <li>{{ $tax['name'] }} — € {{ $tax['amount'] }}</li>
+                            @endif
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <div class="border-t pt-3 space-y-2">
+                <div class="bg-gray-50 p-3 rounded-xl">
+                    <p class="text-[10px] font-black uppercase text-gray-400 mb-1">Link area ospite (Lune)</p>
+                    <code class="text-xs break-all text-indigo-800">{{ $reservation->guest_portal_url }}</code>
+                </div>
+                @if($reservation->checkfront_payment_url)
+                    <a href="{{ $reservation->checkfront_payment_url }}" target="_blank" rel="noopener"
+                       class="inline-block text-xs font-bold text-indigo-600 underline">
+                        Pagamento su Checkfront →
+                    </a>
+                @endif
+            </div>
         </div>
 
-        <!-- Contratto: estrazione IA + autorizzazione -->
+        <!-- Contratto: estrazione IA + invio firma -->
         @if($reservation->documents_validated)
+            @php $contracts = app(\App\Services\ContractRenderService::class); @endphp
             <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-indigo-100 space-y-4">
-                <h3 class="text-[10px] font-black uppercase tracking-widest text-indigo-600">Contratto (IA + approvazione)</h3>
+                <h3 class="text-[10px] font-black uppercase tracking-widest text-indigo-600">Contratto</h3>
 
                 @if($reservation->contract_ready_for_guest)
-                    <p class="text-sm text-green-700 font-bold">✓ Contratto visibile all'ospite ({{ $reservation->contract_locale === 'en' ? 'Inglese' : 'Italiano' }})</p>
+                    <p class="text-sm text-green-700 font-bold">✓ Inviato per la firma ({{ $reservation->contract_locale === 'en' ? 'Inglese' : 'Italiano' }})</p>
                 @elseif($reservation->extracted_guests)
-                    <p class="text-sm text-amber-700">Dati estratti — in attesa della tua autorizzazione per l'ospite.</p>
+                    <p class="text-sm text-amber-700">Anteprima IT/EN — scegli la lingua e invia all'ospite.</p>
                 @else
-                    <p class="text-sm text-gray-600">Estrai nome, data di nascita e codice fiscale dai documenti approvati.</p>
+                    <p class="text-sm text-gray-600">Estrai i dati dai documenti approvati, poi invia il contratto.</p>
                 @endif
 
                 <div class="flex flex-wrap gap-2">
                     <button wire:click="estraiDatiDocumenti" wire:loading.attr="disabled"
                         class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">
-                        <span wire:loading.remove wire:target="estraiDatiDocumenti">Estrai dati (Google Document AI)</span>
-                        <span wire:loading wire:target="estraiDatiDocumenti">Analisi in corso…</span>
+                        <span wire:loading.remove wire:target="estraiDatiDocumenti">Estrai dati (Document AI)</span>
+                        <span wire:loading wire:target="estraiDatiDocumenti">Analisi…</span>
                     </button>
-                    @if($reservation->extracted_guests)
-                        <button wire:click="autorizzaContrattoOspite"
-                            class="px-4 py-2 bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">
-                            Autorizza contratto per ospite
-                        </button>
-                    @endif
                 </div>
 
                 @if(is_array($reservation->extracted_guests))
-                    <div class="bg-gray-50 rounded-xl p-4 text-xs space-y-2 max-h-48 overflow-y-auto">
+                    <div class="bg-gray-50 rounded-xl p-4 text-xs space-y-3">
+                        <p class="font-black uppercase text-gray-500 text-[9px]">Codici fiscali (correzione manuale)</p>
                         @foreach($reservation->extracted_guests as $g)
-                            <p>
-                                <strong>#{{ $g['slot'] }}</strong>
-                                {{ $g['data']['first_name'] ?? '?' }} {{ $g['data']['last_name'] ?? '' }}
-                                @if($g['is_foreigner'])
-                                    <span class="text-amber-700">(straniero)</span>
-                                @else
-                                    — CF: <span class="font-mono">{{ $g['data']['tax_code'] ?? '—' }}</span>
-                                @endif
-                            </p>
-                            @if(!empty($g['extraction_notes']))
-                                <p class="text-red-600">{{ implode(' · ', $g['extraction_notes']) }}</p>
+                            @if(!($g['is_foreigner'] ?? false))
+                                @php $slot = (int)($g['slot'] ?? 0); @endphp
+                                <div class="flex items-center gap-2">
+                                    <span class="w-16 font-bold">#{{ $slot }}</span>
+                                    <input type="text" wire:model.blur="adminTaxCodes.{{ $slot }}"
+                                        class="flex-1 font-mono uppercase text-xs border-gray-200 rounded-lg"
+                                        placeholder="CF">
+                                </div>
                             @endif
                         @endforeach
+                        <button wire:click="saveAdminTaxCodes" type="button"
+                            class="text-[10px] font-black uppercase text-indigo-600 underline">
+                            Salva CF
+                        </button>
                     </div>
-                    <div class="border rounded-xl p-3 max-h-64 overflow-y-auto text-sm bg-white">
-                        {!! app(\App\Services\ContractRenderService::class)->html($reservation) !!}
+
+                    <div class="grid md:grid-cols-2 gap-3">
+                        <div class="border rounded-xl overflow-hidden">
+                            <p class="bg-indigo-100 text-indigo-900 text-[10px] font-black uppercase px-3 py-2">Anteprima italiano</p>
+                            <div class="p-3 max-h-48 overflow-y-auto text-xs bg-white">
+                                {!! $contracts->html($reservation, 'it') !!}
+                            </div>
+                        </div>
+                        <div class="border rounded-xl overflow-hidden">
+                            <p class="bg-slate-100 text-slate-800 text-[10px] font-black uppercase px-3 py-2">Anteprima inglese</p>
+                            <div class="p-3 max-h-48 overflow-y-auto text-xs bg-white">
+                                {!! $contracts->html($reservation, 'en') !!}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3 border-t pt-4">
+                        <span class="text-[10px] font-black uppercase text-gray-500">Lingua per la firma:</span>
+                        <label class="inline-flex items-center gap-1 text-sm font-bold">
+                            <input type="radio" wire:model.live="contractLocaleToSend" value="it"> Italiano
+                        </label>
+                        <label class="inline-flex items-center gap-1 text-sm font-bold">
+                            <input type="radio" wire:model.live="contractLocaleToSend" value="en"> English
+                        </label>
+                        <button wire:click="inviaContrattoPerFirma" wire:confirm="Inviare il contratto all'ospite per la firma?"
+                            class="ml-auto px-5 py-3 bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-green-200">
+                            Contratto pronto — invia per la firma
+                        </button>
                     </div>
                 @endif
             </div>

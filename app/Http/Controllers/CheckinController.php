@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Reservation;
+use App\Services\GuestNotificationService;
 use Carbon\Carbon;
 
 class CheckinController extends Controller
@@ -13,6 +13,8 @@ class CheckinController extends Controller
         // 1. Cerca la prenotazione tramite il token univoco (o restituisci errore 404 se non esiste)
         $reservation = Reservation::with('apartment')->where('token', $token)->firstOrFail();
         $apartment = $reservation->apartment;
+
+        app(GuestNotificationService::class)->syncStatusNotifications($reservation);
 
         // 2. Calcoliamo i "Semafori" per la vista
         $is_paid = $reservation->is_paid;
@@ -47,10 +49,27 @@ class CheckinController extends Controller
         $apartment = $reservation->apartment;
 
         // Se non ha pagato, lo rimandiamo alla home del check-in
-        if (!$reservation->is_paid) {
+        if (! $reservation->is_paid) {
             return redirect()->route('checkin.show', ['token' => $token])->with('error', 'Devi prima completare il pagamento.');
         }
 
+        app(GuestNotificationService::class)->syncStatusNotifications($reservation);
+
         return view('checkin.documents', compact('reservation', 'apartment'));
     }
-} // <-- QUESTA È LA GRAFFA CHE MANCAVA!
+
+    public function contract(string $token)
+    {
+        $reservation = Reservation::with('apartment')->where('token', $token)->firstOrFail();
+        $apartment = $reservation->apartment;
+
+        if (! $reservation->is_paid) {
+            return redirect()->route('checkin.show', ['token' => $token])
+                ->with('error', 'Completa prima il pagamento.');
+        }
+
+        app(GuestNotificationService::class)->syncStatusNotifications($reservation);
+
+        return view('checkin.contract', compact('reservation', 'apartment'));
+    }
+}

@@ -71,7 +71,7 @@
                     </div>
 
                     <div class="space-y-3 {{ $slot['is_foreigner'] ? 'opacity-40 grayscale pointer-events-none' : '' }}">
-                        <h4 class="text-sm font-bold text-gray-700">Codice Fiscale</h4>
+                        <h4 class="text-sm font-bold text-gray-700">Codice Fiscale <span class="text-xs font-normal text-gray-500">(facoltativo ora)</span></h4>
                         <div class="grid grid-cols-2 gap-3">
                             {{-- CF FRONTE --}}
                             <label class="relative flex flex-col items-center justify-center h-32 border-2 border-dashed rounded-xl cursor-pointer overflow-hidden transition-colors {{ $slot['documents']['tax_front']['status'] === 'approved' ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:bg-gray-50' }}">
@@ -134,7 +134,7 @@
                         <svg class="w-5 h-5 mr-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4h8z"></path></svg>
                         In attesa dei documenti...
                     @else
-                        Invia a Serenella e vai al Contratto
+                        Invia documenti a Serenella
                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     @endif
                 </button>

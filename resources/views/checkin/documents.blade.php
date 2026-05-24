@@ -17,26 +17,13 @@
 
     </div>
 
-    @if($reservation->documents_validated && $reservation->contract_ready_for_guest)
-        <div id="sezione-contratto" class="bg-white rounded-2xl shadow-sm p-6 border-t-4 border-green-600 mt-6">
-            <h2 class="text-xl font-bold mb-4 text-gray-900">✍️ Contratto di locazione</h2>
-            <p class="text-sm text-gray-600 mb-4">
-                Lingua: <strong>{{ $reservation->contract_locale === 'en' ? 'English' : 'Italiano' }}</strong>
-            </p>
-            @php
-                $guestsForContract = collect($reservation->extracted_guests ?? [])->map(fn ($g) => [
-                    'name' => $g['name'] ?? '',
-                    'is_foreigner' => $g['is_foreigner'] ?? false,
-                    'data' => $g['data'] ?? [],
-                ])->all();
-            @endphp
-            <livewire:contract-manager :reservation="$reservation" :guests="$guestsForContract" />
-        </div>
-    @elseif($reservation->documents_validated)
-        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mt-6 text-center">
-            <p class="text-amber-800 font-bold">Contratto in preparazione</p>
-            <p class="text-sm text-amber-700 mt-1">Serenella sta verificando i dati estratti dai documenti. Riceverai una notifica quando potrai firmare.</p>
-        </div>
-    @endif
+    <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-5 mt-6 text-center">
+        <p class="text-indigo-900 font-bold">Contratto</p>
+        <p class="text-sm text-indigo-700 mt-1 mb-4">Il contratto ha una pagina dedicata nel menu — non è bloccato dagli altri passaggi.</p>
+        <a href="{{ route('checkin.contract', ['token' => $reservation->token]) }}"
+            class="inline-block bg-indigo-600 text-white font-bold py-2 px-6 rounded-xl text-sm">
+            Vai al contratto
+        </a>
+    </div>
 
 </x-layouts.app>

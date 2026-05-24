@@ -6,6 +6,8 @@ use Livewire\Component;
 use Livewire\Attributes\Layout; // <-- 1. Importiamo l'attributo
 use App\Models\Reservation;
 use App\Models\GuestDocument;
+use App\Services\AdminNotificationService;
+use App\Services\GuestNotificationService;
 use App\Services\ContractRenderService;
 use App\Services\GuestDataExtractionService;
 
@@ -14,9 +16,21 @@ class DettaglioArrivo extends Component
 {
     public Reservation $reservation;
 
+    public string $contractLocaleToSend = 'it';
+
+  /** @var array<int, string> */
+    public array $adminTaxCodes = [];
+
     public function mount($id)
     {
         $this->reservation = Reservation::with(['guestDocuments', 'apartment'])->findOrFail($id);
+        $this->contractLocaleToSend = $this->reservation->contract_locale === 'en' ? 'en' : 'it';
+
+        foreach ($this->reservation->contractGuests() as $guest) {
+            if (! ($guest['is_foreigner'] ?? false)) {
+                $this->adminTaxCodes[(int) ($guest['slot'] ?? 0)] = $guest['data']['tax_code'] ?? '';
+            }
+        }
     }
 
     // Approva o Rifiuta un singolo file
@@ -37,6 +51,8 @@ class DettaglioArrivo extends Component
             'contract_ready_for_guest' => false,
         ]);
         $this->reservation->refresh();
+        app(AdminNotificationService::class)->documentsApproved($this->reservation);
+        app(GuestNotificationService::class)->documentsApproved($this->reservation);
         session()->flash('message', 'Documenti approvati. Esegui l\'estrazione IA e autorizza il contratto.');
     }
 
@@ -51,33 +67,67 @@ class DettaglioArrivo extends Component
             'contract_extracted_at' => null,
         ]);
         $this->reservation->refresh();
+        app(AdminNotificationService::class)->documentsRejected($this->reservation);
+        app(GuestNotificationService::class)->documentsRejected($this->reservation);
         session()->flash('message', 'Documenti rifiutati. L\'ospite dovrà ricaricarli.');
     }
 
-    public function estraiDatiDocumenti(GuestDataExtractionService $extraction)
+    public function estraiDatiDocumenti(GuestDataExtractionService $extraction, AdminNotificationService $notifications)
     {
         $result = $extraction->extractForReservation($this->reservation);
         $this->reservation->refresh();
 
+        $hasNotes = collect($this->reservation->extracted_guests ?? [])
+            ->contains(fn ($g) => ! empty($g['extraction_notes']));
+
+        $notifications->extractionDone(
+            $this->reservation,
+            $result['success'] && ! $hasNotes,
+            $result['message']
+        );
+
         session()->flash($result['success'] ? 'message' : 'error', $result['message']);
     }
 
-    public function autorizzaContrattoOspite(ContractRenderService $contracts)
+    public function saveAdminTaxCodes(): void
+    {
+        foreach ($this->adminTaxCodes as $slot => $code) {
+            $code = trim((string) $code);
+            if ($code !== '') {
+                $this->reservation->setGuestTaxCode((int) $slot, $code);
+            }
+        }
+        $this->reservation->refresh();
+        session()->flash('message', 'Codici fiscali aggiornati.');
+    }
+
+    public function inviaContrattoPerFirma(ContractRenderService $contracts): void
     {
         if (empty($this->reservation->extracted_guests)) {
-            session()->flash('error', 'Esegui prima l\'estrazione IA dei documenti.');
+            session()->flash('error', 'Esegui prima l\'estrazione dei dati dai documenti.');
 
             return;
         }
 
-        $contracts->saveHtmlSnapshot($this->reservation);
+        if (! in_array($this->contractLocaleToSend, ['it', 'en'], true)) {
+            session()->flash('error', 'Seleziona la lingua del contratto (IT o EN).');
+
+            return;
+        }
 
         $this->reservation->update([
+            'contract_locale' => $this->contractLocaleToSend,
             'contract_ready_for_guest' => true,
         ]);
         $this->reservation->refresh();
 
-        session()->flash('message', 'Contratto autorizzato: l\'ospite può firmare dal suo link.');
+        $contracts->saveHtmlSnapshot($this->reservation);
+
+        app(AdminNotificationService::class)->contractAuthorized($this->reservation);
+        app(GuestNotificationService::class)->contractReady($this->reservation);
+
+        $lang = $this->contractLocaleToSend === 'en' ? 'inglese' : 'italiano';
+        session()->flash('message', "Contratto pronto — inviato per la firma ({$lang}).");
     }
 
     private function checkGeneralStatus()

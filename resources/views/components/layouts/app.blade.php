@@ -46,12 +46,17 @@
                 {{ $apartmentName ?? 'Lune App' }}
             </h1>
 
-            <button @click="menuOpen = !menuOpen" class="focus:outline-none">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path x-show="!menuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    <path x-show="menuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
+            <div class="flex items-center gap-2">
+                @if($hasReservation)
+                    @livewire('guest.notifications-bell', ['reservationId' => $reservation->id], key('guest-notif-'.$reservation->id))
+                @endif
+                <button @click="menuOpen = !menuOpen" class="focus:outline-none">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path x-show="!menuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        <path x-show="menuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -67,7 +72,7 @@
          style="display: none;">
         
         <!-- VOCE 1: Home (Sempre accessibile) -->
-        <a href="#" class="flex items-center gap-2 text-indigo-700 hover:text-indigo-900 border-b pb-2">
+        <a href="{{ $hasReservation ? route('checkin.show', ['token' => $reservation->token]) : '#' }}" class="flex items-center gap-2 text-indigo-700 hover:text-indigo-900 border-b pb-2">
             🏠 Il tuo soggiorno
         </a>
 
@@ -78,20 +83,20 @@
             @if(!$isPaid) <span class="text-[10px] uppercase font-bold text-red-500 ml-auto bg-red-50 px-2 py-1 rounded">Attesa acconto</span> @endif
         </a>
 
-        <!-- VOCE 3: Firma Contratto (Sbloccata se documenti validati) -->
-        <a href="{{ ($docsApproved && $contractReady) ? route('checkin.documents', ['token' => $reservation->token ?? '']) . '#sezione-contratto' : '#' }}" 
-           class="flex items-center gap-2 border-b pb-2 {{ ($docsApproved && $contractReady) ? 'text-gray-800 hover:text-indigo-600' : 'text-gray-300 cursor-not-allowed pointer-events-none' }}">
-            ✍️ Firma Contratto
-            @if($docsApproved && !$contractReady)
-                <span class="text-[10px] uppercase font-bold text-amber-600 ml-auto bg-amber-50 px-2 py-1 rounded">In preparazione</span>
+        <!-- VOCE 3: Contratto (sempre accessibile se pagato — non blocca il resto del menu) -->
+        <a href="{{ $isPaid ? route('checkin.contract', ['token' => $reservation->token ?? '']) : '#' }}"
+           class="flex items-center gap-2 border-b pb-2 {{ $isPaid ? 'text-gray-800 hover:text-indigo-600' : 'text-gray-300 cursor-not-allowed pointer-events-none' }}">
+            ✍️ Contratto
+            @if(!$isPaid)
+                <span class="text-[10px] uppercase font-bold text-red-500 ml-auto">Dopo pagamento</span>
+            @elseif($contractSigned)
+                <span class="text-xs text-green-600 font-bold ml-auto">✓ Firmato</span>
+            @elseif($contractReady)
+                <span class="text-[10px] uppercase font-bold text-green-700 ml-auto bg-green-50 px-2 py-1 rounded">Firma qui</span>
             @elseif($docsPendingReview)
-                <span class="text-[10px] uppercase font-bold text-amber-600 ml-auto bg-amber-50 px-2 py-1 rounded">In verifica</span>
-            @elseif(!$docsApproved)
-                <svg class="w-4 h-4 ml-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4h8z"></path></svg>
+                <span class="text-[10px] uppercase font-bold text-amber-600 ml-auto bg-amber-50 px-2 py-1 rounded">Doc. in verifica</span>
             @else
-                @if($contractSigned)
-                    <span class="text-xs text-green-600 font-bold ml-auto">✓</span>
-                @endif
+                <span class="text-[10px] uppercase font-bold text-gray-500 ml-auto">Apri</span>
             @endif
         </a>
 

@@ -49,7 +49,7 @@
         <p>
             <strong>2. DETTAGLI DEL SOGGIORNO:</strong><br>
             • <strong>Date:</strong> dal {{ $reservation->check_in->format('d/m/Y') }} al {{ $reservation->check_out->format('d/m/Y') }}<br>
-            • <strong>Notti:</strong> {{ (int) $reservation->check_in->diffInDays($reservation->check_out) }}<br>
+            • <strong>Notti:</strong> {{ $reservation->nightsCount() }}<br>
             • <strong>Prezzo totale:</strong> € {{ number_format($reservation->total_price, 2, ',', '.') }}<br>
             • <strong>Incluso nel prezzo:</strong> Pulizia finale, Wi-Fi, lenzuola e asciugamani, aria condizionata, utenze.<br>
             <span class="text-amber-700 font-medium">La tassa di soggiorno non è inclusa e deve essere corrisposta separatamente.</span>

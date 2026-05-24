@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Storage;
 
 class ContractRenderService
 {
-    public function html(Reservation $reservation): string
+    public function html(Reservation $reservation, ?string $locale = null): string
     {
-        $locale = $reservation->contract_locale === 'en' ? 'en' : 'it';
+        $locale = $this->resolveLocale($reservation, $locale);
         $guests = $reservation->extracted_guests ?? [];
 
         return view("contracts.{$locale}", [
@@ -17,6 +17,26 @@ class ContractRenderService
             'guests' => $guests,
             'apartment' => $reservation->apartment,
         ])->render();
+    }
+
+    /**
+     * @return array{it: string, en: string}
+     */
+    public function htmlBoth(Reservation $reservation): array
+    {
+        return [
+            'it' => $this->html($reservation, 'it'),
+            'en' => $this->html($reservation, 'en'),
+        ];
+    }
+
+    public function resolveLocale(Reservation $reservation, ?string $locale = null): string
+    {
+        if ($locale !== null && in_array($locale, ['it', 'en'], true)) {
+            return $locale;
+        }
+
+        return $reservation->contract_locale === 'en' ? 'en' : 'it';
     }
 
     public function saveHtmlSnapshot(Reservation $reservation): string

@@ -4,7 +4,7 @@
         <h1 class="text-3xl font-black text-indigo-950 mb-6">Arrivi e Documenti</h1>
         
         <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-2">
-            @livewire('admin.reservations-module')
+            @livewire('admin.reservations-module', ['context' => 'full'])
         </div>
     </div>
 </x-layouts.admin>

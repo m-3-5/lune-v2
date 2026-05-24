@@ -91,6 +91,52 @@ class CheckfrontService
     }
 
     /**
+     * Elenco prenotazioni (sola lettura). Pagina dell'endpoint booking/index.
+     *
+     * @return array{entries: array<int, array<string, mixed>>, pages: int, page: int}
+     */
+    public function fetchBookingIndexPage(int $page = 1, array $query = []): array
+    {
+        $response = $this->apiGet('booking/index', array_merge([
+            'limit' => 100,
+            'page' => $page,
+        ], $query));
+
+        if (! $response?->successful()) {
+            return ['entries' => [], 'pages' => 0, 'page' => $page];
+        }
+
+        $raw = $response->json('booking/index') ?? [];
+        $entries = is_array($raw) ? array_values($raw) : [];
+
+        return [
+            'entries' => $entries,
+            'pages' => max(1, (int) ($response->json('request.pages') ?? 1)),
+            'page' => $page,
+        ];
+    }
+
+    /**
+     * Scarica tutte le pagine di booking/index (solo GET, non modifica Checkfront).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function fetchAllBookingIndex(array $query = [], int $maxPages = 50): array
+    {
+        $all = [];
+        $page = 1;
+
+        do {
+            $result = $this->fetchBookingIndexPage($page, $query);
+            $all = array_merge($all, $result['entries']);
+            $pages = $result['pages'];
+            $page++;
+        } while ($page <= $pages && $page <= $maxPages);
+
+        return $all;
+    }
+
+    /**
      * Acconto o saldo completo: paid_total > 0 (regola sblocco documenti).
      */
     public function hasDepositOrPaid(float $paidTotal, float $total = 0): bool
@@ -131,6 +177,6 @@ class CheckfrontService
 
         $base = rtrim(config('checkfront.payment_url'), '/');
 
-        return "{$base}/?code={$bookingCode}";
+        return "{$base}?code={$bookingCode}";
     }
 }

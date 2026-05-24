@@ -101,6 +101,11 @@ class GuestDataExtractionService
             'contract_ready_for_guest' => false,
         ]);
 
+        // Default italiano se non tutti stranieri (evita EN errato)
+        if ($locale === 'en' && ! collect($guests)->every(fn ($g) => $g['is_foreigner'] ?? false)) {
+            $reservation->update(['contract_locale' => 'it']);
+        }
+
         return [
             'success' => true,
             'guests' => $guests,
@@ -177,11 +182,11 @@ class GuestDataExtractionService
     protected function resolveContractLocale(Reservation $reservation, array $guests): string
     {
         $lang = strtolower((string) $reservation->checkfront_language);
-        if (str_contains($lang, 'en') || str_contains($lang, 'fr') || str_contains($lang, 'de') || str_contains($lang, 'es')) {
+        if (str_contains($lang, 'en') || str_contains($lang, 'english')) {
             return 'en';
         }
 
-        $allForeign = count($guests) > 0 && collect($guests)->every(fn ($g) => $g['is_foreigner']);
+        $allForeign = count($guests) > 0 && collect($guests)->every(fn ($g) => $g['is_foreigner'] ?? false);
 
         return $allForeign ? 'en' : 'it';
     }

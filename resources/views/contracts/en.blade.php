@@ -46,7 +46,7 @@
         <p>
             <strong>2. STAY DETAILS:</strong><br>
             • <strong>Dates:</strong> from {{ $reservation->check_in->format('d/m/Y') }} to {{ $reservation->check_out->format('d/m/Y') }}<br>
-            • <strong>Nights:</strong> {{ (int) $reservation->check_in->diffInDays($reservation->check_out) }}<br>
+            • <strong>Nights:</strong> {{ $reservation->nightsCount() }}<br>
             • <strong>Total price:</strong> € {{ number_format($reservation->total_price, 2, ',', '.') }}<br>
             • <strong>Included in the price:</strong> Final cleaning, Wi-Fi, bed linen & towels, air conditioning, utilities.<br>
             <span class="text-amber-700 font-medium">Tourist tax is not included and must be paid separately.</span>

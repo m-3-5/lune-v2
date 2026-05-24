@@ -5,6 +5,8 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Reservation;
+use App\Services\AdminNotificationService;
+use App\Services\GuestNotificationService;
 use Illuminate\Support\Facades\Log;
 
 class DocumentUploader extends Component
@@ -95,12 +97,7 @@ class DocumentUploader extends Component
                 $guestApproved = false;
             }
             
-            if (!$slot['is_foreigner']) {
-                if ($slot['documents']['tax_front']['status'] !== 'approved' || 
-                    $slot['documents']['tax_back']['status'] !== 'approved') {
-                    $guestApproved = false;
-                }
-            }
+            // Codice fiscale facoltativo in questa fase (richiesto solo al contratto)
             
             $this->guestSlots[$index]['is_approved'] = $guestApproved;
             if (!$guestApproved) $allApproved = false;
@@ -138,10 +135,9 @@ class DocumentUploader extends Component
             'documents_submitted_at' => now(),
         ]);
 
-        // =========================================================================
-        // QUI INSERIREMO IL CODICE PER LE NOTIFICHE A SERENELLA (Dashboard e WhatsApp)
-        // Log::info("Notifica inviata a Serenella per la prenotazione: " . $this->reservation->id);
-        // =========================================================================
+        $fresh = $this->reservation->fresh();
+        app(AdminNotificationService::class)->documentsSubmitted($fresh);
+        app(GuestNotificationService::class)->documentsReceived($fresh);
 
         // Andiamo alla firma del contratto
         return redirect()->route('checkin.show', ['token' => $this->reservation->token])
