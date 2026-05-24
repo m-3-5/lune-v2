@@ -26,7 +26,7 @@ class AdminNotificationService
         Reservation $reservation,
         string $title,
         ?string $body = null,
-        bool $dedupeHours = 2
+        int $dedupeHours = 2
     ): AdminNotification {
         if ($dedupeHours > 0) {
             $exists = AdminNotification::query()
