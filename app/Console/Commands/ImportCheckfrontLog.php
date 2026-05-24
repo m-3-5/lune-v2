@@ -9,17 +9,23 @@ use Illuminate\Support\Facades\File;
 class ImportCheckfrontLog extends Command
 {
     protected $signature = 'checkfront:import-log
-                            {path? : Percorso al file laravel.log (default: app/checkfront_data/laravel.log)}
+                            {path? : Percorso al laravel.log (default: app/checkfront_data o storage/logs)}
                             {--dry-run : Analizza senza scrivere nel database}';
 
     protected $description = 'Importa prenotazioni dagli webhook registrati nel log Laravel (Plesk o locale)';
 
     public function handle(CheckfrontBookingSync $sync): int
     {
-        $path = $this->argument('path') ?? base_path('app/checkfront_data/laravel.log');
+        $path = $this->resolveLogPath();
 
-        if (! File::exists($path)) {
-            $this->error("File non trovato: {$path}");
+        if ($path === null) {
+            $this->error('File log non trovato.');
+            $this->line('  Locale: aggiorna app/checkfront_data/laravel.log');
+            $this->line('  Plesk:  usa storage/logs/laravel.log (si aggiorna da solo)');
+            $this->line('  Percorsi cercati:');
+            foreach ($this->candidateLogPaths() as $candidate) {
+                $this->line("    - {$candidate}");
+            }
 
             return self::FAILURE;
         }
@@ -73,5 +79,37 @@ class ImportCheckfrontLog extends Command
         $this->comment('Nota: lo stesso booking_id viene aggiornato (ultimo stato nel log vince).');
 
         return self::SUCCESS;
+    }
+
+    protected function resolveLogPath(): ?string
+    {
+        if ($this->argument('path')) {
+            $path = $this->argument('path');
+            if (! str_starts_with($path, DIRECTORY_SEPARATOR) && ! preg_match('#^[A-Za-z]:\\\\#', $path)) {
+                $path = base_path($path);
+            }
+
+            return File::exists($path) ? $path : null;
+        }
+
+        foreach ($this->candidateLogPaths() as $candidate) {
+            if (File::exists($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function candidateLogPaths(): array
+    {
+        return array_values(array_unique(array_filter([
+            config('checkfront.webhook_log_path'),
+            base_path('app/checkfront_data/laravel.log'),
+            storage_path('logs/laravel.log'),
+        ])));
     }
 }

@@ -20,6 +20,13 @@ return [
     'payment_url' => env('CHECKFRONT_PAYMENT_URL', 'https://jlune.checkfront.com/reserve/'),
 
     /*
+    | Log webhook (opzionale). Se vuoto, import-log usa il primo file esistente tra:
+    | - app/checkfront_data/laravel.log (locale)
+    | - storage/logs/laravel.log (Plesk, si aggiorna a ogni webhook)
+    */
+    'webhook_log_path' => env('CHECKFRONT_WEBHOOK_LOG_PATH'),
+
+    /*
     | Etichette leggibili per SKU extra (oltre all'appartamento)
     */
     'extra_item_labels' => [
