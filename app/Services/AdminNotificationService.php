@@ -21,6 +21,8 @@ class AdminNotificationService
 
     public const TYPE_BOOKING_SYNCED = 'booking_synced';
 
+    public const TYPE_CLIENT_NOTIFICATION_PREVIEW = 'client_notification_preview';
+
     public function notify(
         string $type,
         Reservation $reservation,
@@ -133,6 +135,23 @@ class AdminNotificationService
             'Nuova prenotazione Checkfront',
             "{$reservation->guestDisplayName()} · {$reservation->apartment?->name} ({$reservation->booking_code})",
             dedupeHours: 6,
+        );
+    }
+
+    /**
+     * Anteprima di una notifica che in produzione andrebbe al cliente (modalità costruzione).
+     */
+    public function clientNotificationPreview(
+        Reservation $reservation,
+        string $clientTitle,
+        string $previewBody,
+    ): AdminNotification {
+        return $this->notify(
+            self::TYPE_CLIENT_NOTIFICATION_PREVIEW,
+            $reservation,
+            '[Anteprima cliente] '.$clientTitle,
+            $previewBody,
+            dedupeHours: 0,
         );
     }
 }

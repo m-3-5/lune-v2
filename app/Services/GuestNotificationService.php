@@ -34,6 +34,27 @@ class GuestNotificationService
         ?string $body = null,
         ?string $actionUrl = null,
         int $dedupeHours = 24
+    ): ?GuestNotification {
+        return app(ClientOutboundNotificationService::class)->deliver(
+            $reservation,
+            $type,
+            $title,
+            $body,
+            $actionUrl,
+            $dedupeHours
+        );
+    }
+
+    /**
+     * Creazione notifica in-app (solo se non in modalità costruzione).
+     */
+    public function createInApp(
+        Reservation $reservation,
+        string $type,
+        string $title,
+        ?string $body = null,
+        ?string $actionUrl = null,
+        int $dedupeHours = 24
     ): GuestNotification {
         if ($dedupeHours > 0) {
             $existing = GuestNotification::query()

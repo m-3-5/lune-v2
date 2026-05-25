@@ -43,11 +43,11 @@
                     <span class="font-black text-gray-900 text-[11px] uppercase tracking-widest leading-tight">Archivio<br>Contratti</span>
                 </a>
 
-                <a href="{{ route('admin.configura') }}" class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex flex-col items-center text-center active:scale-95 transition-all group">
+                <a href="{{ route('admin.progetto') }}" class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex flex-col items-center text-center active:scale-95 transition-all group">
                     <div class="w-14 h-14 bg-gray-100 text-gray-600 rounded-2xl flex items-center justify-center mb-3 group-hover:bg-gray-800 group-hover:text-white transition-colors">
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg>
                     </div>
-                    <span class="font-black text-gray-900 text-[11px] uppercase tracking-widest leading-tight">Configura<br>App</span>
+                    <span class="font-black text-gray-900 text-[11px] uppercase tracking-widest leading-tight">Progetto<br>e task</span>
                 </a>
             </div>
 
