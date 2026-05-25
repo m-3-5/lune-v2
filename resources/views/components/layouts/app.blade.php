@@ -146,6 +146,9 @@
 
     <!-- CONTENUTO PRINCIPALE -->
     <main class="pt-24 max-w-md mx-auto px-4">
+        @if($hasReservation)
+            <x-guest-pwa-prompt :reservation-id="$reservation->id" />
+        @endif
         {{ $slot }}
     </main>
 

@@ -6,7 +6,19 @@
     @endif
 
     @if ($context === 'dashboard')
-        {{-- Tab Oggi / Domani --}}
+        {{-- Vista per giorno vs arrivi imminenti --}}
+        <div class="flex gap-2 mb-3">
+            <button wire:click="setViewMode('today')"
+                class="flex-1 px-3 py-2 rounded-full text-[10px] font-black uppercase tracking-wider {{ ! $isImminentMode ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-500' }}">
+                Per giorno
+            </button>
+            <button wire:click="setViewMode('imminent')"
+                class="flex-1 px-3 py-2 rounded-full text-[10px] font-black uppercase tracking-wider {{ $isImminentMode ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-500' }}">
+                Arrivi imminenti
+            </button>
+        </div>
+
+        @if (! $isImminentMode)
         <div class="flex gap-3 mb-4">
             <button wire:click="setViewMode('today')"
                 class="px-5 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest transition-all duration-300 {{ $viewMode === 'today' ? 'bg-indigo-600 text-white shadow-md' : 'bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600' }}">
@@ -17,6 +29,7 @@
                 Domani
             </button>
         </div>
+        @endif
 
         {{-- In casa oggi --}}
         <button type="button" wire:click="toggleInHouse"
@@ -43,6 +56,7 @@
             </div>
         @endif
 
+        @if (! $isImminentMode)
         {{-- Agenda 7 giorni (da dopodomani) --}}
         <div class="mb-5 -mx-1 overflow-x-auto pb-1">
             <div class="flex gap-2 min-w-max px-1">
@@ -57,9 +71,47 @@
                 @endforeach
             </div>
         </div>
+        @endif
 
         <p class="text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-3 px-1">{{ $sectionTitle }}</p>
 
+        @if ($isImminentMode)
+        <div class="space-y-3">
+            @forelse ($imminentArrivals as $res)
+                @php
+                    $rowKey = 'imm-'.$res->id;
+                    $expanded = $expandedKey === $rowKey;
+                    $extras = $res->operationalExtrasLabels();
+                @endphp
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-4 flex items-start gap-3 cursor-pointer" wire:click="toggleExpanded('{{ $rowKey }}')">
+                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-lg shrink-0 bg-indigo-600">A</div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-black text-indigo-950 leading-tight truncate">{{ $res->guestDisplayName() }}</h4>
+                            <p class="text-xs font-bold uppercase text-indigo-500 mt-0.5">{{ $res->apartment->name ?? '—' }}</p>
+                            <p class="text-[10px] text-gray-500 font-bold mt-1">
+                                Arrivo {{ $res->check_in->locale('it')->isoFormat('ddd D MMM') }} · {{ $res->nightsCount() }} notti
+                            </p>
+                        </div>
+                        <a href="{{ route('admin.arrivi.show', $res->id) }}" wire:click.stop
+                            class="text-indigo-600 font-black text-[10px] uppercase underline shrink-0">Apri</a>
+                    </div>
+                    @if ($expanded)
+                        <div class="px-4 pb-4 border-t border-gray-50 text-[11px] space-y-1">
+                            <p>{{ $res->booking_code }} · {{ $res->check_in->format('d/m') }} → {{ $res->check_out->format('d/m/Y') }}</p>
+                            @if (count($extras) > 0)
+                                <p>Extra: {{ implode(' · ', $extras) }}</p>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+            @empty
+                <div class="text-center py-10 text-gray-400 font-bold uppercase text-xs tracking-[0.2em] bg-gray-50 rounded-3xl border border-dashed">
+                    Nessun arrivo nei prossimi 14 giorni
+                </div>
+            @endforelse
+        </div>
+        @else
         <div class="space-y-3">
             @forelse ($movements as $index => $row)
                 @php
@@ -135,6 +187,7 @@
                 </div>
             @endforelse
         </div>
+        @endif
 
     @else
         {{-- Pagina Arrivi e documenti --}}

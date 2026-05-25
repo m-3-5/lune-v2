@@ -15,8 +15,11 @@ class ReservationsModule extends Component
     /** dashboard | full */
     public string $context = 'dashboard';
 
-    /** today | tomorrow | Y-m-d | upcoming | archive | cancelled */
+    /** today | tomorrow | imminent | Y-m-d | upcoming | archive | cancelled */
     public string $viewMode = 'today';
+
+    /** Giorni per vista «Arrivi imminenti» (solo dashboard). */
+    public int $imminentDays = 14;
 
     public bool $showInHouse = false;
 
@@ -82,17 +85,31 @@ class ReservationsModule extends Component
         $reservations = collect();
         $sectionTitle = '';
 
+        $imminentArrivals = collect();
+
         if ($this->context === 'dashboard') {
-            $date = $this->selectedDate();
-            $movements = ReservationMovements::forDate($date);
-            $agendaDays = ReservationMovements::agendaDaySummaries(2, 7);
             $inHouse = Reservation::query()->inHouseOn(today())->with('apartment')->orderBy('check_in')->get();
             $inHouseCount = $inHouse->count();
-            $sectionTitle = match (true) {
-                $this->viewMode === 'today' => 'Oggi — '.today()->locale('it')->isoFormat('dddd D MMMM'),
-                $this->viewMode === 'tomorrow' => 'Domani — '.today()->addDay()->locale('it')->isoFormat('dddd D MMMM'),
-                default => $date->locale('it')->isoFormat('dddd D MMMM'),
-            };
+
+            if ($this->viewMode === 'imminent') {
+                $imminentArrivals = Reservation::query()
+                    ->notCancelled()
+                    ->with('apartment')
+                    ->whereDate('check_in', '>=', today())
+                    ->whereDate('check_in', '<=', today()->addDays($this->imminentDays))
+                    ->orderBy('check_in')
+                    ->get();
+                $sectionTitle = "Arrivi imminenti — prossimi {$this->imminentDays} giorni";
+            } else {
+                $date = $this->selectedDate();
+                $movements = ReservationMovements::forDate($date);
+                $agendaDays = ReservationMovements::agendaDaySummaries(2, 7);
+                $sectionTitle = match (true) {
+                    $this->viewMode === 'today' => 'Oggi — '.today()->locale('it')->isoFormat('dddd D MMMM'),
+                    $this->viewMode === 'tomorrow' => 'Domani — '.today()->addDay()->locale('it')->isoFormat('dddd D MMMM'),
+                    default => $date->locale('it')->isoFormat('dddd D MMMM'),
+                };
+            }
         } else {
             $query = Reservation::with('apartment');
 
@@ -113,12 +130,14 @@ class ReservationsModule extends Component
         return view('livewire.admin.reservations-module', [
             'movements' => $movements,
             'agendaDays' => $agendaDays,
+            'imminentArrivals' => $imminentArrivals,
             'inHouse' => $inHouse,
             'inHouseCount' => $inHouseCount,
             'apartmentTotal' => $apartmentTotal,
             'reservations' => $reservations,
             'sectionTitle' => $sectionTitle,
             'isAgendaDateMode' => $this->isAgendaDateMode(),
+            'isImminentMode' => $this->viewMode === 'imminent',
         ]);
     }
 }

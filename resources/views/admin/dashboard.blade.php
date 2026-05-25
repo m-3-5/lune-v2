@@ -51,6 +51,8 @@
                 </a>
             </div>
 
+            <x-serenella-open-questions />
+
             <div class="mt-6">
                 <div class="flex items-center justify-between mb-4 px-2">
                     <h2 class="text-xl font-black text-indigo-950 uppercase tracking-tight italic">Agenda</h2>
