@@ -6,8 +6,11 @@
     </div>
 
     <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-        <h2 class="text-lg font-black text-gray-900 mb-3">Cosa fa l’app adesso</h2>
-        <div class="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">{{ $appGuide }}</div>
+        <div class="prose prose-sm prose-indigo max-w-none text-gray-700 leading-relaxed
+            prose-headings:font-black prose-h1:text-2xl prose-h2:text-lg prose-h2:mt-8 prose-h2:mb-3
+            prose-strong:text-gray-900 prose-table:text-sm">
+            {!! \Illuminate\Support\Str::markdown($appGuide) !!}
+        </div>
     </section>
 
     <section class="bg-white rounded-3xl shadow-sm border border-indigo-100 p-6">
