@@ -12,6 +12,20 @@ class AppGuideSeeder extends Seeder
     {
         AppSettings::set('app_guide', self::guideText());
 
+        foreach (self::openQuestionsForSerenella() as $question) {
+            DevelopmentItem::firstOrCreate(
+                [
+                    'type' => DevelopmentItem::TYPE_QUESTION_FOR_SERENELLA,
+                    'title' => $question['title'],
+                ],
+                [
+                    'status' => DevelopmentItem::STATUS_OPEN,
+                    'body' => $question['body'],
+                    'author' => 'team',
+                ]
+            );
+        }
+
         DevelopmentItem::firstOrCreate(
             [
                 'type' => DevelopmentItem::TYPE_SERENELLA_REQUEST,
@@ -74,12 +88,39 @@ L’app è in **fase avanzata** su documenti e contratto; altre parti sono ancor
 - Menu con voci future (video ingresso, QR elettrodomestici, check-out) — visibili ma **non ancora collegate** a pagine vere.
 
 ### Pannello admin (Serenella)
-- **Dashboard** con agenda giornaliera.
+- **Dashboard** con agenda (**Oggi / Domani**, striscia 7 giorni, switch **Arrivi imminenti** 14 giorni), card domande aperte.
 - **Arrivi e documenti**: elenco Future / Archivio / Cancellate; dettaglio per ogni prenotazione.
 - Nel dettaglio: anteprima file, approva/rifiuta documenti, **Estrai dati (Document AI)** se configurato sul server, modifica CF, scegli IT/EN, **«Contratto pronto — invia per la firma»**.
 - Dati Checkfront in scheda (ospiti, letti, note, totali pagati).
-- **Notifiche** (campanella): nuovi documenti, prenotazioni, ecc.
+- **Notifiche in-app** (campanella in alto): nuovi documenti, prenotazioni, anteprime in costruzione.
 - Pagina **Progetto e task** (questa guida, costi, richieste e avanzamenti).
+
+### Notifiche sul telefono (attive — maggio 2026)
+
+Due **app separate** da installare (icona sulla home):
+- **Jlune Gestione** — da `/admin` (Serenella e team).
+- **Jlune Check-in** — dal link personale dell’ospite (`/checkin/…`).
+
+#### Serenella (consigliato)
+1. Apri **Progetto e task** (o Dashboard) sul telefono.
+2. **Aggiungi a schermata Home** (Safari: Condividi → Aggiungi a Home; Android: menu → Installa app).
+3. Apri l’icona Jlune Admin → scorri **Attiva notifiche** → consenti.
+4. Riceverai **vibrazione/push** su task, documenti da verificare, contratti, ecc. (senza Telegram, salvo decisione futura).
+
+#### Max (team)
+- Come Serenella per la **PWA admin** + **Attiva notifiche**.
+- In più **Telegram**: cerca `@jlune_notifiche_bot` → **Avvia** → ricevi gli stessi avvisi anche su Telegram.
+
+#### Ospite (cliente)
+1. Apre il link check-in dal messaggio/email.
+2. Compare il banner **«Jlune sul telefono»**: installa app + attiva notifiche (se la modalità costruzione è **spenta**).
+3. **Campanella** in alto nell’app: promemoria pagamento, documenti, contratto.
+4. Con **app in costruzione attiva** (solo test): l’ospite **non** riceve nulla; il team vede l’anteprima in admin/Telegram.
+
+#### Cosa non è ancora attivo
+- Email e WhatsApp automatici agli ospiti.
+- Telegram per gli ospiti (da decidere con Serenella).
+- Telegram per Serenella (opzionale; oggi solo push PWA).
 
 ### Contratto
 - Modelli IT e EN con dati ospiti e appartamento.
@@ -120,7 +161,9 @@ L’app è in **fase avanzata** su documenti e contratto; altre parti sono ancor
 | **PDF contratto firmato** con prova legale | Previsto, non fatto |
 | **Controllo antifrode documenti** (Gemini) | Codice di test, non attivo all’upload |
 | **Login / password** pannello admin | Chi conosce l’URL entra; solo `/admin/sviluppo` ha password |
-| **Invio email** a Serenella su eventi | Solo campanella in-app |
+| **Invio email** a Serenella su eventi | Solo campanella in-app + push PWA (Telegram opzionale per Max) |
+| **PWA + Web Push** | Attivo (admin e ospite); vedi sezione Notifiche |
+| **Telegram team** | Attivo per Max; Serenella solo push fino a configurazione |
 
 ---
 
@@ -161,7 +204,71 @@ Vedi riepilogo in fondo a questa pagina (base + voci extra). Aggiornato dal team
 
 ---
 
-_Ultimo aggiornamento guida: maggio 2026 — aggiornare quando si rilasciano nuove funzioni._
+_Ultimo aggiornamento guida: maggio 2026 — notifiche PWA, Telegram, arrivi imminenti._
 GUIDE;
+    }
+
+    /**
+     * @return array<int, array{title: string, body: string}>
+     */
+    public static function openQuestionsForSerenella(): array
+    {
+        return [
+            [
+                'title' => 'Logo app: quale icona sulla home del telefono?',
+                'body' => <<<'BODY'
+Ciao Serenella,
+
+per le due app (gestione admin e check-in ospite) serve un’icona/logo da mettere sulla home del telefono.
+
+Puoi indicare:
+- un file immagine che preferisci (quadrato, sfondo pieno), oppure
+- «va bene quello attuale provvisorio» finché non ne scegliamo uno definitivo.
+
+Rispondi qui sotto con la tua preferenza.
+BODY,
+            ],
+            [
+                'title' => 'Agenda: cosa intendi per «arrivi imminenti»?',
+                'body' => <<<'BODY'
+In Dashboard abbiamo due viste:
+- **Per giorno** (oggi, domani, 7 giorni con arrivi A e partenze P)
+- **Arrivi imminenti** (lista prossimi 14 giorni, solo arrivi)
+
+Per adattarla al tuo lavoro, ci serve sapere:
+1. Quanti giorni avanti vuoi vedere? (7, 14, 30?)
+2. Ti servono solo gli **arrivi** o anche le **partenze** nella lista «imminenti»?
+3. «Imminente» per te parte da dopodomani o include sempre oggi/domani?
+
+Grazie — rispondi con numeri/esempi.
+BODY,
+            ],
+            [
+                'title' => 'Ospiti: promemoria anche su Telegram?',
+                'body' => <<<'BODY'
+Oggi l’ospite può ricevere:
+- notifiche **dentro l’app** (campanella),
+- **push sul telefono** se installa la PWA e attiva notifiche.
+
+**Telegram per i clienti** è possibile ma diverso da WhatsApp: l’ospite deve aprire un bot e fare Avvia.
+
+Vuoi che in futuro offriamo anche Telegram agli ospiti, o preferisci solo app + (più avanti) email/WhatsApp?
+
+Risposta libera: sì / no / solo per alcuni casi.
+BODY,
+            ],
+            [
+                'title' => 'Serenella: vuoi notifiche anche su Telegram?',
+                'body' => <<<'BODY'
+Oggi le notifiche operative per te arrivano tramite **app installata + Attiva notifiche** in Progetto.
+
+Max riceve anche **Telegram** (@jlune_notifiche_bot).
+
+Vuoi essere aggiunta anche su Telegram (oltre alla PWA), o ti basta il telefono con l’app Jlune Admin?
+
+Rispondi: «solo app» oppure «anche Telegram» (e avvia il bot se scegli Telegram).
+BODY,
+            ],
+        ];
     }
 }

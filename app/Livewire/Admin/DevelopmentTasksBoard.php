@@ -148,7 +148,10 @@ class DevelopmentTasksBoard extends Component
         } elseif ($this->filter === 'done') {
             $query->where('status', DevelopmentItem::STATUS_DONE);
         } elseif ($this->filter === 'serenella') {
-            $query->where('type', DevelopmentItem::TYPE_SERENELLA_REQUEST);
+            $query->whereIn('type', [
+                DevelopmentItem::TYPE_SERENELLA_REQUEST,
+                DevelopmentItem::TYPE_QUESTION_FOR_SERENELLA,
+            ]);
         } elseif ($this->filter === 'production') {
             $query->where('type', DevelopmentItem::TYPE_PRODUCTION_TASK);
         }

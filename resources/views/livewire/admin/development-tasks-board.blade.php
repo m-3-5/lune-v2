@@ -6,7 +6,7 @@
     <div class="flex flex-wrap gap-2 mb-4">
         @foreach ([
             'active' => 'In corso',
-            'serenella' => 'Richieste Serenella',
+            'serenella' => 'Per Serenella',
             'production' => 'Produzione',
             'done' => 'Completati',
             'all' => 'Tutti',
