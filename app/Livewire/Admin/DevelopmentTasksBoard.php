@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\DevelopmentItem;
 use App\Models\DevelopmentReply;
+use App\Services\DevelopmentTaskNotifier;
 use Livewire\Component;
 
 class DevelopmentTasksBoard extends Component
@@ -21,6 +22,8 @@ class DevelopmentTasksBoard extends Component
     public string $newType = DevelopmentItem::TYPE_SERENELLA_REQUEST;
 
     public string $replyBody = '';
+
+    public string $testInstructions = '';
 
     public function mount(bool $developerMode = false): void
     {
@@ -57,13 +60,15 @@ class DevelopmentTasksBoard extends Component
             return;
         }
 
-        DevelopmentItem::create([
+        $item = DevelopmentItem::create([
             'type' => $type,
             'status' => DevelopmentItem::STATUS_OPEN,
             'title' => $this->newTitle,
             'body' => $this->newBody,
             'author' => $this->developerMode ? 'team' : 'serenella',
         ]);
+
+        app(DevelopmentTaskNotifier::class)->itemCreated($item);
 
         $this->newTitle = '';
         $this->newBody = '';
@@ -84,18 +89,48 @@ class DevelopmentTasksBoard extends Component
             return;
         }
 
-        DevelopmentItem::findOrFail($id)->update(['status' => $status]);
+        if ($status === DevelopmentItem::STATUS_DONE) {
+            $this->completeItem($id);
+
+            return;
+        }
+
+        $item = DevelopmentItem::findOrFail($id);
+        $previous = $item->status;
+        $item->update(['status' => $status]);
+        app(DevelopmentTaskNotifier::class)->statusChanged($item->fresh(), $previous);
+    }
+
+    public function completeItem(int $id): void
+    {
+        if (! $this->developerMode) {
+            return;
+        }
+
+        $item = DevelopmentItem::findOrFail($id);
+        $previous = $item->status;
+        $item->update([
+            'status' => DevelopmentItem::STATUS_DONE,
+            'test_instructions' => $this->testInstructions ?: $item->test_instructions,
+        ]);
+        $this->testInstructions = '';
+        app(DevelopmentTaskNotifier::class)->statusChanged($item->fresh(), $previous);
+        session()->flash('tasks_message', 'Completata — notifica inviata.');
     }
 
     public function addReply(int $itemId): void
     {
         $this->validate(['replyBody' => 'required|string|max:5000']);
 
+        $author = $this->developerMode ? 'team' : 'serenella';
         DevelopmentReply::create([
             'development_item_id' => $itemId,
-            'author' => $this->developerMode ? 'team' : 'serenella',
+            'author' => $author,
             'body' => $this->replyBody,
         ]);
+
+        $item = DevelopmentItem::findOrFail($itemId);
+        app(DevelopmentTaskNotifier::class)->replyAdded($item, $author, $this->replyBody);
 
         $this->replyBody = '';
         session()->flash('tasks_message', 'Risposta inviata.');

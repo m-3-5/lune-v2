@@ -24,6 +24,7 @@ class DevelopmentItem extends Model
         'status',
         'title',
         'body',
+        'test_instructions',
         'author',
     ];
 

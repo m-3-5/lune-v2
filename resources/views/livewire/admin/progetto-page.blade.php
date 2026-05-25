@@ -32,6 +32,15 @@
         @endif
     </section>
 
+    <section class="bg-white rounded-3xl shadow-sm border border-indigo-50 p-6">
+        <h2 class="text-lg font-black text-indigo-950 mb-2">Notifiche sul telefono</h2>
+        <p class="text-sm text-gray-600 mb-3">
+            Task e avvisi operativi (documenti, contratti…): installa come app (Aggiungi a schermata Home) e attiva qui.
+            Con <strong>app in costruzione</strong> attiva, le anteprime ospite arrivano solo a te/Serenella (Telegram + push), non al cliente.
+        </p>
+        <x-pwa-push-register channel="admin" class="mb-0" />
+    </section>
+
     <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
         <h2 class="text-lg font-black text-gray-900 mb-2">Task e avanzamenti</h2>
         <p class="text-sm text-gray-600 mb-4">Aggiungi una richiesta, segui le attività in corso (tue e del team).</p>

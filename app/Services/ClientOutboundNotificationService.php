@@ -22,6 +22,8 @@ class ClientOutboundNotificationService
     public function __construct(
         protected GuestNotificationService $guestNotifications,
         protected AdminNotificationService $adminNotifications,
+        protected TeamAlertNotifier $teamAlerts,
+        protected AdminPushNotifier $guestPush,
     ) {}
 
     public function deliver(
@@ -85,11 +87,19 @@ class ClientOutboundNotificationService
             'WhatsApp admin: '.($phones !== [] ? implode(', ', $phones) : '(nessun numero configurato)'),
         ]));
 
-        $this->adminNotifications->clientNotificationPreview(
+        $adminNotification = $this->adminNotifications->clientNotificationPreview(
             $reservation,
             $title,
             $previewBody,
         );
+
+        if ($adminNotification->wasRecentlyCreated) {
+            $this->teamAlerts->clientPreview(
+                $reservation,
+                $title,
+                $body,
+            );
+        }
 
         Log::info('[Jlune anteprima notifica cliente]', [
             'booking' => $code,

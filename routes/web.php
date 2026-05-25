@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CheckfrontWebhookController;
 use App\Http\Controllers\CheckinController;
+use App\Http\Controllers\PushSubscriptionController;
 use Livewire\Volt\Volt;
 use App\Livewire\Admin\DettaglioArrivo;
 use App\Livewire\Admin\ProgettoPage;
@@ -12,6 +13,10 @@ use App\Livewire\Admin\SviluppoPage;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Web Push (PWA admin / ospite)
+Route::post('/push/subscribe', [PushSubscriptionController::class, 'subscribe'])->name('push.subscribe');
+Route::post('/push/unsubscribe', [PushSubscriptionController::class, 'unsubscribe'])->name('push.unsubscribe');
 
 // Rotta Webhook per Checkfront
 Route::post('/webhook/checkfront', [CheckfrontWebhookController::class, 'handle']);

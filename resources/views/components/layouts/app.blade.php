@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Jlune">
+    <link rel="manifest" href="/manifest-guest.webmanifest">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <title>{{ $title ?? 'Jlune App - Gestione Soggiorno' }}</title>
-    
-    <!-- Caricamento script e stili di Laravel (Vite) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
@@ -127,6 +131,13 @@
                 <span class="text-[10px] uppercase bg-orange-100 text-orange-800 px-2 py-1 rounded-full ml-auto animate-pulse">In uscita</span>
             @endif
         </a>
+
+        <div class="pt-4 border-t border-gray-100">
+            <x-pwa-push-register
+                channel="guest"
+                :reservation-id="$hasReservation ? $reservation->id : null"
+            />
+        </div>
 
     </nav>
 

@@ -7,6 +7,9 @@ use App\Models\Reservation;
 
 class AdminNotificationService
 {
+    public function __construct(
+        protected TeamAlertNotifier $teamAlerts,
+    ) {}
     public const TYPE_DOCUMENTS_SUBMITTED = 'documents_submitted';
 
     public const TYPE_DOCUMENTS_APPROVED = 'documents_approved';
@@ -50,12 +53,23 @@ class AdminNotificationService
             }
         }
 
-        return AdminNotification::create([
+        $notification = AdminNotification::create([
             'type' => $type,
             'title' => $title,
             'body' => $body,
             'reservation_id' => $reservation->id,
         ]);
+
+        if ($type !== self::TYPE_CLIENT_NOTIFICATION_PREVIEW) {
+            $this->teamAlerts->forReservation(
+                $reservation,
+                $title,
+                $body ?? '',
+                $type,
+            );
+        }
+
+        return $notification;
     }
 
     public function documentsSubmitted(Reservation $reservation): void
@@ -151,7 +165,7 @@ class AdminNotificationService
             $reservation,
             '[Anteprima cliente] '.$clientTitle,
             $previewBody,
-            dedupeHours: 0,
+            dedupeHours: 24,
         );
     }
 }

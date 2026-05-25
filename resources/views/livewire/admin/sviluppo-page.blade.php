@@ -61,6 +61,24 @@
         </div>
     </section>
 
+    <section class="bg-white rounded-3xl shadow-sm border border-emerald-100 p-6 space-y-4">
+        <h2 class="text-lg font-black text-emerald-950">Notifiche Serenella ↔ Team</h2>
+        <div class="text-sm text-gray-600 space-y-2">
+            <p><strong>Telegram</strong> (consigliato): BotFather → token → <code>TELEGRAM_ENABLED=true</code>, chat ID in <code>TELEGRAM_NOTIFY_CHAT_IDS</code>. Ogni persona avvia il bot con <code>/start</code>, poi leggi gli ID con <code>getUpdates</code> o <code>php artisan jlune:telegram-test</code>.</p>
+            <p><strong>Web Push</strong>: <code>php artisan jlune:vapid-keys</code> → incolla nel .env → <code>WEBPUSH_ENABLED=true</code> → su Plesk <code>composer install</code> → ogni telefono: installa PWA + «Attiva notifiche» su Progetto.</p>
+        </div>
+        <x-pwa-push-register channel="admin" />
+    </section>
+
+    <section class="bg-white rounded-3xl shadow-sm border border-emerald-100 p-6 space-y-4">
+        <h2 class="text-lg font-black text-emerald-950">Notifiche Serenella ↔ Team</h2>
+        <div class="text-sm text-gray-600 space-y-2">
+            <p><strong>Telegram</strong> (consigliato): BotFather → token → <code>TELEGRAM_ENABLED=true</code>, chat ID in <code>TELEGRAM_NOTIFY_CHAT_IDS</code>. Ogni persona avvia il bot con <code>/start</code>, poi <code>php artisan jlune:telegram-test</code>.</p>
+            <p><strong>Web Push</strong>: <code>php artisan jlune:vapid-keys</code> → .env → <code>WEBPUSH_ENABLED=true</code> → Plesk <code>composer install</code> → PWA + «Attiva notifiche» su Progetto.</p>
+        </div>
+        <x-pwa-push-register channel="admin" />
+    </section>
+
     <section class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6">
         <h2 class="text-lg font-black mb-2">Task (gestione team)</h2>
         <livewire:admin.development-tasks-board :developer-mode="true" />

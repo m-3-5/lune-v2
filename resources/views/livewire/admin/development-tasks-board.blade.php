@@ -48,12 +48,20 @@
                         @if ($item->body)
                             <p class="text-gray-600 whitespace-pre-wrap">{{ $item->body }}</p>
                         @endif
+                        @if ($item->test_instructions)
+                            <p class="text-xs text-green-800 bg-green-50 rounded-xl p-3"><span class="font-black">Test:</span> {{ $item->test_instructions }}</p>
+                        @endif
                         @if ($developerMode)
+                            <label class="block text-[10px] font-black uppercase text-gray-400">Istruzioni test (Telegram + notifica telefono)</label>
+                            <textarea wire:model="testInstructions" rows="3" class="w-full rounded-xl border-gray-200 text-sm"
+                                placeholder="Es: Apri /admin/progetto → verifica task…"></textarea>
                             <div class="flex flex-wrap gap-2">
-                                @foreach (['open' => 'Da fare', 'in_progress' => 'In corso', 'done' => 'Completata'] as $st => $lbl)
-                                    <button type="button" wire:click="setStatus({{ $item->id }}, '{{ $st }}')"
-                                        class="px-2 py-1 rounded-lg text-[10px] font-bold {{ $item->status === $st ? 'bg-indigo-600 text-white' : 'bg-gray-100' }}">{{ $lbl }}</button>
-                                @endforeach
+                                <button type="button" wire:click="setStatus({{ $item->id }}, 'open')"
+                                    class="px-2 py-1 rounded-lg text-[10px] font-bold {{ $item->status === 'open' ? 'bg-indigo-600 text-white' : 'bg-gray-100' }}">Da fare</button>
+                                <button type="button" wire:click="setStatus({{ $item->id }}, 'in_progress')"
+                                    class="px-2 py-1 rounded-lg text-[10px] font-bold {{ $item->status === 'in_progress' ? 'bg-indigo-600 text-white' : 'bg-gray-100' }}">In corso</button>
+                                <button type="button" wire:click="completeItem({{ $item->id }})"
+                                    class="px-3 py-1 rounded-lg text-[10px] font-black bg-green-600 text-white">Completata → invia notifica</button>
                             </div>
                         @endif
                         @foreach ($item->replies as $reply)
