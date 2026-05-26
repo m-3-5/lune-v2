@@ -61,14 +61,117 @@
         </div>
     </section>
 
-    <section class="bg-white rounded-3xl shadow-sm border border-emerald-100 p-6 space-y-4">
-        <h2 class="text-lg font-black text-emerald-950">Notifiche Serenella ↔ Team</h2>
-        <div class="text-sm text-gray-600 space-y-2">
-            <p><strong>Telegram</strong> (consigliato): BotFather → token → <code>TELEGRAM_ENABLED=true</code>, chat ID in <code>TELEGRAM_NOTIFY_CHAT_IDS</code>. Ogni persona avvia il bot con <code>/start</code>, poi leggi gli ID con <code>getUpdates</code> o <code>php artisan jlune:telegram-test</code>.</p>
-            <p><strong>Web Push</strong>: <code>php artisan jlune:vapid-keys</code> → incolla nel .env → <code>WEBPUSH_ENABLED=true</code> → su Plesk <code>composer install</code> → ogni telefono: installa PWA + «Attiva notifiche» su Progetto.</p>
+    @if ($testBookingsEnabled)
+    <section class="bg-white rounded-3xl shadow-sm border-2 border-violet-200 p-6 space-y-4">
+        <h2 class="text-lg font-black text-violet-950">Prenotazione TEST (solo sviluppo)</h2>
+        <p class="text-xs text-violet-800/90">Crea un link ospite fittizio per provare documenti, contratto e notifiche. Non compare su Checkfront. Eliminabile quando hai finito.</p>
+
+        <div class="grid sm:grid-cols-2 gap-3">
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-400">Appartamento</label>
+                <select wire:model="testApartmentId" class="w-full rounded-xl border-gray-200 text-sm mt-1">
+                    @foreach ($apartments as $apt)
+                        <option value="{{ $apt->id }}">{{ $apt->name }} ({{ $apt->sku }})</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="flex items-end">
+                <label class="flex items-center gap-2 text-sm font-bold">
+                    <input type="checkbox" wire:model="testIsPaid" class="rounded border-gray-300 text-violet-600" />
+                    Segna come già pagato (sblocca documenti)
+                </label>
+            </div>
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-400">Nome</label>
+                <input wire:model="testGuestName" class="w-full rounded-xl border-gray-200 text-sm mt-1" />
+            </div>
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-400">Cognome</label>
+                <input wire:model="testGuestCognome" class="w-full rounded-xl border-gray-200 text-sm mt-1" />
+            </div>
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-400">Email</label>
+                <input type="email" wire:model="testGuestEmail" class="w-full rounded-xl border-gray-200 text-sm mt-1" />
+            </div>
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-400">Cellulare</label>
+                <input wire:model="testGuestPhone" class="w-full rounded-xl border-gray-200 text-sm mt-1" />
+            </div>
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-400">Check-in</label>
+                <input type="date" wire:model="testCheckIn" class="w-full rounded-xl border-gray-200 text-sm mt-1" />
+            </div>
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-400">Check-out</label>
+                <input type="date" wire:model="testCheckOut" class="w-full rounded-xl border-gray-200 text-sm mt-1" />
+            </div>
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-400">Adulti</label>
+                <input type="number" wire:model="testAdults" min="1" class="w-full rounded-xl border-gray-200 text-sm mt-1" />
+            </div>
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-400">Bambini</label>
+                <input type="number" wire:model="testChildren" min="0" class="w-full rounded-xl border-gray-200 text-sm mt-1" />
+            </div>
         </div>
-        <x-pwa-push-register channel="admin" />
+
+        @if (count($availableExtras) > 0)
+            <div>
+                <p class="text-[10px] font-black uppercase text-gray-400 mb-2">Extra (come Checkfront)</p>
+                <div class="flex flex-wrap gap-3">
+                    @foreach ($availableExtras as $sku => $label)
+                        <label class="flex items-center gap-2 text-xs font-bold bg-gray-50 px-3 py-2 rounded-xl">
+                            <input type="checkbox" wire:model="testExtras" value="{{ $sku }}" class="rounded text-violet-600" />
+                            {{ $label }}
+                        </label>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+        <div>
+            <label class="text-[10px] font-black uppercase text-gray-400">Note test (commenti ok / problemi)</label>
+            <textarea wire:model="testNotes" rows="2" class="w-full rounded-xl border-gray-200 text-sm mt-1"
+                placeholder="Es: upload CI ok, contratto da verificare…"></textarea>
+        </div>
+
+        <button type="button" wire:click="createTestReservation"
+            class="px-6 py-3 bg-violet-600 text-white rounded-2xl text-xs font-black uppercase">
+            Crea prenotazione TEST
+        </button>
+
+        @if ($lastTestPortalUrl)
+            <div class="bg-violet-50 border border-violet-200 rounded-2xl p-4 text-sm">
+                <p class="font-black text-violet-900 mb-2">Link area ospite (apri da telefono o incognito):</p>
+                <a href="{{ $lastTestPortalUrl }}" target="_blank" class="text-violet-700 font-bold break-all underline">{{ $lastTestPortalUrl }}</a>
+            </div>
+        @endif
+
+        @if ($testReservations->isNotEmpty())
+            <div class="border-t border-violet-100 pt-4">
+                <p class="text-[10px] font-black uppercase text-gray-400 mb-2">Test attivi / recenti</p>
+                <ul class="space-y-2 text-xs">
+                    @foreach ($testReservations as $tr)
+                        <li class="flex flex-wrap items-center justify-between gap-2 bg-gray-50 rounded-xl px-3 py-2">
+                            <span>
+                                <span class="font-black text-violet-700">TEST</span>
+                                {{ $tr->guestDisplayName() }} · {{ $tr->apartment->name ?? '—' }}
+                                · {{ $tr->check_in->format('d/m') }}→{{ $tr->check_out->format('d/m') }}
+                            </span>
+                            <span class="flex gap-2">
+                                <a href="{{ $tr->guest_portal_url }}" target="_blank" class="font-bold text-indigo-600 underline">Ospite</a>
+                                <a href="{{ route('admin.arrivi.show', $tr->id) }}" class="font-bold text-indigo-600 underline">Admin</a>
+                                <button type="button" wire:click="deleteTestReservation({{ $tr->id }})"
+                                    wire:confirm="Eliminare questa prenotazione TEST e i documenti collegati?"
+                                    class="font-bold text-red-600">Elimina</button>
+                            </span>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
     </section>
+    @endif
 
     <section class="bg-white rounded-3xl shadow-sm border border-emerald-100 p-6 space-y-4">
         <h2 class="text-lg font-black text-emerald-950">Notifiche Serenella ↔ Team</h2>

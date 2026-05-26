@@ -2,6 +2,9 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\Apartment;
+use App\Models\Reservation;
+use App\Services\TestReservationService;
 use App\Support\AppSettings;
 use App\Support\JluneDeveloperAccess;
 use Livewire\Attributes\Layout;
@@ -32,6 +35,33 @@ class SviluppoPage extends Component
     public string $newCostAmount = '';
 
     public string $newCostDate = '';
+
+    public int $testApartmentId = 0;
+
+    public string $testGuestName = 'Mario';
+
+    public string $testGuestCognome = 'Rossi';
+
+    public string $testGuestEmail = 'test@jlune.local';
+
+    public string $testGuestPhone = '+393331112233';
+
+    public string $testCheckIn = '';
+
+    public string $testCheckOut = '';
+
+    public int $testAdults = 2;
+
+    public int $testChildren = 0;
+
+    public bool $testIsPaid = true;
+
+    /** @var array<int, string> */
+    public array $testExtras = [];
+
+    public string $testNotes = '';
+
+    public ?string $lastTestPortalUrl = null;
 
     public function mount(): void
     {
@@ -79,6 +109,54 @@ class SviluppoPage extends Component
             ])
             ->all();
         $this->newCostDate = now()->format('Y-m-d');
+        $this->testCheckIn = now()->addDays(3)->format('Y-m-d');
+        $this->testCheckOut = now()->addDays(6)->format('Y-m-d');
+        $firstApt = Apartment::query()->orderBy('display_order')->orderBy('name')->first();
+        $this->testApartmentId = $firstApt?->id ?? 0;
+    }
+
+    public function createTestReservation(TestReservationService $tests): void
+    {
+        if (! config('jlune.test_bookings_enabled')) {
+            return;
+        }
+
+        $this->validate([
+            'testApartmentId' => 'required|exists:apartments,id',
+            'testGuestName' => 'required|string|max:120',
+            'testGuestCognome' => 'nullable|string|max:120',
+            'testGuestEmail' => 'nullable|email|max:255',
+            'testGuestPhone' => 'nullable|string|max:40',
+            'testCheckIn' => 'required|date',
+            'testCheckOut' => 'required|date|after:testCheckIn',
+            'testAdults' => 'required|integer|min:1|max:20',
+            'testChildren' => 'integer|min:0|max:20',
+            'testNotes' => 'nullable|string|max:5000',
+        ]);
+
+        $reservation = $tests->create([
+            'apartment_id' => $this->testApartmentId,
+            'guest_name' => $this->testGuestName,
+            'guest_cognome' => $this->testGuestCognome,
+            'guest_email' => $this->testGuestEmail,
+            'guest_phone' => $this->testGuestPhone,
+            'check_in' => $this->testCheckIn,
+            'check_out' => $this->testCheckOut,
+            'adults' => $this->testAdults,
+            'children' => $this->testChildren,
+            'is_paid' => $this->testIsPaid,
+            'test_notes' => $this->testNotes,
+        ], $this->testExtras);
+
+        $this->lastTestPortalUrl = $reservation->guest_portal_url;
+        session()->flash('dev_message', 'Prenotazione TEST creata. Apri il link ospite qui sotto.');
+    }
+
+    public function deleteTestReservation(int $id, TestReservationService $tests): void
+    {
+        $reservation = Reservation::findOrFail($id);
+        $tests->delete($reservation);
+        session()->flash('dev_message', 'Prenotazione TEST eliminata.');
     }
 
     public function toggleConstruction(): void
@@ -173,6 +251,12 @@ class SviluppoPage extends Component
         return view('livewire.admin.sviluppo-page', [
             'totalCost' => (float) $this->projectBaseCost + $extra,
             'extraSum' => $extra,
+            'testBookingsEnabled' => (bool) config('jlune.test_bookings_enabled'),
+            'apartments' => Apartment::query()->orderBy('display_order')->orderBy('name')->get(),
+            'availableExtras' => TestReservationService::availableExtras(),
+            'testReservations' => config('jlune.test_bookings_enabled')
+                ? Reservation::query()->test()->with('apartment')->orderByDesc('created_at')->limit(15)->get()
+                : collect(),
         ]);
     }
 }

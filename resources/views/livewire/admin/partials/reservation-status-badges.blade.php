@@ -1,3 +1,8 @@
+@if ($res->is_test)
+    <span class="bg-violet-100 text-violet-800 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter">
+        TEST
+    </span>
+@endif
 @if ($res->is_paid)
     <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter">
         {{ $res->paymentLabel() }}

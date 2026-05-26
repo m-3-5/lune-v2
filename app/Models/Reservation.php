@@ -30,6 +30,7 @@ class Reservation extends Model
         'contract_ready_for_guest' => 'boolean',
         'contract_accepted' => 'boolean',
         'contract_extracted_at' => 'datetime',
+        'is_test' => 'boolean',
     ];
 
     protected $appends = [
@@ -184,6 +185,11 @@ class Reservation extends Model
         $d = $date instanceof Carbon ? $date : Carbon::parse($date);
 
         return $query->whereDate('check_out', $d->toDateString());
+    }
+
+    public function scopeTest(Builder $query): Builder
+    {
+        return $query->where('is_test', true);
     }
 
     public function scopeInHouseOn(Builder $query, Carbon|string $date): Builder
