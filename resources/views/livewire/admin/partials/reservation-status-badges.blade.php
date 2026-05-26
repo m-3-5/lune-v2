@@ -1,5 +1,5 @@
 @if ($res->is_test)
-    <span class="bg-violet-100 text-violet-800 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter">
+    <span class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter">
         TEST
     </span>
 @endif

@@ -21,9 +21,9 @@
     </section>
 
     @if ($testBookingsEnabled)
-    <section class="bg-white rounded-3xl shadow-sm border-2 border-violet-300 p-6 space-y-4 pb-8">
-        <h2 class="text-lg font-black text-violet-950">Prenotazione TEST (solo sviluppo)</h2>
-        <p class="text-xs text-violet-800/90">Crea un link ospite fittizio per provare documenti, contratto e notifiche. Scorri in basso e premi il pulsante viola.</p>
+    <section class="bg-white rounded-3xl shadow-sm border-2 border-indigo-200 p-6 space-y-4 pb-8">
+        <h2 class="text-lg font-black text-indigo-950">Prenotazione TEST (solo sviluppo)</h2>
+        <p class="text-xs text-gray-600">Crea un link ospite fittizio per provare documenti, contratto e notifiche. Poi premi il pulsante blu in basso.</p>
 
         <div class="grid sm:grid-cols-2 gap-3">
             <div>
@@ -36,7 +36,7 @@
             </div>
             <div class="flex items-end pb-1">
                 <label class="flex items-center gap-2 text-sm font-bold">
-                    <input type="checkbox" wire:model="testIsPaid" class="rounded border-gray-300 text-violet-600" />
+                    <input type="checkbox" wire:model="testIsPaid" class="rounded border-gray-300 text-indigo-600" />
                     Già pagato (sblocca documenti)
                 </label>
             </div>
@@ -80,7 +80,7 @@
                 <div class="flex flex-wrap gap-3">
                     @foreach ($availableExtras as $sku => $label)
                         <label class="flex items-center gap-2 text-xs font-bold bg-gray-50 px-3 py-2 rounded-xl">
-                            <input type="checkbox" wire:model="testExtras" value="{{ $sku }}" class="rounded text-violet-600" />
+                            <input type="checkbox" wire:model="testExtras" value="{{ $sku }}" class="rounded text-indigo-600" />
                             {{ $label }}
                         </label>
                     @endforeach
@@ -96,27 +96,28 @@
 
         <div class="pt-2 pb-2">
             <button type="button" wire:click="createTestReservation" wire:loading.attr="disabled"
-                class="w-full py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl text-sm font-black uppercase tracking-wider shadow-lg">
+                class="w-full py-4 rounded-2xl text-sm font-black uppercase tracking-wider shadow-lg border-0"
+                style="background-color: #4f46e5; color: #ffffff;">
                 <span wire:loading.remove wire:target="createTestReservation">Crea prenotazione TEST</span>
                 <span wire:loading wire:target="createTestReservation">Creazione…</span>
             </button>
         </div>
 
         @if ($lastTestPortalUrl)
-            <div class="bg-violet-50 border border-violet-200 rounded-2xl p-4 text-sm">
-                <p class="font-black text-violet-900 mb-2">Link area ospite:</p>
-                <a href="{{ $lastTestPortalUrl }}" target="_blank" class="text-violet-700 font-bold break-all underline">{{ $lastTestPortalUrl }}</a>
+            <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-4 text-sm">
+                <p class="font-black text-indigo-900 mb-2">Link area ospite:</p>
+                <a href="{{ $lastTestPortalUrl }}" target="_blank" class="text-indigo-700 font-bold break-all underline">{{ $lastTestPortalUrl }}</a>
             </div>
         @endif
 
         @if ($testReservations->isNotEmpty())
-            <div class="border-t border-violet-100 pt-4">
+            <div class="border-t border-indigo-100 pt-4">
                 <p class="text-[10px] font-black uppercase text-gray-400 mb-2">Test recenti</p>
                 <ul class="space-y-2 text-xs">
                     @foreach ($testReservations as $tr)
                         <li class="flex flex-wrap items-center justify-between gap-2 bg-gray-50 rounded-xl px-3 py-2">
                             <span>
-                                <span class="font-black text-violet-700">TEST</span>
+                                <span class="font-black text-indigo-700">TEST</span>
                                 {{ $tr->guestDisplayName() }} · {{ $tr->apartment->name ?? '—' }}
                             </span>
                             <span class="flex gap-2">
