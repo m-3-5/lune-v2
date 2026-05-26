@@ -137,15 +137,56 @@
                     <p class="text-sm text-gray-600">Estrai i dati dai documenti approvati, poi invia il contratto.</p>
                 @endif
 
-                <div class="flex flex-wrap gap-2">
+                @if (session()->has('message'))
+                    <div class="bg-green-50 text-green-800 p-3 rounded-xl text-sm font-bold border border-green-200">
+                        {{ session('message') }}
+                    </div>
+                @endif
+
+                <div class="flex flex-wrap gap-2 items-center">
                     <button wire:click="estraiDatiDocumenti" wire:loading.attr="disabled"
-                        class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">
+                        class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-50">
                         <span wire:loading.remove wire:target="estraiDatiDocumenti">Estrai dati (Document AI)</span>
-                        <span wire:loading wire:target="estraiDatiDocumenti">Analisi…</span>
+                        <span wire:loading wire:target="estraiDatiDocumenti">Analisi in corso (1–2 min)…</span>
                     </button>
+                    <span class="text-[10px] text-gray-500">In locale: <code class="bg-gray-100 px-1 rounded">php artisan jlune:test-extraction {{ $reservation->id }}</code></span>
                 </div>
 
                 @if(is_array($reservation->extracted_guests))
+                    @foreach($reservation->extracted_guests as $g)
+                        @if(!empty($g['extraction_notes']))
+                            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900">
+                                <p class="font-black uppercase text-[9px] mb-1">Avvisi estrazione — Ospite {{ $g['slot'] ?? '?' }}</p>
+                                <ul class="list-disc pl-4 space-y-1">
+                                    @foreach($g['extraction_notes'] as $note)
+                                        <li>{{ $note }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                    @endforeach
+
+                    <div class="bg-slate-50 rounded-xl p-3 text-xs space-y-2">
+                        <p class="font-black uppercase text-slate-500 text-[9px]">Dati per contratto (fonte: tessera + documenti)</p>
+                        @foreach($reservation->extracted_guests as $g)
+                            <p>
+                                <strong>#{{ $g['slot'] }}</strong>:
+                                {{ $g['data']['last_name'] ?? '—' }}
+                                {{ $g['data']['first_name'] ?? '' }}
+                                @if(!empty($g['data']['birth_date'])) · nato {{ $g['data']['birth_date'] }} @endif
+                                @if(!empty($g['data']['tax_code'])) · CF {{ $g['data']['tax_code'] }} @endif
+                                @if(!empty($g['data']['document_number'])) · doc {{ $g['data']['document_number'] }} @endif
+                            </p>
+                        @endforeach
+                        <div class="flex flex-wrap gap-2 pt-2 border-t border-slate-200">
+                            <a href="{{ route('admin.arrivo.export', ['id' => $reservation->id, 'format' => 'json']) }}"
+                               class="text-[10px] font-black uppercase text-indigo-600 underline">Esporta JSON</a>
+                            <a href="{{ route('admin.arrivo.export', ['id' => $reservation->id, 'format' => 'csv']) }}"
+                               class="text-[10px] font-black uppercase text-indigo-600 underline">Esporta CSV (Excel)</a>
+                            <a href="{{ route('admin.arrivo.export', ['id' => $reservation->id, 'format' => 'xml']) }}"
+                               class="text-[10px] font-black uppercase text-indigo-600 underline">Esporta XML</a>
+                        </div>
+                    </div>
                     <div class="bg-gray-50 rounded-xl p-4 text-xs space-y-3">
                         <p class="font-black uppercase text-gray-500 text-[9px]">Codici fiscali (correzione manuale)</p>
                         @foreach($reservation->extracted_guests as $g)
@@ -214,6 +255,22 @@
                             </button>
                         </div>
                     </div>
+
+                    @if($doc->ai_raw_response)
+                        @php $ai = is_array($doc->ai_raw_response) ? $doc->ai_raw_response : json_decode($doc->ai_raw_response, true); @endphp
+                        <div class="mx-2 mb-2 p-2 rounded-lg text-[10px] overflow-hidden {{ ($ai['status'] ?? '') === 'success' ? 'bg-green-50 text-green-800' : 'bg-amber-50 text-amber-900' }}">
+                            <strong>IA:</strong> {{ $ai['status'] ?? '?' }} — {{ $ai['message'] ?? '' }}
+                            @if(!empty($ai['extracted_data']))
+                                <span class="block font-mono mt-1 break-all whitespace-pre-wrap max-w-full">{{ json_encode($ai['extracted_data'], JSON_UNESCAPED_UNICODE) }}</span>
+                            @endif
+                            @if(!empty($ai['ocr_preview']))
+                                <details class="mt-2">
+                                    <summary class="cursor-pointer font-bold text-[9px] uppercase">Testo OCR (come in log)</summary>
+                                    <pre class="mt-1 whitespace-pre-wrap text-[9px] opacity-80">{{ $ai['ocr_preview'] }}</pre>
+                                </details>
+                            @endif
+                        </div>
+                    @endif
 
                     <div class="rounded-2xl overflow-hidden bg-gray-100 shadow-inner">
                         <img src="{{ asset('storage/' . $doc->file_path) }}" class="w-full h-64 object-cover cursor-pointer hover:scale-105 transition-transform" onclick="window.open(this.src)">

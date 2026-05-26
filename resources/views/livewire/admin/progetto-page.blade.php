@@ -5,6 +5,19 @@
         <p class="text-gray-500 text-sm mt-1">Guida, costi e richieste di sviluppo.</p>
     </div>
 
+    <section class="bg-indigo-50 rounded-3xl border border-indigo-100 p-6 flex flex-wrap items-center justify-between gap-4">
+        <div>
+            <h2 class="text-lg font-black text-indigo-950">Google Document AI</h2>
+            <p class="text-sm text-indigo-900/80 mt-1 max-w-xl">
+                Scarica le istruzioni per creare il servizio sul vostro account Google e inviarci le credenziali.
+            </p>
+        </div>
+        <a href="{{ route('admin.guide.document-ai') }}"
+           class="inline-flex items-center gap-2 px-5 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-200 hover:bg-indigo-700">
+            Scarica istruzioni Document AI
+        </a>
+    </section>
+
     <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
         <div class="prose prose-sm prose-indigo max-w-none text-gray-700 leading-relaxed
             prose-headings:font-black prose-h1:text-2xl prose-h2:text-lg prose-h2:mt-8 prose-h2:mb-3

@@ -90,7 +90,7 @@ L’app è in **fase avanzata** su documenti e contratto; altre parti sono ancor
 ### Pannello admin (Serenella)
 - **Dashboard** con agenda (**Oggi / Domani**, striscia 7 giorni, switch **Arrivi imminenti** 14 giorni), card domande aperte.
 - **Arrivi e documenti**: elenco Future / Archivio / Cancellate; dettaglio per ogni prenotazione.
-- Nel dettaglio: anteprima file, approva/rifiuta documenti, **Estrai dati (Document AI)** se configurato sul server, modifica CF, scegli IT/EN, **«Contratto pronto — invia per la firma»**.
+- Nel dettaglio: anteprima file, approva/rifiuta documenti, **Estrai dati (Document AI)** — **attivo** (maggio 2026), modifica CF, anteprima OCR per documento, export **JSON / CSV / XML**, scegli IT/EN, **«Contratto pronto — invia per la firma»**.
 - Dati Checkfront in scheda (ospiti, letti, note, totali pagati).
 - **Notifiche in-app** (campanella in alto): nuovi documenti, prenotazioni, anteprime in costruzione.
 - Pagina **Progetto e task** (questa guida, costi, richieste e avanzamenti).
@@ -122,10 +122,29 @@ Due **app separate** da installare (icona sulla home):
 - Telegram per gli ospiti (da decidere con Serenella).
 - Telegram per Serenella (opzionale; oggi solo push PWA).
 
+### Estrazione documenti con Google Document AI (attivo — maggio 2026)
+
+**Cosa fa oggi**
+- Legge foto di **carta d’identità** (fronte/retro) e **tessera sanitaria** (CF).
+- Compila automaticamente cognome, nome, data di nascita e codice fiscale nel contratto.
+- Sotto ogni documento: riquadro verde con dati estratti + **Testo OCR** (come nel log tecnico).
+- Export dati ospiti: **JSON**, **CSV (Excel)**, **XML** (dal dettaglio prenotazione).
+
+**Fatturazione e account Google (importante)**
+- Il servizio **non era previsto nel preventivo iniziale**; il team lo include **a titolo di favore** per avviare il cliente nuovo.
+- **Oggi** la fatturazione Google Cloud è sull’account del team di sviluppo (uso temporaneo in test/produzione iniziale).
+- **Prossimo passo consigliato:** creare un **progetto Google Cloud di Serenella** (o della società) con **metodo di pagamento proprio**, così i costi Document AI restano trasparenti e sotto il vostro controllo.
+- In pagina **Progetto** c’è il pulsante **«Scarica istruzioni Document AI»** (passo passo + cosa inviarci).
+
+**Formato Polizia di Stato / Alloggiati Web**
+- L’XML che esportiamo oggi è un **export Jlune** (cognome, nome, CF, ecc.) — utile per archivio e Excel.
+- Il file **ufficiale per la questura** ha formato diverso; **lo chiederemo a Serenella** se lo usa già e in quale modalità (portale, file, software).
+- Se serve integrazione dedicata, potrà essere una **voce extra** da preventivare (da confermare insieme).
+
 ### Contratto
 - Modelli IT e EN con dati ospiti e appartamento.
 - Salvataggio firma e snapshot HTML lato server.
-- Flusso: pagamento → documenti → approvazione → estrazione (consigliata) → invio contratto → firma ospite.
+- Flusso: pagamento → documenti → approvazione → estrazione Document AI → invio contratto → firma ospite.
 
 ### Modalità «App in costruzione» (solo team sviluppo)
 - Banner visibile su tutte le pagine.
@@ -159,6 +178,8 @@ Due **app separate** da installare (icona sulla home):
 | **QR elettrodomestici** | Tabelle DB presenti, nessuna pagina ospite |
 | **Archivio contratti** admin | Pagina vuota (placeholder) |
 | **PDF contratto firmato** con prova legale | Previsto, non fatto |
+| **Google Document AI** (estrazione CI/CF) | **Attivo** — account Google team per ora; passaggio a account Serenella consigliato |
+| **Export XML Polizia (Alloggiati)** | Da definire con Serenella; export XML Jlune già disponibile |
 | **Controllo antifrode documenti** (Gemini) | Codice di test, non attivo all’upload |
 | **Login / password** pannello admin | Chi conosce l’URL entra; solo `/admin/sviluppo` ha password |
 | **Invio email** a Serenella su eventi | Solo campanella in-app + push PWA (Telegram opzionale per Max) |
@@ -172,6 +193,8 @@ Due **app separate** da installare (icona sulla home):
 - `php artisan checkfront:import-log` — allinea prenotazioni dal log webhook
 - `php artisan checkfront:sync-items` — allinea appartamenti Checkfront
 - `php artisan jlune:status` — controllo arrivi e date
+- `php artisan jlune:google-check` — verifica credenziali Document AI sul server
+- `php artisan jlune:test-extraction {id}` — test estrazione su una prenotazione (solo tecnico)
 - `php artisan migrate --force` — dopo aggiornamenti app (Plesk)
 
 ---
@@ -202,9 +225,11 @@ Priorità consigliata: **A → B → C/D → E** (pagamento e sicurezza prima; m
 
 Vedi riepilogo in fondo a questa pagina (base + voci extra). Aggiornato dal team in area Sviluppo.
 
+**Nota Document AI:** uso API Google a consumo (pagine OCR). Non incluso nel preventivo base; in fase avvio è offerto dal team; in produzione stabile andrà su **fatturazione Google del cliente** (vedi istruzioni scaricabili sopra).
+
 ---
 
-_Ultimo aggiornamento guida: maggio 2026 — notifiche PWA, Telegram, arrivi imminenti._
+_Ultimo aggiornamento guida: maggio 2026 — Document AI attivo, export XML, istruzioni Google Cloud._
 GUIDE;
     }
 
@@ -255,6 +280,25 @@ Oggi l’ospite può ricevere:
 Vuoi che in futuro offriamo anche Telegram agli ospiti, o preferisci solo app + (più avanti) email/WhatsApp?
 
 Risposta libera: sì / no / solo per alcuni casi.
+BODY,
+            ],
+            [
+                'title' => 'Export Polizia: usi Alloggiati Web o altro formato?',
+                'body' => <<<'BODY'
+Ciao Serenella,
+
+l’app ora estrae i dati dai documenti e permette di scaricare **JSON, CSV e XML** (dati ospiti).
+
+Per la **Polizia di Stato** / registrazione ospiti, il file ufficiale ha spesso un formato dedicato (es. portale **Alloggiati Web**).
+
+Ci serve sapere:
+1. Lo fai già? Con quale software o portale?
+2. Hai un file XML di esempio che usi oggi?
+3. Ti serve che Jlune generi **quel** formato, o ti basta l’export attuale + copia manuale?
+
+Se serve integrazione specifica, la valutiamo come **voce extra** (tempi e costo da confermare).
+
+Grazie!
 BODY,
             ],
             [

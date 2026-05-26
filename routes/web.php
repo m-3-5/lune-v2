@@ -46,3 +46,23 @@ Route::prefix('admin')->group(function () {
 
 // Rotta per il modulo di controllo documenti (Livewire)
 Route::get('/admin/arrivi/{id}', DettaglioArrivo::class)->name('admin.arrivi.show');
+
+Route::get('/admin/arrivi/{id}/export/{format}', function (int $id, string $format) {
+    $reservation = \App\Models\Reservation::with('guestDocuments')->findOrFail($id);
+
+    return app(\App\Services\GuestDataExportService::class)->download($reservation, $format);
+})->where('format', 'json|csv|xml')->name('admin.arrivo.export');
+
+Route::get('/admin/progetto/guida-document-ai', function () {
+    $path = resource_path('guides/google-document-ai-setup-it.md');
+
+    if (! is_file($path)) {
+        abort(404);
+    }
+
+    return response()->download(
+        $path,
+        'jlune-istruzioni-google-document-ai.md',
+        ['Content-Type' => 'text/markdown; charset=UTF-8']
+    );
+})->name('admin.guide.document-ai');

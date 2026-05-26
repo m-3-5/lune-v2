@@ -21,6 +21,8 @@ class GuestDataExtractionService
      */
     public function extractForReservation(Reservation $reservation): array
     {
+        set_time_limit(300);
+
         $documents = $reservation->guestDocuments()
             ->where('status', 'approved')
             ->get();
@@ -58,32 +60,38 @@ class GuestDataExtractionService
             $idBack = $docs->firstWhere('document_type', 'id_back');
             $taxFront = $docs->firstWhere('document_type', 'tax_front');
 
+            // 1) Tessera sanitaria per prima (etichette più affidabili: Cognome, Nome, CF, data nascita)
+            if (! $isForeigner && $taxFront) {
+                $tax = $this->analyzeStoredFile($taxFront, 'tax_code');
+                if (in_array($tax['status'], ['success', 'partial']) && ! empty($tax['extracted_data'])) {
+                    $guest['data'] = array_merge($guest['data'], array_filter($tax['extracted_data']));
+                    if (! empty($tax['extracted_data']['tax_code'])) {
+                        $taxFront->update(['tax_code' => $tax['extracted_data']['tax_code']]);
+                    }
+                    $this->persistDocumentAi($taxFront, $tax);
+                } else {
+                    $guest['extraction_notes'][] = 'Tessera: '.($tax['message'] ?? 'non rilevato');
+                }
+            }
+
+            // 2) CI fronte — solo campi ancora vuoti
             if ($idFront) {
                 $identity = $this->analyzeStoredFile($idFront, 'identity');
-                if ($identity['status'] === 'success') {
-                    $guest['data'] = array_merge($guest['data'], $identity['extracted_data']);
+                if (in_array($identity['status'], ['success', 'partial']) && ! empty($identity['extracted_data'])) {
+                    $guest['data'] = $this->mergeGuestData($guest['data'], $identity['extracted_data']);
                     $this->persistDocumentAi($idFront, $identity);
-                } else {
+                }
+                if ($identity['status'] !== 'success' && empty($identity['extracted_data'])) {
                     $guest['extraction_notes'][] = 'ID fronte: '.$identity['message'];
                 }
             }
 
-            if ($idBack && empty($guest['data']['birth_date'])) {
+            // 3) CI retro — solo campi vuoti (numero doc, eventuale "DI COGNOME NOME")
+            if ($idBack) {
                 $identityBack = $this->analyzeStoredFile($idBack, 'identity');
-                if ($identityBack['status'] === 'success') {
-                    $guest['data'] = array_merge($guest['data'], array_filter($identityBack['extracted_data']));
+                if (in_array($identityBack['status'], ['success', 'partial']) && ! empty($identityBack['extracted_data'])) {
+                    $guest['data'] = $this->mergeGuestData($guest['data'], $identityBack['extracted_data']);
                     $this->persistDocumentAi($idBack, $identityBack);
-                }
-            }
-
-            if (! $isForeigner && $taxFront) {
-                $tax = $this->analyzeStoredFile($taxFront, 'tax_code');
-                if ($tax['status'] === 'success' && ! empty($tax['extracted_data']['tax_code'])) {
-                    $guest['data']['tax_code'] = $tax['extracted_data']['tax_code'];
-                    $taxFront->update(['tax_code' => $guest['data']['tax_code']]);
-                    $this->persistDocumentAi($taxFront, $tax);
-                } else {
-                    $guest['extraction_notes'][] = 'CF: '.($tax['message'] ?? 'non rilevato');
                 }
             }
 
@@ -165,6 +173,49 @@ class GuestDataExtractionService
                 ? $this->parseBirthDate($data['birth_date'])
                 : $doc->date_of_birth,
         ]);
+
+        // Report leggibile: storage/app/document-ai-reports/{reservation_id}/{guest_document_id}.json
+        try {
+            $reservationId = (string) ($doc->reservation_id ?? 'unknown');
+            $dir = storage_path("app/document-ai-reports/{$reservationId}");
+            if (! is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+            $target = "{$dir}/{$doc->id}.json";
+            file_put_contents($target, json_encode([
+                'at' => now()->toIso8601String(),
+                'reservation_id' => $doc->reservation_id,
+                'guest_document_id' => $doc->id,
+                'document_type' => $doc->document_type,
+                'file_path' => $doc->file_path,
+                'status' => $result['status'] ?? null,
+                'message' => $result['message'] ?? null,
+                'extracted_data' => $result['extracted_data'] ?? [],
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        } catch (\Throwable $e) {
+            Log::warning('Document AI: impossibile salvare report locale: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Integra dati dal retro senza sovrascrivere nome/cognome già trovati sul fronte.
+     *
+     * @param  array<string, mixed>  $existing
+     * @param  array<string, mixed>  $incoming
+     * @return array<string, mixed>
+     */
+    protected function mergeGuestData(array $existing, array $incoming): array
+    {
+        foreach ($incoming as $key => $value) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+            if (empty($existing[$key])) {
+                $existing[$key] = $value;
+            }
+        }
+
+        return $existing;
     }
 
     protected function parseBirthDate(string $raw): ?string

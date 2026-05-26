@@ -25,12 +25,7 @@ class DettaglioArrivo extends Component
     {
         $this->reservation = Reservation::with(['guestDocuments', 'apartment'])->findOrFail($id);
         $this->contractLocaleToSend = $this->reservation->contract_locale === 'en' ? 'en' : 'it';
-
-        foreach ($this->reservation->contractGuests() as $guest) {
-            if (! ($guest['is_foreigner'] ?? false)) {
-                $this->adminTaxCodes[(int) ($guest['slot'] ?? 0)] = $guest['data']['tax_code'] ?? '';
-            }
-        }
+        $this->syncAdminTaxCodesFromReservation();
     }
 
     // Approva o Rifiuta un singolo file
@@ -74,19 +69,59 @@ class DettaglioArrivo extends Component
 
     public function estraiDatiDocumenti(GuestDataExtractionService $extraction, AdminNotificationService $notifications)
     {
-        $result = $extraction->extractForReservation($this->reservation);
-        $this->reservation->refresh();
+        // Document AI può richiedere 1–2 minuti (più chiamate API).
+        set_time_limit(300);
 
-        $hasNotes = collect($this->reservation->extracted_guests ?? [])
-            ->contains(fn ($g) => ! empty($g['extraction_notes']));
+        try {
+            $result = $extraction->extractForReservation($this->reservation);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Estrazione documenti fallita: '.$e->getMessage());
+            session()->flash('error', 'Estrazione interrotta: '.$e->getMessage().' — controlla storage/logs/laravel.log');
+
+            return;
+        }
+
+        $this->reservation->refresh();
+        $this->syncAdminTaxCodesFromReservation();
+
+        $guests = $this->reservation->extracted_guests ?? [];
+        $hasNotes = collect($guests)->contains(fn ($g) => ! empty($g['extraction_notes']));
+        $hasAnyData = collect($guests)->contains(function ($g) {
+            $d = $g['data'] ?? [];
+
+            return filled($d['tax_code'] ?? null)
+                || filled($d['first_name'] ?? null)
+                || filled($d['last_name'] ?? null);
+        });
+
+        $telegramOk = $result['success'] && ($hasAnyData || ! $hasNotes);
 
         $notifications->extractionDone(
             $this->reservation,
-            $result['success'] && ! $hasNotes,
+            $telegramOk,
             $result['message']
         );
 
-        session()->flash($result['success'] ? 'message' : 'error', $result['message']);
+        if ($result['success']) {
+            $msg = $result['message'];
+            if ($hasNotes) {
+                $msg .= ' Alcuni documenti hanno avvisi — vedi note sotto.';
+            }
+            session()->flash('message', $msg);
+        } else {
+            session()->flash('error', $result['message']);
+        }
+    }
+
+    private function syncAdminTaxCodesFromReservation(): void
+    {
+        $this->adminTaxCodes = [];
+
+        foreach ($this->reservation->contractGuests() as $guest) {
+            if (! ($guest['is_foreigner'] ?? false)) {
+                $this->adminTaxCodes[(int) ($guest['slot'] ?? 0)] = $guest['data']['tax_code'] ?? '';
+            }
+        }
     }
 
     public function saveAdminTaxCodes(): void

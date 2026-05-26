@@ -2,10 +2,11 @@
 
 namespace App\Services;
 
-use Illuminate\Http\UploadedFile;
+use App\Support\GoogleCredentials;
 use Google\Cloud\DocumentAI\V1\Client\DocumentProcessorServiceClient;
-use Google\Cloud\DocumentAI\V1\RawDocument;
 use Google\Cloud\DocumentAI\V1\ProcessRequest;
+use Google\Cloud\DocumentAI\V1\RawDocument;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 
 class DocumentAIService
@@ -22,15 +23,29 @@ class DocumentAIService
 
     private function processWithGoogleAI(UploadedFile $file, string $type): array
     {
+        $credentialsError = $this->credentialsConfigurationError();
+        if ($credentialsError !== null) {
+            return $credentialsError;
+        }
+
+        $projectId  = config('google.project_id');
+        $location   = config('google.document_ai.location', 'us');
+        $processorId = config('google.document_ai.processor_id');
+
+        if (! filled($projectId) || ! filled($processorId)) {
+            return [
+                'status'         => 'error',
+                'extracted_data' => [],
+                'message'        => 'Configurazione Google incompleta (project o processor ID mancante nel .env).',
+            ];
+        }
+
         try {
-            $projectId = env('GOOGLE_CLOUD_PROJECT_ID');
-            $location = env('GOOGLE_DOCUMENT_AI_LOCATION', 'eu');
-            $processorId = env('GOOGLE_DOCUMENT_AI_PROCESSOR_ID');
+            $credentialsPath = GoogleCredentials::resolvePath();
+            $client = new DocumentProcessorServiceClient(['credentials' => $credentialsPath]);
+            $name   = $client->processorName($projectId, $location, $processorId);
 
-            $client = new DocumentProcessorServiceClient();
-            $name = $client->processorName($projectId, $location, $processorId);
-
-            $content = file_get_contents($file->getRealPath());
+            $content     = file_get_contents($file->getRealPath());
             $rawDocument = (new RawDocument())
                 ->setContent($content)
                 ->setMimeType($file->getMimeType());
@@ -43,108 +58,432 @@ class DocumentAIService
             $document = $response->getDocument();
             $client->close();
 
-            $extractedData = [];
-            $fullText = strtoupper($document->getText());
-            
-            // ==========================================
-            // 1. LOGICA DOCUMENTI D'IDENTITÀ (BLINDATA)
-            // ==========================================
+            $fullText = $this->normalizeOcrText($document->getText());
+            $ocrPreview = implode("\n", array_slice(array_filter(explode("\n", $fullText)), 0, 25));
+
+            Log::info("DocumentAI OCR testo ({$type}): ".substr($fullText, 0, 800));
+
+            // Prova prima le entity strutturate (se disponibili su quel processor)
+            $entityData = $this->extractFromEntities($document, $type);
+
             if ($type === 'identity') {
-                $hasMRZ = false;
-                $confidenceScores = [];
-
-                // Verifica anti-falso basilare: deve esserci almeno la parola Repubblica, Passaporto, Carta, Identity ecc.
-                $isProbablyOfficial = preg_match('/REPUBBLICA|ITALIANA|IDENTITY|CARD|PASSPORT|DRIVING|PATENTE|CARTA/i', $fullText);
-
-                foreach ($document->getEntities() as $entity) {
-                    $entityType = $entity->getType();
-                    $text = trim($entity->getMentionText());
-                    $confidence = $entity->getConfidence();
-
-                    if ($entityType === 'MRZ Code' || str_contains($text, '<<<<')) {
-                        $hasMRZ = true;
-                    }
-                    if (in_array($entityType, ['First Name', 'Given Names']) && strlen($text) > 1) {
-                        $extractedData['first_name'] = $text;
-                        $confidenceScores['first_name'] = $confidence;
-                    }
-                    if (in_array($entityType, ['Last Name', 'Family Name']) && strlen($text) > 1) {
-                        $extractedData['last_name'] = $text;
-                        $confidenceScores['last_name'] = $confidence;
-                    }
-                    if (in_array($entityType, ['Birth Date', 'Date Of Birth', 'DOB', 'Date of Birth'])) {
-                        // Accetta formati come DD/MM/YYYY, DD.MM.YYYY, DD-MM-YYYY
-                        if (preg_match('/\b\d{2}[\/\-\.]\d{2}[\/\-\.]\d{4}\b/', $text)) {
-                            $extractedData['birth_date'] = $text;
-                            $confidenceScores['birth_date'] = $confidence;
-                        }
-                    }
+                if (! empty($entityData['first_name']) || ! empty($entityData['last_name'])) {
+                    return $this->buildIdentityResult($entityData, true, $ocrPreview);
                 }
 
-                $hasBasicFields = isset($extractedData['first_name']) && 
-                                  isset($extractedData['last_name']) && 
-                                  isset($extractedData['birth_date']);
+                $ocrData = $this->parseIdentityFromOcrText($fullText);
 
-                if (!$hasBasicFields || !$isProbablyOfficial) {
-                    return [
-                        'status' => 'error',
-                        'extracted_data' => [],
-                        'message' => "Immagine non conforme. Assicurati che nomi e date siano ben visibili e il documento sia reale."
-                    ];
-                }
-
-                // Se ha la striscia MRZ è praticamente garantito, sennò chiediamo una fiducia altissima (es. patente vecchia o ID cartacea)
-                $minConfidence = empty($confidenceScores) ? 0 : min($confidenceScores);
-                $isSuccess = $hasMRZ ? ($minConfidence >= 0.75) : ($minConfidence >= 0.90);
-
-                return [
-                    'status' => $isSuccess ? 'success' : 'error',
-                    'extracted_data' => $extractedData,
-                    'message' => $isSuccess ? 'Documento valido acquisito.' : 'Documento non sufficientemente chiaro o non valido. Riprova.'
-                ];
+                return $this->buildIdentityResult($ocrData, false, $ocrPreview);
             }
 
-            // ==========================================
-            // 2. LOGICA CODICE FISCALE (ANTIFRODE)
-            // ==========================================
             if ($type === 'tax_code') {
-                // Regex perfetta per il Codice Fiscale Italiano
-                $pattern = '/\b[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]\b/';
-                
-                // Deve contenere termini che indicano sia una tessera reale
-                $isRealCard = preg_match('/TESSERA|AGENZIA DELLE ENTRATE|MINISTERO|SALUTE|REGIONE/i', $fullText);
-
-                if (preg_match($pattern, $fullText, $matches)) {
-                    if ($isRealCard) {
-                        $extractedData['tax_code'] = $matches[0];
-                        return [
-                            'status' => 'success',
-                            'extracted_data' => $extractedData,
-                            'message' => 'Codice Fiscale valido acquisito.'
-                        ];
-                    } else {
-                        return [
-                            'status' => 'error',
-                            'extracted_data' => [],
-                            'message' => "CF rilevato, ma non sembra una vera Tessera Sanitaria. Inquadra il tesserino originale."
-                        ];
-                    }
-                }
-
-                return [
-                    'status' => 'error',
-                    'extracted_data' => [],
-                    'message' => 'Nessun Codice Fiscale valido rilevato. Assicurati di inquadrare bene la tessera.'
-                ];
+                return $this->parseTaxCodeFromText($fullText, $ocrPreview);
             }
 
         } catch (\Exception $e) {
-            Log::error('Errore Document AI: ' . $e->getMessage());
+            Log::error('Errore Document AI: '.$e->getMessage(), GoogleCredentials::diagnostics());
+
             return [
-                'status' => 'error',
+                'status'         => 'error',
                 'extracted_data' => [],
-                'message' => 'Errore di connessione ai server di validazione.'
+                'message'        => 'Errore Document AI: '.$e->getMessage(),
             ];
         }
+
+        return ['status' => 'error', 'extracted_data' => [], 'message' => 'Tipo documento non gestito.'];
+    }
+
+    /** Corregge caratteri OCR tipici (greco al posto di latino, ecc.). */
+    private function normalizeOcrText(string $text): string
+    {
+        $text = strtr($text, [
+            'Α' => 'A', 'Β' => 'B', 'Ε' => 'E', 'Ζ' => 'Z', 'Η' => 'H', 'Ι' => 'I',
+            'Κ' => 'K', 'Μ' => 'M', 'Ν' => 'N', 'Ο' => 'O', 'Ρ' => 'P', 'Τ' => 'T',
+            'Υ' => 'Y', 'Χ' => 'X',
+            'α' => 'a', 'β' => 'b', 'ε' => 'e', 'ι' => 'i', 'κ' => 'k', 'μ' => 'm',
+            'ν' => 'n', 'ο' => 'o', 'ρ' => 'p', 'τ' => 't', 'υ' => 'y', 'χ' => 'x',
+        ]);
+
+        return $text;
+    }
+
+    // -----------------------------------------------------------------------
+    // Entity strutturate (Identity Document Parser se disponibile)
+    // -----------------------------------------------------------------------
+
+    private function extractFromEntities(\Google\Cloud\DocumentAI\V1\Document $document, string $type): array
+    {
+        $data = [];
+
+        foreach ($document->getEntities() as $entity) {
+            $entityType = $entity->getType();
+            $text       = trim($entity->getMentionText());
+
+            if ($type === 'identity') {
+                if (in_array($entityType, ['First Name', 'Given Names', 'given-name'])) {
+                    $data['first_name'] = $text;
+                }
+                if (in_array($entityType, ['Last Name', 'Family Name', 'family-name', 'surname'])) {
+                    $data['last_name'] = $text;
+                }
+                if (in_array($entityType, ['Birth Date', 'Date Of Birth', 'DOB', 'Date of Birth', 'birth-date'])) {
+                    $data['birth_date'] = $text;
+                }
+                if (in_array($entityType, ['Document Number', 'document-number', 'id-number'])) {
+                    $data['document_number'] = $text;
+                }
+                if ($entityType === 'MRZ Code' || str_contains($text, '<<')) {
+                    $data['has_mrz'] = true;
+                    // Prova a estrarre dalla MRZ se i campi non sono stati trovati
+                    $mrz = $this->parseMrz($text);
+                    if (! empty($mrz)) {
+                        $data = array_merge($mrz, array_filter($data));
+                    }
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    // -----------------------------------------------------------------------
+    // Parsing OCR testo grezzo — CI italiana / passaporto
+    // -----------------------------------------------------------------------
+
+    private function parseIdentityFromOcrText(string $text): array
+    {
+        // Retro CI: "DI" su riga da sola → cognome → nome (come nel log OCR)
+        // NON usare \bDI perché matcha anche "COMUNE DI" + riga successiva (es. SENISE)
+        $back = $this->parseIdentityCardBack($text);
+        if (! empty($back)) {
+            return $back;
+        }
+
+        $data = [];
+
+        // MRZ (CI elettronica / passaporto)
+        $lines = array_values(array_filter(array_map('trim', preg_split('/\r?\n/', $text))));
+        $mrzLines = array_values(array_filter($lines, fn ($l) => substr_count($l, '<') >= 3));
+        if (count($mrzLines) >= 2) {
+            $mrz = $this->parseMrz(implode("\n", array_slice($mrzLines, 0, 3)));
+            if ($this->isPlausiblePersonName($mrz['last_name'] ?? null)) {
+                $data = array_merge($data, array_filter($mrz));
+            }
+        }
+
+        // Fronte CI cartacea: Cognome / Nome / nato il
+        $data['last_name'] = $data['last_name'] ?? $this->valueAfterLabel($text, ['Cognome', 'COGNOME', 'Surname']);
+        $data['first_name'] = $data['first_name'] ?? $this->valueAfterLabel($text, ['Nome', 'NOME', 'Name', 'Given names']);
+
+        $birth = $this->parseBirthDateLabeled($text);
+        if ($birth) {
+            $data['birth_date'] = $birth;
+        }
+
+        if (preg_match('/\b([A-Z]{2}\s?\d{7})\b/i', $text, $m)) {
+            $data['document_number'] = strtoupper(preg_replace('/\s+/', '', $m[1]));
+        }
+
+        foreach (['first_name', 'last_name'] as $key) {
+            if (! $this->isPlausiblePersonName($data[$key] ?? null)) {
+                unset($data[$key]);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Retro carta d'identità: blocco
+     *   DI
+     *   CASTRONUOVO
+     *   ANTONIO MASSIMO
+     *
+     * @return array<string, mixed>
+     */
+    private function parseIdentityCardBack(string $text): array
+    {
+        if (! preg_match('/CARTA\s+D.?IDENTIT|DATA\s+SCADENZA|SCADENZA:/i', $text)) {
+            return [];
+        }
+
+        if (! preg_match(
+            '/(?:^|\R)DI\s*\R\s*([A-ZÀÈÉÌÒÙ][A-ZÀÈÉÌÒÙ\'\-]+)\s*\R\s*([A-ZÀ-ÿ][A-Za-zÀ-ÿ\s\'\-]{2,50})/u',
+            $text,
+            $m
+        )) {
+            return [];
+        }
+
+        $data = [
+            'last_name' => $this->formatPersonName($m[1]),
+            'first_name' => $this->formatPersonName($m[2]),
+            'parse_source' => 'di_block',
+        ];
+
+        if (preg_match('/scadenza[:\s]*(\d{2}[\/\-\.]\d{2}[\/\-\.]\d{4})/iu', $text, $exp)) {
+            $data['document_expiry'] = $exp[1];
+        }
+
+        if (preg_match('/\b([A-Z]{2}\s?\d{7})\b/i', $text, $dn)) {
+            $data['document_number'] = strtoupper(preg_replace('/\s+/', '', $dn[1]));
+        }
+
+        return array_filter($data);
+    }
+
+    /** Legge il valore dopo un'etichetta (stessa riga o riga successiva). */
+    private function valueAfterLabel(string $text, array $labels): ?string
+    {
+        // Su tessera/CI i nomi sono in MAIUSCOLO: fermati prima della prossima etichetta
+        $value = "([A-ZÀÈÉÌÒÙ][A-ZÀÈÉÌÒÙ'\\-]+(?:\\s+[A-ZÀÈÉÌÒÙ][A-ZÀÈÉÌÒÙ'\\-]+)*)";
+        $stop = '(?=\s*(?:Nome|NOME|Cognome|COGNOME|Data|DATA|Codice|CODICE|Luogo|LUOGO|Sesso|SESSO|Provincia|\n|$))';
+
+        foreach ($labels as $label) {
+            // "Cognome CASTRONUOVO" oppure "Cognome....CASTRONUOVO" oppure "Nome.\nANTONIO"
+            $sameLine = '/\b'.preg_quote($label, '/').'[.\s:]*'.$value.$stop.'/u';
+            if (preg_match($sameLine, $text, $m)) {
+                $v = $this->formatPersonName($m[1]);
+                if ($this->isPlausiblePersonName($v)) {
+                    return $v;
+                }
+            }
+
+            $nextLine = '/\b'.preg_quote($label, '/').'[.\s:]*\n\s*'.$value.'/u';
+            if (preg_match($nextLine, $text, $m)) {
+                $v = $this->formatPersonName($m[1]);
+                if ($this->isPlausiblePersonName($v)) {
+                    return $v;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function parseBirthDateLabeled(string $text): ?string
+    {
+        // Tessera: "Data\n16/01/1982\ndi nascita"
+        if (preg_match('/\bData\s*\n\s*(\d{2})[\/\-\.](\d{2})[\/\-\.](\d{4})\s*\n\s*di\s+nascita/ius', $text, $m)) {
+            return sprintf('%02d/%02d/%04d', (int) $m[1], (int) $m[2], (int) $m[3]);
+        }
+
+        // "Data di nascita 16/01/1982" (stessa riga)
+        if (preg_match('/data\s+di\s+nascita[^\d]{0,15}(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/iu', $text, $m)) {
+            return sprintf('%02d/%02d/%04d', (int) $m[1], (int) $m[2], (int) $m[3]);
+        }
+
+        $months = 'gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre';
+
+        // CI cartacea: "nato il.\n16-gennaio 1982"
+        if (preg_match('/nato\s+il[.\s]*\n?\s*(\d{1,2})[\-\s]+('.$months.')\s+(\d{4})/iu', $text, $m)) {
+            return $this->dateFromItalianMonth((int) $m[1], $m[2], (int) $m[3]);
+        }
+
+        if (preg_match('/nato\s+il[.\s]*\n?\s*(\d{1,2})\s+('.$months.')\s+(\d{4})/iu', $text, $m)) {
+            return $this->dateFromItalianMonth((int) $m[1], $m[2], (int) $m[3]);
+        }
+
+        return null;
+    }
+
+    private function dateFromItalianMonth(int $day, string $monthName, int $year): ?string
+    {
+        $monthMap = [
+            'gennaio' => 1, 'febbraio' => 2, 'marzo' => 3, 'aprile' => 4,
+            'maggio' => 5, 'giugno' => 6, 'luglio' => 7, 'agosto' => 8,
+            'settembre' => 9, 'ottobre' => 10, 'novembre' => 11, 'dicembre' => 12,
+        ];
+        $month = $monthMap[strtolower(trim($monthName))] ?? 0;
+
+        return $month > 0 ? sprintf('%02d/%02d/%04d', $day, $month, $year) : null;
+    }
+
+    private function formatPersonName(string $raw): string
+    {
+        $raw = trim(preg_replace('/\s+/', ' ', $raw));
+        // Suffissi OCR dal retro CI (es. LPZS.AC.C.V.-ROMA)
+        $raw = preg_replace('/\s+(LPZS|ROMA|AC\.?\s*C\.?\s*V\.?).*$/iu', '', $raw);
+
+        return ucwords(strtolower($raw));
+    }
+
+    private function isPlausiblePersonName(?string $name): bool
+    {
+        if ($name === null || strlen(trim($name)) < 2) {
+            return false;
+        }
+
+        $upper = strtoupper($name);
+        $blocked = [
+            'COMUNE', 'REPUBBLICA', 'ITALIANA', 'CARTA', 'IDENTITA', 'IDENTITY',
+            'TECNICO', 'IMPIANTISTA', 'PROFESSIONE', 'PROFESSION', 'AGENZIA',
+            'MINISTERO', 'SALUTE', 'REGIONE', 'TESSERA', 'SCADENZA', 'VALID',
+            'DOCUMENTO', 'RILASCIO', 'FIRMA', 'CITTADINANZA', 'STATURA',
+            'MALATTIA', 'SANITARIO', 'SERVIZIO', 'NAZIONALE', 'EUROPEAN', 'HEALTH',
+            'DATA DI', 'CODICE',
+        ];
+
+        foreach ($blocked as $word) {
+            if (str_contains($upper, $word)) {
+                return false;
+            }
+        }
+
+        return (bool) preg_match("/^[A-Za-zÀ-ÿ'\\-\\s]{2,50}$/u", $name);
+    }
+
+    // -----------------------------------------------------------------------
+    // Parsing MRZ (macchina di lettura passport/ID)
+    // -----------------------------------------------------------------------
+
+    private function parseMrz(string $mrz): array
+    {
+        $data  = [];
+        $lines = array_values(array_filter(
+            array_map('trim', preg_split('/\r?\n/', $mrz)),
+            fn ($l) => strlen($l) >= 20 && substr_count($l, '<') >= 2
+        ));
+
+        if (empty($lines)) {
+            return $data;
+        }
+
+        // Passaporto TD3: riga 1 = P<COD_PAESE+COGNOME<<NOME
+        if (str_starts_with($lines[0], 'P<') || str_starts_with($lines[0], 'P ')) {
+            $nameField = substr($lines[0], 5);
+            if (str_contains($nameField, '<<')) {
+                [$surnameRaw, $givenRaw] = explode('<<', $nameField, 2);
+                $data['last_name']  = ucwords(strtolower(str_replace('<', ' ', $surnameRaw)));
+                $data['first_name'] = ucwords(strtolower(str_replace('<', ' ', $givenRaw)));
+            }
+        }
+
+        // ID carta (TD1/TD2): riga 2, posizioni 0-5 = data nascita AAMMGG
+        foreach ($lines as $line) {
+            if (preg_match('/^(\d{6})[MF<]/', $line, $m)) {
+                $raw = $m[1]; // AAMMGG
+                $yy  = (int) substr($raw, 0, 2);
+                $year = $yy > 30 ? "19{$yy}" : "20{$yy}";
+                $data['birth_date'] = substr($raw, 4, 2).'/'.substr($raw, 2, 2).'/'.$year;
+                break;
+            }
+        }
+
+        // Per TD1 (CI): riga 0 = tipo, riga 1 = data; riga 2 = COGNOME<<NOME
+        if (empty($data['last_name']) && count($lines) >= 3) {
+            $nameLine = $lines[2];
+            if (str_contains($nameLine, '<<')) {
+                [$surnameRaw, $givenRaw] = explode('<<', $nameLine, 2);
+                $data['last_name']  = ucwords(strtolower(str_replace('<', ' ', $surnameRaw)));
+                $data['first_name'] = ucwords(strtolower(str_replace('<', ' ', $givenRaw)));
+            }
+        }
+
+        // Pulizia spazi multipli
+        foreach (['last_name', 'first_name'] as $key) {
+            if (isset($data[$key])) {
+                $data[$key] = trim(preg_replace('/\s+/', ' ', $data[$key]));
+            }
+        }
+
+        return $data;
+    }
+
+    // -----------------------------------------------------------------------
+    // Build result identity
+    // -----------------------------------------------------------------------
+
+    private function buildIdentityResult(array $data, bool $fromEntities, string $ocrPreview = ''): array
+    {
+        $hasName = ! empty($data['first_name']) || ! empty($data['last_name']);
+        $payload = array_filter([
+            'first_name'       => $data['first_name']       ?? null,
+            'last_name'        => $data['last_name']         ?? null,
+            'birth_date'       => $data['birth_date']        ?? null,
+            'document_number'  => $data['document_number']   ?? null,
+            'document_expiry'  => $data['document_expiry']   ?? null,
+            'parse_source'     => $data['parse_source']      ?? ($fromEntities ? 'entities' : 'ocr'),
+        ]);
+
+        $base = [
+            'ocr_preview' => $ocrPreview,
+        ];
+
+        if (! $hasName) {
+            return array_merge($base, [
+                'status'         => 'partial',
+                'extracted_data' => $payload,
+                'message'        => 'Documento letto, ma nome/cognome non rilevati automaticamente. Inserire manualmente.',
+            ]);
+        }
+
+        return array_merge($base, [
+            'status'         => 'success',
+            'extracted_data' => $payload,
+            'message'        => 'Documento acquisito'.($fromEntities ? ' (strutturato).' : ' (OCR).'),
+        ]);
+    }
+
+    // -----------------------------------------------------------------------
+    // Codice Fiscale
+    // -----------------------------------------------------------------------
+
+    private function parseTaxCodeFromText(string $fullText, string $ocrPreview = ''): array
+    {
+        $upper = strtoupper($fullText);
+        $extracted = [];
+
+        $extracted['last_name'] = $this->valueAfterLabel($fullText, ['Cognome', 'COGNOME']);
+        $extracted['first_name'] = $this->valueAfterLabel($fullText, ['Nome', 'NOME']);
+        $extracted['birth_date'] = $this->parseBirthDateLabeled($fullText);
+
+        $pattern = '/\b([A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z])\b/';
+        if (preg_match($pattern, $upper, $matches)) {
+            $extracted['tax_code'] = $matches[1];
+        }
+
+        $extracted = array_filter($extracted);
+
+        if (! empty($extracted['tax_code'])) {
+            $isRealCard = preg_match('/TESSERA|AGENZIA\s+DELLE\s+ENTRATE|MINISTERO|SALUTE|REGIONE/i', $fullText);
+
+            return [
+                'status'         => 'success',
+                'extracted_data' => array_merge($extracted, ['parse_source' => 'tessera_labels']),
+                'message'        => $isRealCard
+                    ? 'Tessera sanitaria acquisita (CF e dati anagrafici).'
+                    : 'CF acquisito.',
+                'ocr_preview'    => $ocrPreview,
+            ];
+        }
+
+        return [
+            'status'         => 'error',
+            'extracted_data' => [],
+            'message'        => 'Nessun Codice Fiscale valido rilevato. Assicurati di inquadrare bene la tessera.',
+            'ocr_preview'    => $ocrPreview,
+        ];
+    }
+
+    // -----------------------------------------------------------------------
+    // Credentials check
+    // -----------------------------------------------------------------------
+
+    /** @return array{status: string, extracted_data: array, message: string}|null */
+    protected function credentialsConfigurationError(): ?array
+    {
+        if (! GoogleCredentials::isReadable()) {
+            $diag = GoogleCredentials::diagnostics();
+            Log::error('Document AI: credenziali Google non disponibili', $diag);
+
+            $hint = filled($diag['configured']) && ! $diag['exists']
+                ? 'File JSON non trovato. Carica google-credentials.json e usa percorso assoluto nel .env (Plesk).'
+                : 'File credenziali mancante o non leggibile.';
+
+            return ['status' => 'error', 'extracted_data' => [], 'message' => $hint];
+        }
+
+        return null;
     }
 }
