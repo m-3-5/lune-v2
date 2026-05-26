@@ -50,9 +50,9 @@
                     <a href="{{ route('admin.video') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">🎥 Gestione Video</a>
                     <a href="{{ route('admin.contratti') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">📄 Contratti</a>
                     <a href="{{ route('admin.progetto') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800 mt-4 border-t border-slate-700 pt-4">📋 Progetto e task</a>
-                    @if (\App\Support\JluneDeveloperAccess::isGranted())
-                        <a href="{{ route('admin.sviluppo') }}" class="block px-3 py-2 rounded-md text-xs font-medium text-slate-400 hover:bg-slate-800">🔧 Sviluppo</a>
-                    @endif
+                    <a href="{{ route('admin.sviluppo') }}" class="block px-3 py-2 rounded-md text-xs font-medium {{ \App\Support\JluneDeveloperAccess::isGranted() ? 'text-slate-300' : 'text-slate-500' }} hover:bg-slate-800">
+                        🔧 Sviluppo (team)@if (! \App\Support\JluneDeveloperAccess::isGranted()) 🔒@endif
+                    </a>
                 </nav>
             </div>
         </div>
@@ -73,9 +73,11 @@
                             <li><a href="{{ route('admin.video') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">🎥 Gestione Video</a></li>
                             <li><a href="{{ route('admin.contratti') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">📄 Contratti</a></li>
                             <li><a href="{{ route('admin.progetto') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 border-t border-slate-700 pt-4 transition-colors">📋 Progetto e task</a></li>
-                            @if (\App\Support\JluneDeveloperAccess::isGranted())
-                                <li><a href="{{ route('admin.sviluppo') }}" class="block rounded-md px-3 py-2 text-xs font-semibold text-slate-400 hover:bg-slate-800 transition-colors">🔧 Sviluppo</a></li>
-                            @endif
+                            <li>
+                                <a href="{{ route('admin.sviluppo') }}" class="block rounded-md px-3 py-2 text-xs font-semibold {{ \App\Support\JluneDeveloperAccess::isGranted() ? 'text-slate-300' : 'text-slate-500' }} hover:bg-slate-800 transition-colors">
+                                    🔧 Sviluppo (team)@if (! \App\Support\JluneDeveloperAccess::isGranted()) 🔒@endif
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 </ul>
