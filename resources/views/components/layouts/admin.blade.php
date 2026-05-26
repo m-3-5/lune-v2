@@ -100,7 +100,7 @@
             <div class="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-end border-b border-gray-200 bg-white/95 backdrop-blur px-4 md:px-8">
                 @livewire('admin.notifications-bell')
             </div>
-            <div class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+            <div class="p-4 sm:p-6 lg:p-8 pb-24 max-w-7xl mx-auto w-full">
                 {{ $slot }}
             </div>
         </main>

@@ -20,51 +20,10 @@
         </button>
     </section>
 
-    <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-        <h2 class="text-lg font-black mb-2">Contatti admin (anteprime)</h2>
-        <div class="grid md:grid-cols-2 gap-4">
-            <textarea wire:model="adminEmailsText" rows="3" class="w-full rounded-xl border-gray-200 text-sm font-mono"></textarea>
-            <textarea wire:model="adminPhonesText" rows="3" class="w-full rounded-xl border-gray-200 text-sm font-mono"></textarea>
-        </div>
-        <button type="button" wire:click="saveContacts" class="mt-3 px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-black uppercase">Salva</button>
-    </section>
-
-    <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-        <h2 class="text-lg font-black mb-2">Guida (testo in Progetto)</h2>
-        <textarea wire:model="appGuide" rows="14" class="w-full rounded-xl border-gray-200 text-sm font-mono"></textarea>
-        <button type="button" wire:click="saveGuide" class="mt-3 px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase">Salva guida</button>
-    </section>
-
-    <section class="bg-white rounded-3xl shadow-sm border border-indigo-100 p-6">
-        <h2 class="text-lg font-black text-indigo-950 mb-4">Modifica costi</h2>
-        <div class="flex flex-wrap gap-4 items-end mb-4">
-            <div>
-                <label class="text-xs font-black uppercase text-gray-400">Base €</label>
-                <input type="number" step="0.01" wire:model="projectBaseCost" class="block w-32 rounded-xl border-gray-200 font-bold" />
-            </div>
-            <p class="text-lg font-black text-indigo-700">Totale: € {{ number_format($totalCost, 2, ',', '.') }}</p>
-        </div>
-        @foreach ($costEntries as $index => $entry)
-            <div class="flex justify-between text-sm bg-gray-50 rounded-xl px-3 py-2 mb-2">
-                <span>{{ $entry['label'] }} — € {{ $entry['amount'] }}</span>
-                <button type="button" wire:click="removeCostEntry({{ $index }})" class="text-red-600 text-xs font-bold">×</button>
-            </div>
-        @endforeach
-        <div class="grid sm:grid-cols-3 gap-2 mt-4">
-            <input wire:model="newCostLabel" placeholder="Descrizione" class="rounded-xl border-gray-200 text-sm" />
-            <input type="number" wire:model="newCostAmount" placeholder="€" class="rounded-xl border-gray-200 text-sm" />
-            <input type="date" wire:model="newCostDate" class="rounded-xl border-gray-200 text-sm" />
-        </div>
-        <div class="flex gap-2 mt-2">
-            <button type="button" wire:click="addCostEntry" class="px-4 py-2 bg-indigo-100 text-indigo-800 rounded-xl text-xs font-black uppercase">+ Voce</button>
-            <button type="button" wire:click="saveCosts" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-black uppercase">Salva costi</button>
-        </div>
-    </section>
-
     @if ($testBookingsEnabled)
-    <section class="bg-white rounded-3xl shadow-sm border-2 border-violet-200 p-6 space-y-4">
+    <section class="bg-white rounded-3xl shadow-sm border-2 border-violet-300 p-6 space-y-4 pb-8">
         <h2 class="text-lg font-black text-violet-950">Prenotazione TEST (solo sviluppo)</h2>
-        <p class="text-xs text-violet-800/90">Crea un link ospite fittizio per provare documenti, contratto e notifiche. Non compare su Checkfront. Eliminabile quando hai finito.</p>
+        <p class="text-xs text-violet-800/90">Crea un link ospite fittizio per provare documenti, contratto e notifiche. Scorri in basso e premi il pulsante viola.</p>
 
         <div class="grid sm:grid-cols-2 gap-3">
             <div>
@@ -75,10 +34,10 @@
                     @endforeach
                 </select>
             </div>
-            <div class="flex items-end">
+            <div class="flex items-end pb-1">
                 <label class="flex items-center gap-2 text-sm font-bold">
                     <input type="checkbox" wire:model="testIsPaid" class="rounded border-gray-300 text-violet-600" />
-                    Segna come già pagato (sblocca documenti)
+                    Già pagato (sblocca documenti)
                 </label>
             </div>
             <div>
@@ -130,39 +89,41 @@
         @endif
 
         <div>
-            <label class="text-[10px] font-black uppercase text-gray-400">Note test (commenti ok / problemi)</label>
+            <label class="text-[10px] font-black uppercase text-gray-400">Note test (opzionale)</label>
             <textarea wire:model="testNotes" rows="2" class="w-full rounded-xl border-gray-200 text-sm mt-1"
-                placeholder="Es: upload CI ok, contratto da verificare…"></textarea>
+                placeholder="Es: upload CI ok…"></textarea>
         </div>
 
-        <button type="button" wire:click="createTestReservation"
-            class="px-6 py-3 bg-violet-600 text-white rounded-2xl text-xs font-black uppercase">
-            Crea prenotazione TEST
-        </button>
+        <div class="pt-2 pb-2">
+            <button type="button" wire:click="createTestReservation" wire:loading.attr="disabled"
+                class="w-full py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl text-sm font-black uppercase tracking-wider shadow-lg">
+                <span wire:loading.remove wire:target="createTestReservation">Crea prenotazione TEST</span>
+                <span wire:loading wire:target="createTestReservation">Creazione…</span>
+            </button>
+        </div>
 
         @if ($lastTestPortalUrl)
             <div class="bg-violet-50 border border-violet-200 rounded-2xl p-4 text-sm">
-                <p class="font-black text-violet-900 mb-2">Link area ospite (apri da telefono o incognito):</p>
+                <p class="font-black text-violet-900 mb-2">Link area ospite:</p>
                 <a href="{{ $lastTestPortalUrl }}" target="_blank" class="text-violet-700 font-bold break-all underline">{{ $lastTestPortalUrl }}</a>
             </div>
         @endif
 
         @if ($testReservations->isNotEmpty())
             <div class="border-t border-violet-100 pt-4">
-                <p class="text-[10px] font-black uppercase text-gray-400 mb-2">Test attivi / recenti</p>
+                <p class="text-[10px] font-black uppercase text-gray-400 mb-2">Test recenti</p>
                 <ul class="space-y-2 text-xs">
                     @foreach ($testReservations as $tr)
                         <li class="flex flex-wrap items-center justify-between gap-2 bg-gray-50 rounded-xl px-3 py-2">
                             <span>
                                 <span class="font-black text-violet-700">TEST</span>
                                 {{ $tr->guestDisplayName() }} · {{ $tr->apartment->name ?? '—' }}
-                                · {{ $tr->check_in->format('d/m') }}→{{ $tr->check_out->format('d/m') }}
                             </span>
                             <span class="flex gap-2">
                                 <a href="{{ $tr->guest_portal_url }}" target="_blank" class="font-bold text-indigo-600 underline">Ospite</a>
                                 <a href="{{ route('admin.arrivi.show', $tr->id) }}" class="font-bold text-indigo-600 underline">Admin</a>
                                 <button type="button" wire:click="deleteTestReservation({{ $tr->id }})"
-                                    wire:confirm="Eliminare questa prenotazione TEST e i documenti collegati?"
+                                    wire:confirm="Eliminare questa prenotazione TEST?"
                                     class="font-bold text-red-600">Elimina</button>
                             </span>
                         </li>
@@ -172,6 +133,47 @@
         @endif
     </section>
     @endif
+
+    <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
+        <h2 class="text-lg font-black mb-2">Contatti admin (anteprime)</h2>
+        <div class="grid md:grid-cols-2 gap-4">
+            <textarea wire:model="adminEmailsText" rows="3" class="w-full rounded-xl border-gray-200 text-sm font-mono"></textarea>
+            <textarea wire:model="adminPhonesText" rows="3" class="w-full rounded-xl border-gray-200 text-sm font-mono"></textarea>
+        </div>
+        <button type="button" wire:click="saveContacts" class="mt-3 px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-black uppercase">Salva</button>
+    </section>
+
+    <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
+        <h2 class="text-lg font-black mb-2">Guida (testo in Progetto)</h2>
+        <textarea wire:model="appGuide" rows="14" class="w-full rounded-xl border-gray-200 text-sm font-mono"></textarea>
+        <button type="button" wire:click="saveGuide" class="mt-3 px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase">Salva guida</button>
+    </section>
+
+    <section class="bg-white rounded-3xl shadow-sm border border-indigo-100 p-6">
+        <h2 class="text-lg font-black text-indigo-950 mb-4">Modifica costi</h2>
+        <div class="flex flex-wrap gap-4 items-end mb-4">
+            <div>
+                <label class="text-xs font-black uppercase text-gray-400">Base €</label>
+                <input type="number" step="0.01" wire:model="projectBaseCost" class="block w-32 rounded-xl border-gray-200 font-bold" />
+            </div>
+            <p class="text-lg font-black text-indigo-700">Totale: € {{ number_format($totalCost, 2, ',', '.') }}</p>
+        </div>
+        @foreach ($costEntries as $index => $entry)
+            <div class="flex justify-between text-sm bg-gray-50 rounded-xl px-3 py-2 mb-2">
+                <span>{{ $entry['label'] }} — € {{ $entry['amount'] }}</span>
+                <button type="button" wire:click="removeCostEntry({{ $index }})" class="text-red-600 text-xs font-bold">×</button>
+            </div>
+        @endforeach
+        <div class="grid sm:grid-cols-3 gap-2 mt-4">
+            <input wire:model="newCostLabel" placeholder="Descrizione" class="rounded-xl border-gray-200 text-sm" />
+            <input type="number" wire:model="newCostAmount" placeholder="€" class="rounded-xl border-gray-200 text-sm" />
+            <input type="date" wire:model="newCostDate" class="rounded-xl border-gray-200 text-sm" />
+        </div>
+        <div class="flex gap-2 mt-2">
+            <button type="button" wire:click="addCostEntry" class="px-4 py-2 bg-indigo-100 text-indigo-800 rounded-xl text-xs font-black uppercase">+ Voce</button>
+            <button type="button" wire:click="saveCosts" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-black uppercase">Salva costi</button>
+        </div>
+    </section>
 
     <section class="bg-white rounded-3xl shadow-sm border border-emerald-100 p-6 space-y-4">
         <h2 class="text-lg font-black text-emerald-950">Notifiche Serenella ↔ Team</h2>
