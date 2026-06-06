@@ -51,6 +51,16 @@ class AppSettings
         static::set('under_construction', $on);
     }
 
+    public static function testBookingsAdminEnabled(): bool
+    {
+        return (bool) static::get('test_bookings_admin_enabled', false);
+    }
+
+    public static function setTestBookingsAdminEnabled(bool $on): void
+    {
+        static::set('test_bookings_admin_enabled', $on);
+    }
+
     /**
      * @return array<int, string>
      */

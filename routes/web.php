@@ -7,6 +7,7 @@ use App\Http\Controllers\PushSubscriptionController;
 use Livewire\Volt\Volt;
 use App\Livewire\Admin\DettaglioArrivo;
 use App\Livewire\Admin\ProgettoPage;
+use App\Livewire\Admin\ProvaPage;
 use App\Livewire\Admin\ReservationsModule;
 use App\Livewire\Admin\SviluppoPage;
 
@@ -40,6 +41,7 @@ Route::prefix('admin')->group(function () {
     Route::get('/video', function () { return view('admin.video'); })->name('admin.video');
     Route::get('/contratti', function () { return view('admin.contratti'); })->name('admin.contratti');
     Route::get('/progetto', ProgettoPage::class)->name('admin.progetto');
+    Route::get('/prova', ProvaPage::class)->name('admin.prova');
     Route::get('/sviluppo', SviluppoPage::class)->name('admin.sviluppo');
     Route::redirect('/configura', '/admin/progetto');
 });

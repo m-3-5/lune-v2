@@ -27,6 +27,9 @@ class TeamAlertNotifier
     public function forReservation(Reservation $reservation, string $title, string $body, string $tag = 'team'): void
     {
         $reservation->loadMissing('apartment');
+        if ($reservation->is_test) {
+            $title = '[TEST] '.$title;
+        }
         $code = $reservation->booking_code ?? '#'.$reservation->checkfront_booking_id;
         $apt = $reservation->apartment?->name ?? '—';
         $prefix = "{$code} · {$apt}\n";

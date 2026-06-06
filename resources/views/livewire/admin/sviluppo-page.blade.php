@@ -22,8 +22,15 @@
 
     @if ($testBookingsEnabled)
     <section class="bg-white rounded-3xl shadow-sm border-2 border-indigo-200 p-6 space-y-4 pb-8">
-        <h2 class="text-lg font-black text-indigo-950">Prenotazione TEST (solo sviluppo)</h2>
-        <p class="text-xs text-gray-600">Crea un link ospite fittizio per provare documenti, contratto e notifiche. Poi premi il pulsante blu in basso.</p>
+        <div class="flex flex-wrap justify-between gap-2 items-start">
+            <div>
+                <h2 class="text-lg font-black text-indigo-950">Prenotazione TEST (team)</h2>
+                <p class="text-xs text-gray-600">Form completo (extra, note). Serenella usa <a href="{{ route('admin.prova') }}" class="text-indigo-600 font-bold underline">Prova flusso</a>.</p>
+            </div>
+            <p class="text-[10px] font-black uppercase {{ \App\Support\AppSettings::testBookingsAdminEnabled() ? 'text-green-700' : 'text-gray-400' }}">
+                Prova Serenella: {{ \App\Support\AppSettings::testBookingsAdminEnabled() ? 'ON' : 'OFF' }}
+            </p>
+        </div>
 
         <div class="grid sm:grid-cols-2 gap-3">
             <div>

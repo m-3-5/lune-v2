@@ -90,6 +90,7 @@ L’app è in **fase avanzata** su documenti e contratto; altre parti sono ancor
 ### Pannello admin (Serenella)
 - **Dashboard** con agenda (**Oggi / Domani**, striscia 7 giorni, switch **Arrivi imminenti** 14 giorni), card domande aperte.
 - **Arrivi e documenti**: elenco Future / Archivio / Cancellate; dettaglio per ogni prenotazione.
+- **Prova flusso** (`/admin/prova`): crea prenotazioni **TEST** senza Checkfront (link ospite, documenti, contratto). Attiva/disattiva con l'interruttore in pagina — **non sono prenotazioni reali** (badge TEST).
 - Nel dettaglio: anteprima file, approva/rifiuta documenti, **Estrai dati (Document AI)** — **attivo** (maggio 2026), modifica CF, anteprima OCR per documento, export **JSON / CSV / XML**, scegli IT/EN, **«Contratto pronto — invia per la firma»**.
 - Dati Checkfront in scheda (ospiti, letti, note, totali pagati).
 - **Notifiche in-app** (campanella in alto): nuovi documenti, prenotazioni, anteprime in costruzione.

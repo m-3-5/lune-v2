@@ -55,7 +55,7 @@ class AdminNotificationService
 
         $notification = AdminNotification::create([
             'type' => $type,
-            'title' => $title,
+            'title' => $reservation->is_test ? '[TEST] '.$title : $title,
             'body' => $body,
             'reservation_id' => $reservation->id,
         ]);
