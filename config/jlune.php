@@ -17,4 +17,15 @@ return [
         env('APP_ENV', 'production') === 'local'
     ),
 
+    /*
+    | WhatsApp admin (opzionale). provider: log | callmebot
+    | CallMeBot: ogni numero deve avere la propria apikey (https://www.callmebot.com/)
+    */
+    'whatsapp_provider' => env('JLUNE_WHATSAPP_PROVIDER', 'log'),
+
+    'whatsapp_callmebot_keys' => array_filter(array_map(
+        'trim',
+        explode(',', (string) env('JLUNE_WHATSAPP_CALLMEBOT_KEYS', ''))
+    )),
+
 ];

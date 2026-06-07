@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\GuestNotification;
 use App\Models\Reservation;
 use App\Support\AppSettings;
+use App\Support\NotificationUrls;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -23,7 +24,7 @@ class ClientOutboundNotificationService
         protected GuestNotificationService $guestNotifications,
         protected AdminNotificationService $adminNotifications,
         protected TeamAlertNotifier $teamAlerts,
-        protected AdminPushNotifier $guestPush,
+        protected GuestOutboundNotifier $guestOutbound,
     ) {}
 
     public function deliver(
@@ -34,20 +35,38 @@ class ClientOutboundNotificationService
         ?string $actionUrl = null,
         int $dedupeHours = 24
     ): ?GuestNotification {
-        if (AppSettings::underConstruction()) {
+        if (AppSettings::underConstruction() && ! $reservation->allowsGuestNotificationsDelivery()) {
             $this->previewToAdmins($reservation, $type, $title, $body, $actionUrl);
 
             return null;
         }
 
-        return $this->guestNotifications->createInApp(
+        if (! AppSettings::guestNotificationsEnabled()) {
+            return null;
+        }
+
+        $actionUrl = NotificationUrls::absolute($actionUrl, $reservation);
+        $bodyWithLink = NotificationUrls::appendLinkLine($body ?? '', $actionUrl);
+
+        $notification = $this->guestNotifications->createInApp(
             $reservation,
             $type,
             $title,
-            $body,
+            $bodyWithLink,
             $actionUrl,
             $dedupeHours
         );
+
+        if ($notification !== null) {
+            $this->guestOutbound->notify(
+                $reservation,
+                $title,
+                $bodyWithLink,
+                $actionUrl,
+            );
+        }
+
+        return $notification;
     }
 
     protected function previewToAdmins(
@@ -65,6 +84,8 @@ class ClientOutboundNotificationService
         $emails = AppSettings::adminEmails();
         $phones = AppSettings::adminPhones();
 
+        $guestUrl = NotificationUrls::absolute($actionUrl, $reservation);
+
         $previewBody = implode("\n", array_filter([
             'Modalità «App in costruzione» attiva: questa notifica NON è stata inviata all\'ospite.',
             '',
@@ -75,12 +96,13 @@ class ClientOutboundNotificationService
             '--- Testo che avrebbe ricevuto il cliente ---',
             $title,
             $body,
-            $actionUrl ? 'Link: '.$actionUrl : null,
+            'Link ospite: '.$guestUrl,
             '',
-            '--- Canali bloccati ---',
-            '• Campanella area ospite (in-app)',
-            '• Email al cliente (non inviata)',
-            '• WhatsApp al cliente (non inviata)',
+            '--- Canali ospite (stato attuale) ---',
+            '• In-app: '.(AppSettings::guestNotificationsEnabled() ? 'attivo se disattivi «app in costruzione»' : 'DISATTIVO'),
+            '• Email ospite: '.(AppSettings::guestEmailNotificationsEnabled() ? 'attivo' : 'disattivo'),
+            '• WhatsApp ospite: '.(AppSettings::guestWhatsAppNotificationsEnabled() ? 'attivo' : 'disattivo'),
+            '• Push ospite: '.(AppSettings::guestPushNotificationsEnabled() ? 'attivo' : 'disattivo'),
             '',
             '--- Quando attiverete i canali, arriverebbe agli admin ---',
             'Email admin: '.($emails !== [] ? implode(', ', $emails) : '(nessuna configurata)'),
@@ -98,6 +120,7 @@ class ClientOutboundNotificationService
                 $reservation,
                 $title,
                 $body,
+                $guestUrl,
             );
         }
 

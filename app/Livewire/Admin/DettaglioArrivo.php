@@ -21,6 +21,21 @@ class DettaglioArrivo extends Component
   /** @var array<int, string> */
     public array $adminTaxCodes = [];
 
+    public function toggleNotificationsPilot(): void
+    {
+        $this->reservation->update([
+            'notifications_pilot' => ! $this->reservation->notifications_pilot,
+        ]);
+        $this->reservation->refresh();
+
+        session()->flash(
+            'message',
+            $this->reservation->notifications_pilot
+                ? 'Prova notifiche attiva su questa prenotazione: l\'ospite riceverà email/WhatsApp se i toggle in Progetto sono accesi.'
+                : 'Prova notifiche disattivata: l\'ospite torna in sola anteprima admin (con Work in progress attivo).'
+        );
+    }
+
     public function mount($id)
     {
         $this->reservation = Reservation::with(['guestDocuments', 'apartment'])->findOrFail($id);

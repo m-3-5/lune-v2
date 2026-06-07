@@ -119,9 +119,29 @@ Due **app separate** da installare (icona sulla home):
 4. Con **app in costruzione attiva** (solo test): l’ospite **non** riceve nulla; il team vede l’anteprima in admin/Telegram.
 
 #### Cosa non è ancora attivo
-- Email e WhatsApp automatici agli ospiti.
 - Telegram per gli ospiti (da decidere con Serenella).
-- Telegram per Serenella (opzionale; oggi solo push PWA).
+- WhatsApp diretto agli ospiti (serve provider business Meta/Twilio; per ora solo log).
+
+#### Notifiche email / WhatsApp (Progetto)
+**Di default tutto è disattivato** (admin e ospiti) per evitare invii accidentali.
+
+**Team admin** — sezione verde in Progetto:
+- Contatti preimpostati (modificabili): email e cellulari, uno per riga.
+- Attiva invio + Email e/o WhatsApp quando avete configurato SMTP/CallMeBot.
+- **Invia test admin** funziona anche con toggle spenti (prova configurazione).
+- Prenotazioni TEST: prefisso `[TEST]` negli avvisi admin.
+
+**Ospiti** — sezione azzurra in Progetto:
+- Master «Notifiche ospite attive» + Email / WhatsApp / Push PWA.
+- Destinatari = email/telefono Checkfront della prenotazione.
+- Prenotazioni TEST: **mai** email/WhatsApp reali (solo pulsante test con tua email).
+- Con **app in costruzione** attiva: anteprima solo agli admin, nulla all'ospite.
+
+**Configurazione server**
+- **Admin → Canali di invio**: SMTP casella `appjlune@inm35.net` (host `out.postassl.it`, porta 465 SSL), password casella, test email.
+- **Admin → Canali di invio**: WhatsApp via **Twilio** (consigliato) o CallMeBot; credenziali modificabili senza .env.
+- **Admin → Progetto**: destinatari admin e toggle on/off notifiche.
+- Test CLI: `php artisan jlune:notify-test --force`
 
 ### Estrazione documenti con Google Document AI (attivo — maggio 2026)
 
@@ -173,8 +193,8 @@ Due **app separate** da installare (icona sulla home):
 | Funzione | Stato |
 |----------|--------|
 | **Link pagamento Checkfront** | Da verificare/correggere in produzione (formato URL `…/reserve/?code=…`). **Serve esempio reale da Serenella** (vedi task in Progetto). |
-| **Email automatiche** agli ospiti | Non inviate; solo notifiche in-app |
-| **WhatsApp automatici** | Non implementati |
+| **Email automatiche** agli ospiti | Implementate; **disattivate di default** in Progetto |
+| **WhatsApp automatici** ospiti | Solo log (provider business da integrare) |
 | **Video ingresso** (admin + ospite) | Pagina admin placeholder; menu ospite senza link |
 | **QR elettrodomestici** | Tabelle DB presenti, nessuna pagina ospite |
 | **Archivio contratti** admin | Pagina vuota (placeholder) |
@@ -183,7 +203,7 @@ Due **app separate** da installare (icona sulla home):
 | **Export XML Polizia (Alloggiati)** | Da definire con Serenella; export XML Jlune già disponibile |
 | **Controllo antifrode documenti** (Gemini) | Codice di test, non attivo all’upload |
 | **Login / password** pannello admin | Chi conosce l’URL entra; solo `/admin/sviluppo` ha password |
-| **Invio email** a Serenella su eventi | Solo campanella in-app + push PWA (Telegram opzionale per Max) |
+| **Invio email/WhatsApp** team admin | Implementato; **disattivato di default**; SMTP + CallMeBot opzionale |
 | **PWA + Web Push** | Attivo (admin e ospite); vedi sezione Notifiche |
 | **Telegram team** | Attivo per Max; Serenella solo push fino a configurazione |
 

@@ -31,7 +31,18 @@ class Reservation extends Model
         'contract_accepted' => 'boolean',
         'contract_extracted_at' => 'datetime',
         'is_test' => 'boolean',
+        'notifications_pilot' => 'boolean',
     ];
+
+    /** In fase costruzione: solo questa prenotazione può ricevere notifiche reali all'ospite. */
+    public function allowsGuestNotificationsDelivery(): bool
+    {
+        if (! \App\Support\AppSettings::underConstruction()) {
+            return true;
+        }
+
+        return (bool) $this->notifications_pilot;
+    }
 
     protected $appends = [
         'guest_portal_url',

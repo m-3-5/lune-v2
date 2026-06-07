@@ -5,6 +5,7 @@ use App\Http\Controllers\CheckfrontWebhookController;
 use App\Http\Controllers\CheckinController;
 use App\Http\Controllers\PushSubscriptionController;
 use Livewire\Volt\Volt;
+use App\Livewire\Admin\CanaliInvioPage;
 use App\Livewire\Admin\DettaglioArrivo;
 use App\Livewire\Admin\ProgettoPage;
 use App\Livewire\Admin\ProvaPage;
@@ -41,9 +42,10 @@ Route::prefix('admin')->group(function () {
     Route::get('/video', function () { return view('admin.video'); })->name('admin.video');
     Route::get('/contratti', function () { return view('admin.contratti'); })->name('admin.contratti');
     Route::get('/progetto', ProgettoPage::class)->name('admin.progetto');
+    Route::get('/canali', CanaliInvioPage::class)->name('admin.canali');
     Route::get('/prova', ProvaPage::class)->name('admin.prova');
     Route::get('/sviluppo', SviluppoPage::class)->name('admin.sviluppo');
-    Route::redirect('/configura', '/admin/progetto');
+    Route::redirect('/configura', '/admin/canali');
 });
 
 // Rotta per il modulo di controllo documenti (Livewire)

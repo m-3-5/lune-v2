@@ -40,6 +40,22 @@
             <svg class="absolute right-[-20px] bottom-[-20px] w-48 h-48 text-white opacity-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2H7a1 1 0 100-2h.01zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path></svg>
         </div>
 
+        @if (\App\Support\AppSettings::underConstruction())
+            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
+                <div class="text-sm text-amber-950 max-w-xl">
+                    <p class="font-black uppercase text-[10px] tracking-widest text-amber-700 mb-1">Work in progress</p>
+                    <p>
+                        Con il banner attivo, le notifiche all'ospite restano in <strong>anteprima admin</strong>.
+                        Attiva qui solo su questa prenotazione per testare email/WhatsApp reali (serve anche accendere i toggle in Progetto).
+                    </p>
+                </div>
+                <button type="button" wire:click="toggleNotificationsPilot"
+                    class="px-5 py-2 rounded-xl text-xs font-black uppercase {{ $reservation->notifications_pilot ? 'bg-emerald-600 text-white' : 'bg-white border border-amber-300 text-amber-900' }}">
+                    {{ $reservation->notifications_pilot ? 'Prova notifiche ON' : 'Attiva prova notifiche' }}
+                </button>
+            </div>
+        @endif
+
         <!-- Dati Checkfront completi -->
         <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 space-y-4">
             <h3 class="text-[10px] font-black uppercase tracking-widest text-gray-400">Dati Checkfront</h3>

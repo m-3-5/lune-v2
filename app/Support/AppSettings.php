@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\AppSetting;
+use Illuminate\Support\Facades\Crypt;
 
 class AppSettings
 {
@@ -61,6 +62,273 @@ class AppSettings
         static::set('test_bookings_admin_enabled', $on);
     }
 
+    public static function adminNotificationsEnabled(): bool
+    {
+        return (bool) static::get('admin_notifications_enabled', false);
+    }
+
+    public static function setAdminNotificationsEnabled(bool $on): void
+    {
+        static::set('admin_notifications_enabled', $on);
+    }
+
+    public static function adminEmailNotificationsEnabled(): bool
+    {
+        return (bool) static::get('admin_email_notifications_enabled', false);
+    }
+
+    public static function setAdminEmailNotificationsEnabled(bool $on): void
+    {
+        static::set('admin_email_notifications_enabled', $on);
+    }
+
+    public static function adminWhatsAppNotificationsEnabled(): bool
+    {
+        return (bool) static::get('admin_whatsapp_notifications_enabled', false);
+    }
+
+    public static function setAdminWhatsAppNotificationsEnabled(bool $on): void
+    {
+        static::set('admin_whatsapp_notifications_enabled', $on);
+    }
+
+    public static function guestNotificationsEnabled(): bool
+    {
+        return (bool) static::get('guest_notifications_enabled', false);
+    }
+
+    public static function setGuestNotificationsEnabled(bool $on): void
+    {
+        static::set('guest_notifications_enabled', $on);
+    }
+
+    public static function guestEmailNotificationsEnabled(): bool
+    {
+        return (bool) static::get('guest_email_notifications_enabled', false);
+    }
+
+    public static function setGuestEmailNotificationsEnabled(bool $on): void
+    {
+        static::set('guest_email_notifications_enabled', $on);
+    }
+
+    public static function guestWhatsAppNotificationsEnabled(): bool
+    {
+        return (bool) static::get('guest_whatsapp_notifications_enabled', false);
+    }
+
+    public static function setGuestWhatsAppNotificationsEnabled(bool $on): void
+    {
+        static::set('guest_whatsapp_notifications_enabled', $on);
+    }
+
+    public static function guestPushNotificationsEnabled(): bool
+    {
+        return (bool) static::get('guest_push_notifications_enabled', false);
+    }
+
+    public static function setGuestPushNotificationsEnabled(bool $on): void
+    {
+        static::set('guest_push_notifications_enabled', $on);
+    }
+
+    /** Notifiche esterne (email/WhatsApp/push) verso l'ospite consentite? */
+    public static function guestOutboundEnabled(): bool
+    {
+        return static::guestNotificationsEnabled()
+            && (static::guestEmailNotificationsEnabled()
+                || static::guestWhatsAppNotificationsEnabled()
+                || static::guestPushNotificationsEnabled());
+    }
+
+    public static function mailSmtpEnabled(): bool
+    {
+        return (bool) static::get('mail_smtp_enabled', false);
+    }
+
+    public static function setMailSmtpEnabled(bool $on): void
+    {
+        static::set('mail_smtp_enabled', $on);
+    }
+
+    public static function mailSmtpHost(): string
+    {
+        return (string) static::get('mail_smtp_host', 'out.postassl.it');
+    }
+
+    public static function mailSmtpPort(): int
+    {
+        return (int) static::get('mail_smtp_port', 465);
+    }
+
+    public static function mailSmtpEncryption(): string
+    {
+        return (string) static::get('mail_smtp_encryption', 'ssl');
+    }
+
+    public static function mailSmtpScheme(): ?string
+    {
+        return match (static::mailSmtpEncryption()) {
+            'ssl' => 'smtps',
+            'tls' => null,
+            default => null,
+        };
+    }
+
+    public static function mailSmtpUsername(): string
+    {
+        return (string) static::get('mail_smtp_username', '');
+    }
+
+    public static function mailFromAddress(): string
+    {
+        return (string) static::get('mail_from_address', 'appjlune@inm35.net');
+    }
+
+    public static function mailFromName(): string
+    {
+        return (string) static::get('mail_from_name', 'Jlune');
+    }
+
+    public static function mailPasswordIsSet(): bool
+    {
+        return filled(static::get('mail_smtp_password'));
+    }
+
+    public static function mailSmtpPassword(): ?string
+    {
+        $encrypted = static::get('mail_smtp_password');
+
+        if (! is_string($encrypted) || $encrypted === '') {
+            return null;
+        }
+
+        try {
+            return Crypt::decryptString($encrypted);
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    public static function setMailSmtpPassword(?string $plain): void
+    {
+        if ($plain === null || $plain === '') {
+            return;
+        }
+
+        static::set('mail_smtp_password', Crypt::encryptString($plain));
+    }
+
+    public static function mailSmtpReady(): bool
+    {
+        return static::mailSmtpEnabled()
+            && static::mailPasswordIsSet()
+            && static::mailSmtpHost() !== ''
+            && static::mailSmtpUsername() !== '';
+    }
+
+    public static function mailSmtpVerifySsl(): bool
+    {
+        if (config('app.env') !== 'production') {
+            return (bool) static::get('mail_smtp_verify_ssl', false);
+        }
+
+        return (bool) static::get('mail_smtp_verify_ssl', true);
+    }
+
+    public static function whatsappProvider(): string
+    {
+        $fromDb = static::get('whatsapp_provider');
+
+        if (is_string($fromDb) && $fromDb !== '') {
+            return $fromDb;
+        }
+
+        return (string) config('jlune.whatsapp_provider', 'log');
+    }
+
+    public static function setWhatsAppProvider(string $provider): void
+    {
+        static::set('whatsapp_provider', $provider);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function whatsappCallMeBotKeys(): array
+    {
+        $fromDb = static::get('whatsapp_callmebot_keys', []);
+
+        if (is_array($fromDb) && $fromDb !== []) {
+            return array_values(array_filter(array_map('trim', $fromDb)));
+        }
+
+        return config('jlune.whatsapp_callmebot_keys', []);
+    }
+
+    /**
+     * @param  array<int, string>  $keys
+     */
+    public static function setWhatsAppCallMeBotKeys(array $keys): void
+    {
+        static::set('whatsapp_callmebot_keys', array_values(array_filter(array_map('trim', $keys))));
+    }
+
+    public static function twilioAccountSid(): string
+    {
+        return (string) static::get('twilio_account_sid', '');
+    }
+
+    public static function twilioWhatsAppFrom(): string
+    {
+        return (string) static::get('twilio_whatsapp_from', '+14155238886');
+    }
+
+    public static function twilioAuthTokenIsSet(): bool
+    {
+        return filled(static::get('twilio_auth_token'));
+    }
+
+    public static function twilioAuthToken(): ?string
+    {
+        $encrypted = static::get('twilio_auth_token');
+
+        if (! is_string($encrypted) || $encrypted === '') {
+            return null;
+        }
+
+        try {
+            return Crypt::decryptString($encrypted);
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    public static function setTwilioAuthToken(?string $plain): void
+    {
+        if ($plain === null || $plain === '') {
+            return;
+        }
+
+        static::set('twilio_auth_token', Crypt::encryptString($plain));
+    }
+
+    public static function twilioReady(): bool
+    {
+        return static::twilioAccountSid() !== ''
+            && static::twilioAuthTokenIsSet()
+            && static::twilioWhatsAppFrom() !== '';
+    }
+
+    public static function whatsAppChannelReady(): bool
+    {
+        return match (static::whatsappProvider()) {
+            'twilio' => static::twilioReady(),
+            'callmebot' => static::whatsappCallMeBotKeys() !== [],
+            default => false,
+        };
+    }
+
     /**
      * @return array<int, string>
      */
@@ -68,7 +336,7 @@ class AppSettings
     {
         $lines = static::get('admin_emails', []);
 
-        return static::normalizeLines(is_array($lines) ? $lines : []);
+        return static::parseEmails(is_array($lines) ? $lines : []);
     }
 
     /**
@@ -78,7 +346,44 @@ class AppSettings
     {
         $lines = static::get('admin_phones', []);
 
-        return static::normalizeLines(is_array($lines) ? $lines : []);
+        return static::parsePhones(is_array($lines) ? $lines : []);
+    }
+
+    /**
+     * @param  array<int, string|mixed>  $lines
+     * @return array<int, string>
+     */
+    protected static function parseEmails(array $lines): array
+    {
+        $emails = [];
+
+        foreach (static::normalizeLines($lines) as $line) {
+            if (preg_match('/[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}/i', $line, $m)) {
+                $emails[] = strtolower($m[0]);
+            }
+        }
+
+        return array_values(array_unique($emails));
+    }
+
+    /**
+     * @param  array<int, string|mixed>  $lines
+     * @return array<int, string>
+     */
+    protected static function parsePhones(array $lines): array
+    {
+        $phones = [];
+
+        foreach (static::normalizeLines($lines) as $line) {
+            if (preg_match('/(\+?\d[\d\s\-().]{7,}\d)/', $line, $m)) {
+                $normalized = preg_replace('/[^\d+]/', '', $m[1]);
+                if (strlen($normalized) >= 10) {
+                    $phones[] = $normalized;
+                }
+            }
+        }
+
+        return array_values(array_unique($phones));
     }
 
     public static function appGuide(): string
@@ -115,7 +420,16 @@ class AppSettings
     protected static function normalizeLines(array $lines): array
     {
         return array_values(array_filter(array_map(function ($line) {
-            return trim(is_string($line) ? $line : '');
+            $line = trim(is_string($line) ? $line : '');
+            // Rimuove commenti tipo "email@x.it — Serenella"
+            if (str_contains($line, '—')) {
+                $line = trim(explode('—', $line, 2)[0]);
+            }
+            if (str_contains($line, ' - ') && ! str_contains($line, '@')) {
+                $line = trim(explode(' - ', $line, 2)[0]);
+            }
+
+            return $line;
         }, $lines)));
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\PushSubscription;
+use App\Support\AppSettings;
 use Illuminate\Support\Facades\Log;
 
 class AdminPushNotifier
@@ -30,8 +31,12 @@ class AdminPushNotifier
         }
     }
 
-    public function notifyGuest(?int $reservationId, string $title, ?string $url = null): void
+    public function notifyGuest(?int $reservationId, string $title, ?string $url = null, bool $force = false): void
     {
+        if (! $force && (! AppSettings::guestNotificationsEnabled() || ! AppSettings::guestPushNotificationsEnabled())) {
+            return;
+        }
+
         $query = PushSubscription::query()->where('channel', PushSubscription::CHANNEL_GUEST);
         if ($reservationId) {
             $query->where(function ($q) use ($reservationId) {
