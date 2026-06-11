@@ -45,7 +45,7 @@
         @endif
     </section>
 
-    <section class="bg-white rounded-3xl shadow-sm border border-emerald-100 p-6 space-y-4">
+    <section id="notifiche" class="bg-white rounded-3xl shadow-sm border border-emerald-100 p-6 space-y-4">
         <h2 class="text-lg font-black text-emerald-950">Notifiche email e WhatsApp (team admin)</h2>
         <p class="text-sm text-gray-600">
             Avvisi operativi (documenti, contratti, prove TEST) verso i contatti sotto.

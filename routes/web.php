@@ -8,6 +8,7 @@ use Livewire\Volt\Volt;
 use App\Livewire\Admin\CanaliInvioPage;
 use App\Livewire\Admin\ContrattiPage;
 use App\Livewire\Admin\DettaglioArrivo;
+use App\Livewire\Admin\NotifichePage;
 use App\Livewire\Admin\ProgettoPage;
 use App\Livewire\Admin\ProvaPage;
 use App\Livewire\Admin\ReservationsModule;
@@ -57,6 +58,7 @@ Route::prefix('admin')->group(function () {
     Route::get('/testo-contratto', TestoContrattoPage::class)->name('admin.testo-contratto');
     Route::get('/progetto', ProgettoPage::class)->name('admin.progetto');
     Route::get('/canali', CanaliInvioPage::class)->name('admin.canali');
+    Route::get('/notifiche', NotifichePage::class)->name('admin.notifiche');
     Route::get('/prova', ProvaPage::class)->name('admin.prova');
     Route::get('/sviluppo', SviluppoPage::class)->name('admin.sviluppo');
     Route::redirect('/configura', '/admin/canali');

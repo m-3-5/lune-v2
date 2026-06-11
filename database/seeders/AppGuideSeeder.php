@@ -98,6 +98,7 @@ L’app è in **fase avanzata** su documenti e contratto; altre parti sono ancor
 - **Notifiche in-app** (campanella in alto): nuovi documenti, prenotazioni, **contratti firmati**, anteprime in costruzione.
 - **Contratti** (`/admin/contratti`): archivio dei contratti firmati con data/ora firma e **download PDF** (o rigenerazione).
 - **Testo contratto** (`/admin/testo-contratto`): editor stile Word per modificare le clausole del contratto (IT e EN) senza toccare il codice. I **segnaposto** tipo `[CHECK_IN]`, `[PREZZO_TOTALE]`, `[APPARTAMENTO]` vengono sostituiti automaticamente con i dati di ogni prenotazione. Pulsanti: Salva, Ripristina testo predefinito, Anteprima con dati reali.
+- **Notifiche** (`/admin/notifiche`): panoramica semplice — cosa è attivo, checklist per andare live, tabella «chi riceve cosa», link a Canali e Progetto.
 - Pagina **Progetto e task** (questa guida, costi, richieste e avanzamenti).
 
 ### Notifiche sul telefono (attive — maggio 2026)
