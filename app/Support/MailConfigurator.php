@@ -32,6 +32,8 @@ class MailConfigurator
         Config::set('mail.mailers.smtp.timeout', null);
 
         if (! AppSettings::mailSmtpVerifySsl()) {
+            // Symfony EsmtpTransportFactory legge verify_peer dalle opzioni DSN
+            Config::set('mail.mailers.smtp.verify_peer', false);
             Config::set('mail.mailers.smtp.stream', [
                 'ssl' => [
                     'verify_peer' => false,

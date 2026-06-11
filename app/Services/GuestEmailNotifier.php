@@ -22,8 +22,8 @@ class GuestEmailNotifier
             return;
         }
 
-        if ($reservation->is_test && ! $force) {
-            Log::debug('Guest email: saltata su prenotazione TEST', ['id' => $reservation->id]);
+        if ($reservation->is_test && ! $force && ! $reservation->notifications_pilot) {
+            Log::debug('Guest email: saltata su prenotazione TEST (attiva «Prova notifiche» per inviare)', ['id' => $reservation->id]);
 
             return;
         }

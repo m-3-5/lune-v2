@@ -19,7 +19,11 @@
                 @foreach($guests as $guest)
                     <li>
                         <strong>Guest {{ $guest['slot'] }}:</strong> 
-                        {{ $guest['data']['first_name'] ?? '' }} {{ $guest['data']['last_name'] ?? '' }}
+                        @if(!empty($guest['data']['first_name']) || !empty($guest['data']['last_name']))
+                            {{ $guest['data']['first_name'] ?? '' }} {{ $guest['data']['last_name'] ?? '' }}
+                        @else
+                            <span class="text-amber-700 text-xs font-semibold">Details not detected — to be completed manually</span>
+                        @endif
                         @if(!empty($guest['data']['birth_date']))
                             <span class="text-gray-600 text-xs">(born on {{ $guest['data']['birth_date'] }})</span>
                         @endif

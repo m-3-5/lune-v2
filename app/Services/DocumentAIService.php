@@ -171,9 +171,20 @@ class DocumentAIService
             }
         }
 
-        // Fronte CI cartacea: Cognome / Nome / nato il
-        $data['last_name'] = $data['last_name'] ?? $this->valueAfterLabel($text, ['Cognome', 'COGNOME', 'Surname']);
-        $data['first_name'] = $data['first_name'] ?? $this->valueAfterLabel($text, ['Nome', 'NOME', 'Name', 'Given names']);
+        // MRZ spezzata su più righe (retro CIE): "CASTRONUOVO<<SILVIO<<<<"
+        if (empty($data['last_name']) && preg_match('/^([A-Z]{2,30})<<([A-Z]+(?:<[A-Z]+)*)<*$/m', strtoupper($text), $m)) {
+            $last = $this->formatPersonName($m[1]);
+            $first = $this->formatPersonName(str_replace('<', ' ', $m[2]));
+            if ($this->isPlausiblePersonName($last) && $this->isPlausiblePersonName($first)) {
+                $data['last_name'] = $last;
+                $data['first_name'] = $first;
+                $data['parse_source'] = 'mrz_line';
+            }
+        }
+
+        // Fronte CI cartacea/CIE: Cognome / Nome / nato il (anche etichette bilingue COGNOME/SURNAME)
+        $data['last_name'] = $data['last_name'] ?? $this->valueAfterLabel($text, ['Cognome', 'COGNOME', 'Surname', 'SURNAME']);
+        $data['first_name'] = $data['first_name'] ?? $this->valueAfterLabel($text, ['Nome', 'NOME', 'Name', 'NAME', 'Given names']);
 
         $birth = $this->parseBirthDateLabeled($text);
         if ($birth) {
@@ -182,6 +193,17 @@ class DocumentAIService
 
         if (preg_match('/\b([A-Z]{2}\s?\d{7})\b/i', $text, $m)) {
             $data['document_number'] = strtoupper(preg_replace('/\s+/', '', $m[1]));
+        }
+
+        // Numero documento CIE: 2 lettere + 5 cifre + 2 lettere (es. CA41761HW)
+        if (empty($data['document_number']) && preg_match('/\b([A-Z]{2}\d{5}[A-Z]{2})\b/', strtoupper($text), $m)) {
+            $data['document_number'] = $m[1];
+        }
+
+        // Codice Fiscale stampato sul retro della CIE
+        $taxCode = $this->extractTaxCodeFromIdentityText($text);
+        if ($taxCode) {
+            $data['tax_code'] = $taxCode;
         }
 
         foreach (['first_name', 'last_name'] as $key) {
@@ -238,10 +260,12 @@ class DocumentAIService
         // Su tessera/CI i nomi sono in MAIUSCOLO: fermati prima della prossima etichetta
         $value = "([A-ZÀÈÉÌÒÙ][A-ZÀÈÉÌÒÙ'\\-]+(?:\\s+[A-ZÀÈÉÌÒÙ][A-ZÀÈÉÌÒÙ'\\-]+)*)";
         $stop = '(?=\s*(?:Nome|NOME|Cognome|COGNOME|Data|DATA|Codice|CODICE|Luogo|LUOGO|Sesso|SESSO|Provincia|\n|$))';
+        // CIE bilingue: "COGNOME/SURNAME" → ignora la traduzione dopo lo slash
+        $bilingual = '(?:\s*\/\s*(?:SURNAME|NAME|GIVEN\s+NAMES?|COGNOME|NOME)\b)?';
 
         foreach ($labels as $label) {
             // "Cognome CASTRONUOVO" oppure "Cognome....CASTRONUOVO" oppure "Nome.\nANTONIO"
-            $sameLine = '/\b'.preg_quote($label, '/').'[.\s:]*'.$value.$stop.'/u';
+            $sameLine = '/\b'.preg_quote($label, '/').$bilingual.'[.\s:]*'.$value.$stop.'/u';
             if (preg_match($sameLine, $text, $m)) {
                 $v = $this->formatPersonName($m[1]);
                 if ($this->isPlausiblePersonName($v)) {
@@ -249,7 +273,7 @@ class DocumentAIService
                 }
             }
 
-            $nextLine = '/\b'.preg_quote($label, '/').'[.\s:]*\n\s*'.$value.'/u';
+            $nextLine = '/\b'.preg_quote($label, '/').$bilingual.'[.\s:]*\n\s*'.$value.'/u';
             if (preg_match($nextLine, $text, $m)) {
                 $v = $this->formatPersonName($m[1]);
                 if ($this->isPlausiblePersonName($v)) {
@@ -270,6 +294,11 @@ class DocumentAIService
 
         // "Data di nascita 16/01/1982" (stessa riga)
         if (preg_match('/data\s+di\s+nascita[^\d]{0,15}(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/iu', $text, $m)) {
+            return sprintf('%02d/%02d/%04d', (int) $m[1], (int) $m[2], (int) $m[3]);
+        }
+
+        // CIE: "LUOGO E DATA DI NASCITA\nPLACE AND DATE OF BIRTH\nSENISE (PZ) 20.06.1945"
+        if (preg_match('/(?:LUOGO\s+E\s+DATA\s+DI\s+NASCITA|PLACE\s+AND\s+DATE\s+OF\s+BIRTH)[^\d]{0,60}(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/iu', $text, $m)) {
             return sprintf('%02d/%02d/%04d', (int) $m[1], (int) $m[2], (int) $m[3]);
         }
 
@@ -359,9 +388,9 @@ class DocumentAIService
             }
         }
 
-        // ID carta (TD1/TD2): riga 2, posizioni 0-5 = data nascita AAMMGG
+        // ID carta (TD1/TD2): riga 2, posizioni 0-5 = data nascita AAMMGG (+ eventuale cifra di controllo)
         foreach ($lines as $line) {
-            if (preg_match('/^(\d{6})[MF<]/', $line, $m)) {
+            if (preg_match('/^(\d{6})\d?[MF<]/', $line, $m)) {
                 $raw = $m[1]; // AAMMGG
                 $yy  = (int) substr($raw, 0, 2);
                 $year = $yy > 30 ? "19{$yy}" : "20{$yy}";
@@ -401,6 +430,7 @@ class DocumentAIService
             'first_name'       => $data['first_name']       ?? null,
             'last_name'        => $data['last_name']         ?? null,
             'birth_date'       => $data['birth_date']        ?? null,
+            'tax_code'         => $data['tax_code']          ?? null,
             'document_number'  => $data['document_number']   ?? null,
             'document_expiry'  => $data['document_expiry']   ?? null,
             'parse_source'     => $data['parse_source']      ?? ($fromEntities ? 'entities' : 'ocr'),
@@ -441,6 +471,12 @@ class DocumentAIService
         $pattern = '/\b([A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z])\b/';
         if (preg_match($pattern, $upper, $matches)) {
             $extracted['tax_code'] = $matches[1];
+        } elseif (preg_match('/\b([A-Z0-9]{16})\b/', $upper, $matches)) {
+            // Tolleranza errori OCR (es. "I" letto come "1")
+            $fixed = $this->normalizeTaxCode($matches[1]);
+            if ($fixed) {
+                $extracted['tax_code'] = $fixed;
+            }
         }
 
         $extracted = array_filter($extracted);
@@ -464,6 +500,65 @@ class DocumentAIService
             'message'        => 'Nessun Codice Fiscale valido rilevato. Assicurati di inquadrare bene la tessera.',
             'ocr_preview'    => $ocrPreview,
         ];
+    }
+
+    /**
+     * Estrae il CF dal testo di un documento d'identità (es. retro CIE,
+     * che riporta "CODICE FISCALE / FISCAL CODE" seguito dal codice).
+     */
+    private function extractTaxCodeFromIdentityText(string $text): ?string
+    {
+        if (! preg_match('/CODICE\s+FISCALE|FISCAL\s+CODE/i', $text)) {
+            return null;
+        }
+
+        $upper = strtoupper($text);
+
+        if (preg_match('/\b([A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z])\b/', $upper, $m)) {
+            return $m[1];
+        }
+
+        if (preg_match('/\b([A-Z0-9]{16})\b/', $upper, $m)) {
+            return $this->normalizeTaxCode($m[1]);
+        }
+
+        return null;
+    }
+
+    /**
+     * Corregge errori OCR comuni in un candidato CF di 16 caratteri,
+     * in base alla struttura attesa (es. "1" letto al posto di "I").
+     */
+    private function normalizeTaxCode(string $candidate): ?string
+    {
+        // Struttura CF: L = lettera, D = cifra
+        $structure = 'LLLLLLDDLDDLDDDL';
+        $toLetter = ['0' => 'O', '1' => 'I', '2' => 'Z', '5' => 'S', '6' => 'G', '8' => 'B'];
+        $toDigit = ['O' => '0', 'I' => '1', 'Z' => '2', 'S' => '5', 'G' => '6', 'B' => '8'];
+
+        $chars = str_split(strtoupper($candidate));
+        if (count($chars) !== 16) {
+            return null;
+        }
+
+        foreach ($chars as $i => $c) {
+            $expectLetter = $structure[$i] === 'L';
+            if ($expectLetter && ctype_digit($c)) {
+                if (! isset($toLetter[$c])) {
+                    return null;
+                }
+                $chars[$i] = $toLetter[$c];
+            } elseif (! $expectLetter && ctype_alpha($c)) {
+                if (! isset($toDigit[$c])) {
+                    return null;
+                }
+                $chars[$i] = $toDigit[$c];
+            }
+        }
+
+        $fixed = implode('', $chars);
+
+        return preg_match('/^[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]$/', $fixed) ? $fixed : null;
     }
 
     // -----------------------------------------------------------------------
