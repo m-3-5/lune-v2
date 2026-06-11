@@ -42,24 +42,37 @@ class TwilioWhatsAppService
 
             if ($response->successful()) {
                 $sid = $response->json('sid');
+                $messageStatus = $response->json('status');
 
                 Log::info('Twilio WhatsApp inviato', [
                     'to' => $to,
                     'sid' => $sid,
+                    'status' => $messageStatus,
                 ]);
 
-                return ['ok' => true, 'sid' => is_string($sid) ? $sid : null];
+                return [
+                    'ok' => true,
+                    'sid' => is_string($sid) ? $sid : null,
+                    'status' => is_string($messageStatus) ? $messageStatus : null,
+                ];
             }
 
+            $code = $response->json('code');
             $error = $response->json('message') ?? $response->body();
+            $fullError = is_string($error)
+                ? ($code ? "[{$code}] {$error}" : $error)
+                : 'Errore Twilio';
 
             Log::warning('Twilio WhatsApp errore', [
                 'to' => $to,
-                'status' => $response->status(),
-                'error' => $error,
+                'from' => $from,
+                'http_status' => $response->status(),
+                'code' => $code,
+                'error' => $fullError,
+                'body' => $response->body(),
             ]);
 
-            return ['ok' => false, 'error' => is_string($error) ? $error : 'Errore Twilio'];
+            return ['ok' => false, 'error' => $fullError];
         } catch (\Throwable $e) {
             Log::error('Twilio WhatsApp eccezione: '.$e->getMessage());
 

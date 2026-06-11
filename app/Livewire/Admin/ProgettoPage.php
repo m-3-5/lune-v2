@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\Reservation;
 use App\Services\AdminOutboundNotifier;
+use App\Services\AdminWhatsAppNotifier;
 use App\Services\GuestOutboundNotifier;
 use App\Support\AppSettings;
 use Livewire\Attributes\Layout;
@@ -62,7 +63,7 @@ class ProgettoPage extends Component
         session()->flash('progetto_message', 'Impostazioni notifiche salvate.');
     }
 
-    public function sendTestNotification(AdminOutboundNotifier $notifier): void
+    public function sendTestNotification(AdminOutboundNotifier $notifier, AdminWhatsAppNotifier $whatsapp): void
     {
         $notifier->notify(
             'Test notifiche Jlune (admin)',
@@ -71,7 +72,21 @@ class ProgettoPage extends Component
             force: true,
         );
 
-        session()->flash('progetto_message', 'Test admin inviato (ignora i toggle disattivati). Controlla email e log WhatsApp.');
+        $parts = ['Test admin inviato (ignora i toggle disattivati). Email inviata se SMTP ok.'];
+
+        if (AppSettings::whatsappProvider() === 'twilio') {
+            $result = $whatsapp->lastResult;
+            if ($result && ($result['ok'] ?? false)) {
+                $parts[] = 'WhatsApp accettato da Twilio'.(isset($result['sid']) ? ' (SID: '.$result['sid'].')' : '').'.';
+            } elseif ($result) {
+                $parts[] = 'WhatsApp NON inviato: '.($result['error'] ?? 'errore Twilio').'.';
+            }
+            $parts[] = 'Se Twilio ok ma non arriva: fai join sandbox (vedi sotto).';
+        } elseif (AppSettings::whatsappProvider() === 'log') {
+            $parts[] = 'WhatsApp: provider su log — configura Twilio in Canali di invio.';
+        }
+
+        session()->flash('progetto_message', implode(' ', $parts));
     }
 
     public function sendGuestTestNotification(GuestOutboundNotifier $notifier): void

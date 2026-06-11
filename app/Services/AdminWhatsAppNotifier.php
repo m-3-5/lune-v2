@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Log;
 
 class AdminWhatsAppNotifier
 {
+    /** @var array{ok: bool, error?: string, sid?: string}|null */
+    public ?array $lastResult = null;
+
     public function __construct(
         protected TwilioWhatsAppService $twilio,
     ) {}
@@ -51,7 +54,7 @@ class AdminWhatsAppNotifier
         }
 
         foreach ($phones as $phone) {
-            $this->twilio->send($phone, $message);
+            $this->lastResult = $this->twilio->send($phone, $message);
         }
     }
 
