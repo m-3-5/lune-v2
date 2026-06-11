@@ -23,6 +23,8 @@ class GuestNotificationService
 
     public const TYPE_CONTRACT_PENDING = 'contract_pending';
 
+    public const TYPE_TAX_CODE_REQUIRED = 'tax_code_required';
+
     public const TYPE_CHECKOUT_REMINDER = 'checkout_reminder';
 
     public const TYPE_ARRIVAL_REMINDER = 'arrival_reminder';
@@ -141,14 +143,25 @@ class GuestNotificationService
         }
 
         if ($reservation->documents_validated && $reservation->contract_ready_for_guest && ! $reservation->contract_accepted) {
-            $this->notify(
-                $reservation,
-                self::TYPE_CONTRACT_READY,
-                'Firma il contratto',
-                'Il contratto è pronto: apri la sezione Firma Contratto dal menu.',
-                route('checkin.contract', ['token' => $reservation->token]),
-                dedupeHours: 24,
-            );
+            if ($reservation->requiresTaxCodeForContract()) {
+                $this->notify(
+                    $reservation,
+                    self::TYPE_TAX_CODE_REQUIRED,
+                    'Inserisci il codice fiscale',
+                    'Per firmare il contratto manca il codice fiscale di uno o più ospiti italiani. Inseriscilo nella pagina del contratto.',
+                    route('checkin.contract', ['token' => $reservation->token]),
+                    dedupeHours: 24,
+                );
+            } else {
+                $this->notify(
+                    $reservation,
+                    self::TYPE_CONTRACT_READY,
+                    'Firma il contratto',
+                    'Il contratto è pronto: apri la sezione Firma Contratto dal menu.',
+                    route('checkin.contract', ['token' => $reservation->token]),
+                    dedupeHours: 24,
+                );
+            }
         }
 
         if ($reservation->check_out && now()->lessThan($reservation->check_out)) {

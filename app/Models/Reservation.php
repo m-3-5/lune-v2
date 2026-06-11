@@ -29,6 +29,7 @@ class Reservation extends Model
         'extracted_guests' => 'array',
         'contract_ready_for_guest' => 'boolean',
         'contract_accepted' => 'boolean',
+        'contract_accepted_at' => 'datetime',
         'contract_extracted_at' => 'datetime',
         'is_test' => 'boolean',
         'notifications_pilot' => 'boolean',

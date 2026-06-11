@@ -22,6 +22,8 @@ class AdminNotificationService
 
     public const TYPE_CONTRACT_AUTHORIZED = 'contract_authorized';
 
+    public const TYPE_CONTRACT_SIGNED = 'contract_signed';
+
     public const TYPE_BOOKING_SYNCED = 'booking_synced';
 
     public const TYPE_CLIENT_NOTIFICATION_PREVIEW = 'client_notification_preview';
@@ -137,6 +139,19 @@ class AdminNotificationService
             $reservation,
             'Contratto autorizzato per ospite',
             "{$reservation->booking_code}: l'ospite può firmare dal link check-in.",
+            dedupeHours: 0,
+        );
+    }
+
+    public function contractSigned(Reservation $reservation): void
+    {
+        $name = $reservation->guestDisplayName();
+
+        $this->notify(
+            self::TYPE_CONTRACT_SIGNED,
+            $reservation,
+            'Contratto firmato',
+            "{$name} ha firmato il contratto ({$reservation->booking_code}). Il PDF è disponibile nella pagina Contratti.",
             dedupeHours: 0,
         );
     }

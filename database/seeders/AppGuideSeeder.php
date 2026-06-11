@@ -84,6 +84,8 @@ L’app è in **fase avanzata** su documenti e contratto; altre parti sono ancor
 - Home check-in con nome ospite, appartamento, stato pagamento.
 - **Documenti**: upload CI (e CF se italiano), invio a Serenella, notifica «in verifica».
 - **Contratto**: dopo approvazione documenti e invio da admin, firma con checkbox (IT o EN).
+  - Il **codice fiscale è obbligatorio** per gli ospiti italiani: senza CF la firma è bloccata e l'ospite riceve una notifica dedicata.
+  - Alla firma l'ospite riceve **email con il contratto PDF allegato** (se le notifiche email ospite sono attive).
 - **Campanella notifiche** in-app (pagamento, documenti, contratto, promemoria).
 - Menu con voci future (video ingresso, QR elettrodomestici, check-out) — visibili ma **non ancora collegate** a pagine vere.
 
@@ -93,7 +95,9 @@ L’app è in **fase avanzata** su documenti e contratto; altre parti sono ancor
 - **Prova flusso** (`/admin/prova`): crea prenotazioni **TEST** senza Checkfront (link ospite, documenti, contratto). Attiva/disattiva con l'interruttore in pagina — **non sono prenotazioni reali** (badge TEST).
 - Nel dettaglio: anteprima file, approva/rifiuta documenti, **Estrai dati (Document AI)** — **attivo** (maggio 2026), modifica CF, anteprima OCR per documento, export **JSON / CSV / XML**, scegli IT/EN, **«Contratto pronto — invia per la firma»**.
 - Dati Checkfront in scheda (ospiti, letti, note, totali pagati).
-- **Notifiche in-app** (campanella in alto): nuovi documenti, prenotazioni, anteprime in costruzione.
+- **Notifiche in-app** (campanella in alto): nuovi documenti, prenotazioni, **contratti firmati**, anteprime in costruzione.
+- **Contratti** (`/admin/contratti`): archivio dei contratti firmati con data/ora firma e **download PDF** (o rigenerazione).
+- **Testo contratto** (`/admin/testo-contratto`): editor stile Word per modificare le clausole del contratto (IT e EN) senza toccare il codice. I **segnaposto** tipo `[CHECK_IN]`, `[PREZZO_TOTALE]`, `[APPARTAMENTO]` vengono sostituiti automaticamente con i dati di ogni prenotazione. Pulsanti: Salva, Ripristina testo predefinito, Anteprima con dati reali.
 - Pagina **Progetto e task** (questa guida, costi, richieste e avanzamenti).
 
 ### Notifiche sul telefono (attive — maggio 2026)
@@ -163,9 +167,17 @@ Due **app separate** da installare (icona sulla home):
 - Se serve integrazione dedicata, potrà essere una **voce extra** da preventivare (da confermare insieme).
 
 ### Contratto
-- Modelli IT e EN con dati ospiti e appartamento.
-- Salvataggio firma e snapshot HTML lato server.
-- Flusso: pagamento → documenti → approvazione → estrazione Document AI → invio contratto → firma ospite.
+- Modelli IT e EN con dati ospiti e appartamento; **Locatore e Ospiti uno sotto l'altro**.
+- **Testo modificabile** dall'admin nella pagina «Testo contratto» (editor visuale + segnaposto automatici).
+- **CF obbligatorio** per gli ospiti italiani prima della firma (con notifica all'ospite se manca).
+- Alla firma: data/ora registrate, **PDF generato e archiviato**, **notifica admin**, **email all'ospite con PDF allegato**.
+- Archivio in **Admin → Contratti** con download PDF.
+- Flusso: pagamento → documenti → approvazione → estrazione Document AI → invio contratto → firma ospite → PDF + archivio.
+
+### Automatismi pianificati (cron)
+- **Promemoria ospiti** (ogni giorno alle 10:00): per le prenotazioni con arrivo entro 14 giorni l'ospite riceve promemoria su pagamento mancante, documenti da caricare, CF mancante e firma contratto. Niente spam: ogni tipo ha una finestra anti-duplicato (24–72 ore).
+- **Pulizia documenti** (ogni notte alle 03:30): dopo il check-out i **documenti d'identità vengono cancellati automaticamente** (file e dati) per privacy/GDPR. Il contratto firmato in PDF resta archiviato.
+- Richiede il **cron di Laravel attivo sul server** (`php artisan schedule:run` ogni minuto su Plesk).
 
 ### Modalità «App in costruzione» (solo team sviluppo)
 - Banner visibile su tutte le pagine.
@@ -197,8 +209,8 @@ Due **app separate** da installare (icona sulla home):
 | **WhatsApp automatici** ospiti | Solo log (provider business da integrare) |
 | **Video ingresso** (admin + ospite) | Pagina admin placeholder; menu ospite senza link |
 | **QR elettrodomestici** | Tabelle DB presenti, nessuna pagina ospite |
-| **Archivio contratti** admin | Pagina vuota (placeholder) |
-| **PDF contratto firmato** con prova legale | Previsto, non fatto |
+| **Archivio contratti** admin | **Attivo** — pagina Contratti con PDF scaricabili |
+| **PDF contratto firmato** | **Attivo** — generato alla firma, inviato via email all'ospite |
 | **Google Document AI** (estrazione CI/CF) | **Attivo** — account Google team per ora; passaggio a account Serenella consigliato |
 | **Export XML Polizia (Alloggiati)** | Da definire con Serenella; export XML Jlune già disponibile |
 | **Controllo antifrode documenti** (Gemini) | Codice di test, non attivo all’upload |
@@ -216,6 +228,8 @@ Due **app separate** da installare (icona sulla home):
 - `php artisan jlune:status` — controllo arrivi e date
 - `php artisan jlune:google-check` — verifica credenziali Document AI sul server
 - `php artisan jlune:test-extraction {id}` — test estrazione su una prenotazione (solo tecnico)
+- `php artisan jlune:guest-reminders` — promemoria ospiti (eseguito in automatico alle 10:00)
+- `php artisan jlune:cleanup-documents --dry-run` — anteprima pulizia documenti post check-out (senza `--dry-run` cancella davvero; in automatico alle 03:30)
 - `php artisan migrate --force` — dopo aggiornamenti app (Plesk)
 
 ---
@@ -232,7 +246,7 @@ Stima **indicativa** per portare l’MVP «comunicazioni cliente» a produzione 
 | D | QR elettrodomestici per appartamento | 1–2 giorni |
 | E | Email automatiche (ospiti + admin) configurazione SMTP | 2–3 giorni |
 | F | WhatsApp (API provider, template messaggi) | 3–5 giorni |
-| G | Archivio contratti firmati + export PDF | 1–2 giorni |
+| G | ~~Archivio contratti firmati + export PDF~~ | **Fatto (giugno 2026)** |
 | H | Affinamenti UX da feedback Serenella | 2–3 giorni |
 | I | Test produzione, documentazione, deploy | 1–2 giorni |
 
@@ -250,7 +264,7 @@ Vedi riepilogo in fondo a questa pagina (base + voci extra). Aggiornato dal team
 
 ---
 
-_Ultimo aggiornamento guida: maggio 2026 — Document AI attivo, export XML, istruzioni Google Cloud._
+_Ultimo aggiornamento guida: giugno 2026 — Testo contratto modificabile, PDF firmati con archivio, promemoria automatici, pulizia documenti post check-out, CF obbligatorio per la firma._
 GUIDE;
     }
 

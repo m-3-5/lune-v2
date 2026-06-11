@@ -391,6 +391,19 @@ class AppSettings
         return (string) static::get('app_guide', '');
     }
 
+    /** Corpo del contratto personalizzato (null = usa testo predefinito). */
+    public static function contractBody(string $locale): ?string
+    {
+        $html = trim((string) static::get("contract_body_{$locale}", ''));
+
+        return $html !== '' ? $html : null;
+    }
+
+    public static function setContractBody(string $locale, ?string $html): void
+    {
+        static::set("contract_body_{$locale}", trim((string) $html));
+    }
+
     public static function projectBaseCost(): float
     {
         return (float) static::get('project_base_cost', 0);

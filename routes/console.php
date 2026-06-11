@@ -2,7 +2,18 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+// Promemoria automatici agli ospiti (pagamento, documenti, CF, firma)
+Schedule::command('jlune:guest-reminders')
+    ->dailyAt('10:00')
+    ->timezone('Europe/Rome');
+
+// Cancellazione documenti d'identità dopo il check-out (privacy)
+Schedule::command('jlune:cleanup-documents')
+    ->dailyAt('03:30')
+    ->timezone('Europe/Rome');

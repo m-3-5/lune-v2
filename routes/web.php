@@ -6,11 +6,13 @@ use App\Http\Controllers\CheckinController;
 use App\Http\Controllers\PushSubscriptionController;
 use Livewire\Volt\Volt;
 use App\Livewire\Admin\CanaliInvioPage;
+use App\Livewire\Admin\ContrattiPage;
 use App\Livewire\Admin\DettaglioArrivo;
 use App\Livewire\Admin\ProgettoPage;
 use App\Livewire\Admin\ProvaPage;
 use App\Livewire\Admin\ReservationsModule;
 use App\Livewire\Admin\SviluppoPage;
+use App\Livewire\Admin\TestoContrattoPage;
 
 Route::get('/', function () {
     return view('welcome');
@@ -40,7 +42,19 @@ Route::get('/admin', function () {
 Route::prefix('admin')->group(function () {
     Route::get('/arrivi', function () { return view('admin.arrivi'); })->name('admin.arrivi');
     Route::get('/video', function () { return view('admin.video'); })->name('admin.video');
-    Route::get('/contratti', function () { return view('admin.contratti'); })->name('admin.contratti');
+    Route::get('/contratti', ContrattiPage::class)->name('admin.contratti');
+    Route::get('/contratti/{reservation}/pdf', function (\App\Models\Reservation $reservation) {
+        abort_unless(
+            $reservation->contract_pdf_path && \Illuminate\Support\Facades\Storage::disk('local')->exists($reservation->contract_pdf_path),
+            404
+        );
+
+        return \Illuminate\Support\Facades\Storage::disk('local')->download(
+            $reservation->contract_pdf_path,
+            "contratto-{$reservation->booking_code}.pdf"
+        );
+    })->name('admin.contratti.pdf');
+    Route::get('/testo-contratto', TestoContrattoPage::class)->name('admin.testo-contratto');
     Route::get('/progetto', ProgettoPage::class)->name('admin.progetto');
     Route::get('/canali', CanaliInvioPage::class)->name('admin.canali');
     Route::get('/prova', ProvaPage::class)->name('admin.prova');

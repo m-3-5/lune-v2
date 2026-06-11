@@ -10,8 +10,15 @@ use Illuminate\Support\Facades\Mail;
 
 class GuestEmailNotifier
 {
-    public function send(Reservation $reservation, string $title, string $body, ?string $url = null, bool $force = false): void
-    {
+    public function send(
+        Reservation $reservation,
+        string $title,
+        string $body,
+        ?string $url = null,
+        bool $force = false,
+        ?string $attachmentStoragePath = null,
+        ?string $attachmentName = null,
+    ): void {
         if (! $force && (! AppSettings::guestNotificationsEnabled() || ! AppSettings::guestEmailNotificationsEnabled())) {
             return;
         }
@@ -35,7 +42,7 @@ class GuestEmailNotifier
         }
 
         try {
-            Mail::to($email)->send(new GuestAlertMail($title, $body, $url));
+            Mail::to($email)->send(new GuestAlertMail($title, $body, $url, $attachmentStoragePath, $attachmentName));
         } catch (\Throwable $e) {
             Log::error('Guest email fallita', [
                 'to' => $email,

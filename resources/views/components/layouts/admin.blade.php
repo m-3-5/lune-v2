@@ -49,6 +49,7 @@
                     <a href="{{ route('admin.arrivi') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">📇 Arrivi e Documenti</a>
                     <a href="{{ route('admin.video') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">🎥 Gestione Video</a>
                     <a href="{{ route('admin.contratti') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">📄 Contratti</a>
+                    <a href="{{ route('admin.testo-contratto') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">📝 Testo contratto</a>
                     <a href="{{ route('admin.prova') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">🧪 Prova flusso</a>
                     <a href="{{ route('admin.progetto') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800 mt-4 border-t border-slate-700 pt-4">📋 Progetto e task</a>
                     <a href="{{ route('admin.canali') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">📧 Canali di invio</a>
@@ -74,6 +75,7 @@
                             <li><a href="{{ route('admin.arrivi') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">📇 Arrivi e Documenti</a></li>
                             <li><a href="{{ route('admin.video') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">🎥 Gestione Video</a></li>
                             <li><a href="{{ route('admin.contratti') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">📄 Contratti</a></li>
+                            <li><a href="{{ route('admin.testo-contratto') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">📝 Testo contratto</a></li>
                             <li><a href="{{ route('admin.prova') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">🧪 Prova flusso</a></li>
                             <li><a href="{{ route('admin.progetto') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 border-t border-slate-700 pt-4 transition-colors">📋 Progetto e task</a></li>
                             <li><a href="{{ route('admin.canali') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">📧 Canali di invio</a></li>

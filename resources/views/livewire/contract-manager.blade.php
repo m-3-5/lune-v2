@@ -31,12 +31,16 @@ $signContract = function () {
         return; 
     }
 
-    // TODO: In futuro, qui potremmo generare un PDF con i log (IP, Timestamp) per prova legale
+    // Firma completa: timestamp, PDF, notifica admin, email con allegato
+    $result = app(\App\Services\ContractSigningService::class)->sign($this->reservation->fresh());
 
-    // Aggiorniamo il database
-    $this->reservation->contract_accepted = true;
-    $this->reservation->save();
+    if (! $result['success']) {
+        $this->addError('signing', $result['message']);
 
+        return;
+    }
+
+    $this->reservation->refresh();
     $this->isContractSigned = true;
 
     // Sblocchiamo le informazioni del soggiorno
@@ -67,6 +71,18 @@ $signContract = function () {
                 {!! app(\App\Services\ContractRenderService::class)->html($reservation) !!}
             </div>
 
+            @if($reservation->requiresTaxCodeForContract())
+                <div class="mb-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 text-sm font-semibold">
+                    ⚠️ Per firmare il contratto è necessario il codice fiscale di tutti gli ospiti italiani. Inseriscilo nella sezione dedicata prima di procedere.
+                </div>
+            @endif
+
+            @error('signing')
+                <div class="mb-4 rounded-xl bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm font-semibold">
+                    {{ $message }}
+                </div>
+            @enderror
+
             <form wire:submit="signContract" class="space-y-4">
                 {{-- Checkbox 1: Termini Generali --}}
                 <label class="flex items-start gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
@@ -93,7 +109,7 @@ $signContract = function () {
                 <div class="pt-4 border-t border-gray-100">
                     <button type="submit" 
                             class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                            @if(!$termsAccepted || !$privacyAccepted) disabled @endif>
+                            @if(!$termsAccepted || !$privacyAccepted || $reservation->requiresTaxCodeForContract()) disabled @endif>
                         Firma Elettronica e Accetta
                     </button>
                     <p class="text-xs text-center text-gray-400 mt-3">Cliccando su "Firma Elettronica e Accetta" l'azione assume valore legale di firma vincolante.</p>
