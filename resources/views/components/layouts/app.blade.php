@@ -6,9 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#4f46e5">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Jlune">
+    <meta name="apple-mobile-web-app-title" content="Jlune Ospite">
     <link rel="manifest" href="/manifest-guest.webmanifest">
-    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/guest-192.png">
     <title>{{ $title ?? 'Jlune App - Gestione Soggiorno' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
@@ -148,6 +148,7 @@
     <main class="pt-24 max-w-md mx-auto px-4">
         @if($hasReservation)
             <x-guest-pwa-prompt :reservation-id="$reservation->id" />
+            <x-guest-telegram-link :reservation="$reservation" />
         @endif
         {{ $slot }}
     </main>

@@ -15,4 +15,12 @@ return [
 
     'enabled' => env('TELEGRAM_ENABLED', false),
 
+    'bot_username' => env('TELEGRAM_BOT_USERNAME', 'jlune_notifiche_bot'),
+
+    /*
+    | Segreto opzionale per l'URL webhook (consigliato in produzione).
+    | Imposta il webhook con: https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://TUODOMINIO/webhook/telegram/<SECRET>
+    */
+    'webhook_secret' => env('TELEGRAM_WEBHOOK_SECRET'),
+
 ];

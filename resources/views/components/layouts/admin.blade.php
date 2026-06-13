@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Jlune Admin">
     <link rel="manifest" href="/manifest-admin.webmanifest">
-    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/admin-192.png">
     <title>{{ $title ?? 'Jlune Gestione' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles

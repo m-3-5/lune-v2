@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use App\Models\Reservation;
 use App\Support\AppSettings;
 use App\Support\JluneDeveloperAccess;
+use Illuminate\Support\Facades\URL;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -18,16 +19,21 @@ class NotifichePage extends Component
         $guestOn = AppSettings::guestNotificationsEnabled();
         $mailReady = AppSettings::mailSmtpReady();
         $whatsappReady = AppSettings::whatsAppChannelReady();
+        $telegramBotReady = config('telegram.enabled') && filled(config('telegram.bot_token'));
+        $telegramAdminReady = $telegramBotReady && config('telegram.notify_chat_ids') !== [];
+        $guestTelegramOn = AppSettings::guestTelegramNotificationsEnabled();
 
         $guestCanReceive = ! $underConstruction && $guestOn && (
             (AppSettings::guestEmailNotificationsEnabled() && $mailReady)
             || (AppSettings::guestWhatsAppNotificationsEnabled() && $whatsappReady)
+            || (AppSettings::guestTelegramNotificationsEnabled() && $telegramBotReady)
             || AppSettings::guestPushNotificationsEnabled()
         );
 
         $adminCanReceive = $adminOn && (
             (AppSettings::adminEmailNotificationsEnabled() && $mailReady)
             || (AppSettings::adminWhatsAppNotificationsEnabled() && $whatsappReady)
+            || $telegramAdminReady
         );
 
         $pilotCount = Reservation::query()
@@ -36,12 +42,28 @@ class NotifichePage extends Component
             ->notPast()
             ->count();
 
+        $telegramLinkedCount = Reservation::query()
+            ->whereNotNull('telegram_chat_id')
+            ->notCancelled()
+            ->notPast()
+            ->count();
+
+        $webhookUrl = $telegramBotReady
+            ? URL::to('/webhook/telegram/'.(config('telegram.webhook_secret') ?: 'IMPOSTA_TELEGRAM_WEBHOOK_SECRET'))
+            : null;
+
         return view('livewire.admin.notifiche-page', [
             'underConstruction' => $underConstruction,
             'adminOn' => $adminOn,
             'guestOn' => $guestOn,
+            'guestTelegramOn' => $guestTelegramOn,
             'mailReady' => $mailReady,
             'whatsappReady' => $whatsappReady,
+            'telegramBotReady' => $telegramBotReady,
+            'telegramAdminReady' => $telegramAdminReady,
+            'telegramBotUsername' => ltrim((string) config('telegram.bot_username', 'jlune_notifiche_bot'), '@'),
+            'webhookUrl' => $webhookUrl,
+            'telegramLinkedCount' => $telegramLinkedCount,
             'whatsappProvider' => AppSettings::whatsappProvider(),
             'guestCanReceive' => $guestCanReceive,
             'adminCanReceive' => $adminCanReceive,

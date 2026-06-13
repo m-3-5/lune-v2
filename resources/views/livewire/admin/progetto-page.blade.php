@@ -122,7 +122,7 @@
     <section class="bg-white rounded-3xl shadow-sm border border-sky-100 p-6 space-y-4">
         <h2 class="text-lg font-black text-sky-950">Notifiche verso gli ospiti</h2>
         <p class="text-sm text-gray-600">
-            Email, WhatsApp e push verso i contatti Checkfront della prenotazione (<code>guest_email</code> / <code>guest_phone</code>).
+            Email, WhatsApp, <strong>Telegram</strong> e push verso i contatti Checkfront (<code>guest_email</code> / <code>guest_phone</code>) o Telegram collegato dal portale ospite.
             <strong>Restano disattivate di default</strong> per evitare invii ai clienti reali prima di aver provato l'app.
             Le prenotazioni TEST non ricevono mai email/WhatsApp reali (solo il pulsante test sotto).
         </p>
@@ -139,6 +139,10 @@
             <label class="flex items-center gap-2 font-bold">
                 <input type="checkbox" wire:model="guestWhatsAppNotificationsEnabled" class="rounded text-sky-600" />
                 WhatsApp (log finché non c'è provider business)
+            </label>
+            <label class="flex items-center gap-2 font-bold">
+                <input type="checkbox" wire:model="guestTelegramNotificationsEnabled" class="rounded text-sky-600" />
+                Telegram (ospite collega dal check-in)
             </label>
             <label class="flex items-center gap-2 font-bold">
                 <input type="checkbox" wire:model="guestPushNotificationsEnabled" class="rounded text-sky-600" />

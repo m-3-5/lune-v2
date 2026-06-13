@@ -132,12 +132,23 @@ class AppSettings
         static::set('guest_push_notifications_enabled', $on);
     }
 
-    /** Notifiche esterne (email/WhatsApp/push) verso l'ospite consentite? */
+    public static function guestTelegramNotificationsEnabled(): bool
+    {
+        return (bool) static::get('guest_telegram_notifications_enabled', false);
+    }
+
+    public static function setGuestTelegramNotificationsEnabled(bool $on): void
+    {
+        static::set('guest_telegram_notifications_enabled', $on);
+    }
+
+    /** Notifiche esterne (email/WhatsApp/Telegram/push) verso l'ospite consentite? */
     public static function guestOutboundEnabled(): bool
     {
         return static::guestNotificationsEnabled()
             && (static::guestEmailNotificationsEnabled()
                 || static::guestWhatsAppNotificationsEnabled()
+                || static::guestTelegramNotificationsEnabled()
                 || static::guestPushNotificationsEnabled());
     }
 

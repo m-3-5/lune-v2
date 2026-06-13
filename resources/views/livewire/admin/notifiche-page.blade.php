@@ -18,6 +18,8 @@
                 ['Notifiche ospiti', $guestOn, $guestCanReceive ? 'Gli ospiti possono ricevere messaggi' : ($underConstruction ? 'Bloccate da work in progress' : 'Spento o canali non pronti')],
                 ['Email SMTP', $mailReady, $mailReady ? 'Pronta per inviare' : 'Configura in Canali di invio'],
                 ['WhatsApp', $whatsappReady, $whatsappReady ? ucfirst($whatsappProvider).' attivo' : 'Provider: '.$whatsappProvider],
+                ['Telegram bot', $telegramBotReady, $telegramBotReady ? '@'.$telegramBotUsername.' attivo' : 'Configura TELEGRAM_BOT_TOKEN nel .env'],
+                ['Telegram ospiti', $guestTelegramOn && $telegramBotReady, $guestTelegramOn ? $telegramLinkedCount.' prenotazioni collegate' : 'Toggle spento in Progetto'],
                 ['Prova notifiche', $pilotCount > 0, $pilotCount > 0 ? $pilotCount.' prenotazione/i in test' : 'Nessuna prenotazione pilota'],
             ] as [$label, $ok, $hint])
                 <div class="rounded-xl border p-3 {{ $ok ? 'bg-emerald-50 border-emerald-200' : 'bg-gray-50 border-gray-200' }}">
@@ -153,6 +155,48 @@
         </p>
     </section>
 
+    {{-- Telegram --}}
+    <section class="bg-white rounded-3xl shadow-sm border border-violet-100 p-6">
+        <h2 class="text-lg font-black text-violet-950 mb-2">Telegram</h2>
+        <p class="text-sm text-gray-600 mb-4">
+            Un solo bot (<strong>@{{ $telegramBotUsername }}</strong>) per admin e ospiti. Gli admin si collegano con <code>/start</code> e il chat ID nel .env.
+            Gli ospiti usano il pulsante <strong>«Collega Telegram»</strong> nel portale check-in.
+        </p>
+
+        <div class="grid sm:grid-cols-2 gap-3 text-sm mb-4">
+            <div class="rounded-xl border p-3 {{ $telegramAdminReady ? 'bg-emerald-50 border-emerald-200' : 'bg-gray-50 border-gray-200' }}">
+                <p class="font-bold">Admin (Serenella / team)</p>
+                <p class="text-xs text-gray-600 mt-1">
+                    @if ($telegramAdminReady)
+                        ✅ Bot attivo — chat ID in <code>TELEGRAM_NOTIFY_CHAT_IDS</code>
+                    @else
+                        Imposta <code>TELEGRAM_ENABLED=true</code>, token e chat ID. Test: <code>php artisan jlune:telegram-test</code>
+                    @endif
+                </p>
+            </div>
+            <div class="rounded-xl border p-3 {{ ($guestTelegramOn && $telegramBotReady) ? 'bg-emerald-50 border-emerald-200' : 'bg-gray-50 border-gray-200' }}">
+                <p class="font-bold">Ospiti</p>
+                <p class="text-xs text-gray-600 mt-1">
+                    @if ($guestTelegramOn && $telegramBotReady)
+                        ✅ Toggle ON — {{ $telegramLinkedCount }} prenotazioni con Telegram collegato
+                    @else
+                        Attiva «Telegram» in Progetto → Notifiche ospiti. L'ospite deve premere «Collega Telegram».
+                    @endif
+                </p>
+            </div>
+        </div>
+
+        @if ($webhookUrl)
+            <div class="bg-violet-50 border border-violet-100 rounded-xl p-4 text-xs">
+                <p class="font-bold text-violet-900 mb-1">Webhook (una volta su Plesk)</p>
+                <p class="text-violet-800 mb-2">Imposta <code>TELEGRAM_WEBHOOK_SECRET</code> nel .env, poi registra l'URL su Telegram:</p>
+                <code class="block bg-white border border-violet-200 rounded p-2 break-all text-[11px]">{{ $webhookUrl }}</code>
+                <p class="text-violet-700/80 mt-2">Comando (sostituisci TOKEN e URL):<br>
+                    <code>https://api.telegram.org/botTOKEN/setWebhook?url=URL</code></p>
+            </div>
+        @endif
+    </section>
+
     {{-- Automatismi cron --}}
     <section class="bg-sky-50 rounded-3xl border border-sky-100 p-6">
         <h2 class="text-lg font-black text-sky-950 mb-2">Promemoria automatici (server)</h2>
@@ -172,7 +216,7 @@
     <section class="bg-white rounded-3xl shadow-sm border border-dashed border-indigo-200 p-6">
         <h2 class="text-lg font-black text-indigo-950 mb-2">In arrivo (prossime fasi)</h2>
         <ul class="text-sm text-gray-600 space-y-2 list-disc list-inside">
-            <li><strong>App installabile</strong> sul telefono (Android/iPhone) come la versione precedente — icona sulla home, schermata a tutto schermo.</li>
+            <li><strong>App installabile</strong> — icone separate admin (scura) e ospite (chiara) già configurate; installa da browser «Aggiungi a schermata Home».</li>
             <li><strong>Accesso admin</strong> con utente e password per Serenella e il team.</li>
             <li><strong>Profilo ospite</strong> opzionale dopo il check-out, per restare in contatto e ricevere sconti per prenotazioni dirette.</li>
         </ul>

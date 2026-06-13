@@ -31,6 +31,8 @@ class ProgettoPage extends Component
 
     public bool $guestPushNotificationsEnabled = false;
 
+    public bool $guestTelegramNotificationsEnabled = false;
+
     public string $guestTestEmail = '';
 
     public function mount(): void
@@ -45,6 +47,7 @@ class ProgettoPage extends Component
         $this->guestEmailNotificationsEnabled = AppSettings::guestEmailNotificationsEnabled();
         $this->guestWhatsAppNotificationsEnabled = AppSettings::guestWhatsAppNotificationsEnabled();
         $this->guestPushNotificationsEnabled = AppSettings::guestPushNotificationsEnabled();
+        $this->guestTelegramNotificationsEnabled = AppSettings::guestTelegramNotificationsEnabled();
     }
 
     public function saveNotificationSettings(): void
@@ -59,6 +62,7 @@ class ProgettoPage extends Component
         AppSettings::setGuestEmailNotificationsEnabled($this->guestEmailNotificationsEnabled);
         AppSettings::setGuestWhatsAppNotificationsEnabled($this->guestWhatsAppNotificationsEnabled);
         AppSettings::setGuestPushNotificationsEnabled($this->guestPushNotificationsEnabled);
+        AppSettings::setGuestTelegramNotificationsEnabled($this->guestTelegramNotificationsEnabled);
 
         session()->flash('progetto_message', 'Impostazioni notifiche salvate.');
     }

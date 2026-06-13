@@ -10,6 +10,7 @@ class GuestOutboundNotifier
     public function __construct(
         protected GuestEmailNotifier $email,
         protected GuestWhatsAppNotifier $whatsapp,
+        protected GuestTelegramNotifier $telegram,
         protected AdminPushNotifier $push,
     ) {}
 
@@ -21,6 +22,7 @@ class GuestOutboundNotifier
 
         $this->email->send($reservation, $title, $body, $url, $force);
         $this->whatsapp->send($reservation, $title, $body, $url, $force);
+        $this->telegram->send($reservation, $title, $body, $url, $force);
 
         if ($force || AppSettings::guestPushNotificationsEnabled()) {
             $this->push->notifyGuest($reservation->id, $title, $url, $force);

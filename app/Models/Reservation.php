@@ -33,6 +33,7 @@ class Reservation extends Model
         'contract_extracted_at' => 'datetime',
         'is_test' => 'boolean',
         'notifications_pilot' => 'boolean',
+        'telegram_linked_at' => 'datetime',
     ];
 
     /** In fase costruzione: solo questa prenotazione può ricevere notifiche reali all'ospite. */
@@ -284,6 +285,17 @@ class Reservation extends Model
         $this->update(['extracted_guests' => array_values($guests)]);
     }
 
-    // Nota: Abbiamo rimosso temporaneamente l'invio automatico delle email
-    // per evitare errori finché non configureremo il server di posta.
+    public function telegramLinked(): bool
+    {
+        return filled($this->telegram_chat_id);
+    }
+
+    public function telegramDeepLink(): ?string
+    {
+        if (! config('telegram.enabled') || blank($this->token)) {
+            return null;
+        }
+
+        return app(\App\Services\TelegramNotifier::class)->deepLink($this->token);
+    }
 }

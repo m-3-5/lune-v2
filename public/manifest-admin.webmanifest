@@ -1,22 +1,22 @@
 {
   "name": "Jlune Gestione",
   "short_name": "Jlune Admin",
-  "description": "Pannello gestione Jlune per Serenella e team",
+  "description": "Pannello gestione Appartamenti Jlune per Serenella e team",
   "start_url": "/admin",
   "scope": "/admin",
   "display": "standalone",
   "background_color": "#0f172a",
-  "theme_color": "#4f46e5",
+  "theme_color": "#0f172a",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/icons/icon-192.png",
+      "src": "/icons/admin-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "/icons/admin-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
