@@ -13,6 +13,11 @@
     <title>{{ $title ?? 'Jlune App - Gestione Soggiorno' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw-guest.js', { scope: '/checkin' }).catch(function () {});
+        }
+    </script>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased pb-20" x-data="{ menuOpen: false }">
 

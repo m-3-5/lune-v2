@@ -13,6 +13,11 @@
     <title>{{ $title ?? 'Jlune Gestione' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw-admin.js', { scope: '/admin' }).catch(function () {});
+        }
+    </script>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans antialiased h-screen overflow-hidden" x-data="{ sidebarOpen: false }">
 

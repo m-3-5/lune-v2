@@ -1,3 +1,7 @@
+self.addEventListener('fetch', function (event) {
+    event.respondWith(fetch(event.request));
+});
+
 self.addEventListener('push', function (event) {
     if (!event.data) return;
     let data = {};
@@ -8,8 +12,8 @@ self.addEventListener('push', function (event) {
     }
     const options = {
         body: data.body || '',
-        icon: '/icons/icon-192.png',
-        badge: '/icons/icon-192.png',
+        icon: '/icons/guest-192.png',
+        badge: '/icons/guest-192.png',
         tag: data.tag || 'jlune-guest',
         vibrate: data.vibrate || [200, 100, 200],
         data: { url: data.url || '/' },

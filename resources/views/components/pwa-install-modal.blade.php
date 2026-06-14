@@ -2,15 +2,18 @@
 
 @php
     $isGuest = $channel === 'guest';
-    $icon = $isGuest ? '/icons/guest-192.png' : '/icons/admin-192.png';
+    $icon = asset($isGuest ? 'icons/guest-192.png' : 'icons/admin-192.png');
     $appName = $isGuest ? 'Jlune Check-in' : 'Jlune Gestione';
     $tagline = $isGuest
         ? 'Documenti, contratto e soggiorno sempre a portata di mano.'
         : 'Pannello admin sul telefono — notifiche e prenotazioni.';
     $accentBtn = $isGuest ? 'bg-teal-600 hover:bg-teal-700' : 'bg-slate-800 hover:bg-slate-900';
     $accentRing = $isGuest ? 'ring-teal-100' : 'ring-slate-200';
+    $accentBg = $isGuest ? 'bg-teal-500' : 'bg-slate-800';
     $storageKey = 'jlune_pwa_install_dismissed_'.$channel;
     $webPushReady = config('webpush.enabled') && filled(config('webpush.vapid.public_key'));
+    $sw = $isGuest ? '/sw-guest.js' : '/sw-admin.js';
+    $swScope = $isGuest ? '/checkin' : '/admin';
 @endphp
 
 <div id="jlune-pwa-modal-{{ $channel }}"
@@ -21,26 +24,32 @@
      data-webpush="{{ $webPushReady ? '1' : '0' }}"
      data-vapid="{{ $webPushReady ? config('webpush.vapid.public_key') : '' }}"
      data-push-url="{{ route('push.subscribe') }}"
-     data-sw="{{ $isGuest ? '/sw-guest.js' : '/sw-admin.js' }}"
-     data-sw-scope="{{ $isGuest ? '/checkin' : '/admin' }}">
+     data-sw="{{ $sw }}"
+     data-sw-scope="{{ $swScope }}">
     <div class="absolute inset-0 bg-gray-900/70 backdrop-blur-sm" id="jlune-pwa-backdrop-{{ $channel }}"></div>
 
     <div class="relative w-full max-w-sm rounded-3xl bg-white shadow-2xl overflow-hidden">
         <div class="px-6 pt-8 pb-4 text-center">
-            <img src="{{ $icon }}" alt="{{ $appName }}" class="w-20 h-20 mx-auto rounded-2xl shadow-md ring-4 {{ $accentRing }} mb-4">
+            <div id="jlune-pwa-icon-fallback-{{ $channel }}"
+                 class="w-20 h-20 mx-auto rounded-2xl shadow-md ring-4 {{ $accentRing }} mb-4 flex items-center justify-center {{ $accentBg }} text-white text-3xl font-black hidden">
+                J
+            </div>
+            <img id="jlune-pwa-icon-img-{{ $channel }}"
+                 src="{{ $icon }}"
+                 alt="{{ $appName }}"
+                 class="w-20 h-20 mx-auto rounded-2xl shadow-md ring-4 {{ $accentRing }} mb-4 object-cover"
+                 onerror="this.classList.add('hidden'); document.getElementById('jlune-pwa-icon-fallback-{{ $channel }}')?.classList.remove('hidden');">
             <h2 class="text-xl font-black text-gray-900">Installa {{ $appName }}</h2>
             <p class="text-sm text-gray-600 mt-2">{{ $tagline }}</p>
         </div>
 
         <div class="px-6 pb-2 space-y-3">
-            {{-- Android / Chrome: install nativo --}}
             <button type="button"
                     id="jlune-pwa-native-install-{{ $channel }}"
                     class="hidden w-full py-3.5 px-4 rounded-2xl text-white text-sm font-black uppercase tracking-wide {{ $accentBtn }}">
                 📲 Installa ora
             </button>
 
-            {{-- iOS / istruzioni manuali --}}
             <div id="jlune-pwa-manual-{{ $channel }}" class="hidden rounded-2xl bg-gray-50 border border-gray-100 p-4 text-left text-sm text-gray-700">
                 <p class="font-bold text-gray-900 mb-2">Come installare:</p>
                 <ol class="list-decimal list-inside space-y-1.5 text-xs leading-relaxed" id="jlune-pwa-steps-{{ $channel }}"></ol>
@@ -90,47 +99,59 @@
         || (navigator.maxTouchPoints > 1 && window.innerWidth < 1024);
 
     let deferredPrompt = null;
+    let modalVisible = false;
 
-    window.addEventListener('beforeinstallprompt', function (e) {
-        e.preventDefault();
-        deferredPrompt = e;
-        const btn = document.getElementById('jlune-pwa-native-install-' + channel);
-        if (btn) btn.classList.remove('hidden');
-    });
+    function registerServiceWorker() {
+        if (!('serviceWorker' in navigator)) return Promise.resolve(null);
+        return navigator.serviceWorker.register(modal.dataset.sw, { scope: modal.dataset.swScope })
+            .catch(function () { return null; });
+    }
 
-    function showModal() {
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-
+    function updateInstallUi() {
+        const nativeBtn = document.getElementById('jlune-pwa-native-install-' + channel);
         const manual = document.getElementById('jlune-pwa-manual-' + channel);
         const steps = document.getElementById('jlune-pwa-steps-' + channel);
-        const nativeBtn = document.getElementById('jlune-pwa-native-install-' + channel);
 
-        if (isIos && manual && steps) {
+        if (deferredPrompt && nativeBtn) {
+            nativeBtn.classList.remove('hidden');
+            manual?.classList.add('hidden');
+            return;
+        }
+
+        if (!manual || !steps || manual.classList.contains('force-visible')) return;
+
+        if (isIos) {
             manual.classList.remove('hidden');
             steps.innerHTML =
                 '<li>Apri questo sito in <strong>Safari</strong></li>'
                 + '<li>Tocca <strong>Condividi</strong> (quadrato con freccia)</li>'
                 + '<li>Scegli <strong>Aggiungi a Home</strong></li>'
                 + '<li>Apri l\'icona <strong>Jlune</strong> dalla home</li>';
-        } else if (!deferredPrompt && isMobile && manual && steps) {
+        } else if (isMobile) {
             manual.classList.remove('hidden');
-            steps.innerHTML = androidManualSteps();
-        }
-
-        if (deferredPrompt && nativeBtn) {
-            nativeBtn.classList.remove('hidden');
-        }
-
-        if (modal.dataset.webpush === '1' && isStandalone === false) {
-            document.getElementById('jlune-pwa-push-block-' + channel)?.classList.remove('hidden');
+            steps.innerHTML =
+                '<li>Tocca il menu <strong>⋮</strong> del browser</li>'
+                + '<li>Scegli <strong>Installa app</strong> o <strong>Aggiungi a schermata Home</strong></li>'
+                + '<li>Conferma — l\'icona Jlune apparirà sulla home</li>';
         }
     }
 
-    function androidManualSteps() {
-        return '<li>Tocca il menu <strong>⋮</strong> del browser</li>'
-            + '<li>Scegli <strong>Installa app</strong> o <strong>Aggiungi a schermata Home</strong></li>'
-            + '<li>Conferma — l\'icona Jlune apparirà sulla home</li>';
+    window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        deferredPrompt = e;
+        updateInstallUi();
+    });
+
+    function showModal() {
+        if (modalVisible) return;
+        modalVisible = true;
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        updateInstallUi();
+
+        if (modal.dataset.webpush === '1') {
+            document.getElementById('jlune-pwa-push-block-' + channel)?.classList.remove('hidden');
+        }
     }
 
     function closeModal(persist) {
@@ -174,8 +195,7 @@
         }
         try {
             if (pushStatus) pushStatus.textContent = 'Registrazione…';
-            const reg = await navigator.serviceWorker.register(modal.dataset.sw, { scope: modal.dataset.swScope });
-            await navigator.serviceWorker.ready;
+            const reg = await navigator.serviceWorker.ready;
             const p = await Notification.requestPermission();
             if (p !== 'granted') {
                 if (pushStatus) pushStatus.textContent = 'Permesso negato — abilita dalle impostazioni.';
@@ -208,13 +228,17 @@
         }
     });
 
-    // Mostra subito su mobile; su desktop solo se Chrome propone installazione
-    if (isMobile || isIos) {
-        setTimeout(showModal, 600);
-    } else {
-        window.addEventListener('beforeinstallprompt', function () {
-            setTimeout(showModal, 300);
-        });
-    }
+    registerServiceWorker().then(function () {
+        if (isMobile || isIos) {
+            setTimeout(function () {
+                showModal();
+                setTimeout(updateInstallUi, 1200);
+            }, 400);
+        } else {
+            window.addEventListener('beforeinstallprompt', function () {
+                setTimeout(showModal, 200);
+            });
+        }
+    });
 })();
 </script>
