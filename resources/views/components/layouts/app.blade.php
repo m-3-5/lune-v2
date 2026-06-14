@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#5eead4">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Jlune Ospite">
     <link rel="manifest" href="/manifest-guest.webmanifest">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/guest-192.png">
     <link rel="apple-touch-icon" href="/icons/guest-192.png">
     <title>{{ $title ?? 'Jlune App - Gestione Soggiorno' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -147,7 +148,7 @@
     <!-- CONTENUTO PRINCIPALE -->
     <main class="pt-24 max-w-md mx-auto px-4">
         @if($hasReservation)
-            <x-guest-pwa-prompt :reservation-id="$reservation->id" />
+            <x-pwa-install-modal channel="guest" :reservation-id="$reservation->id" />
             <x-guest-telegram-link :reservation="$reservation" />
         @endif
         {{ $slot }}
