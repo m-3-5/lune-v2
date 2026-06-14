@@ -5,6 +5,9 @@
 
     RewriteEngine On
 
+    # Icone PWA: passa sempre da Laravel (Plesk/docroot spesso non espone public/icons/)
+    RewriteRule ^icons/[a-z0-9\-]+\.png$ index.php [L]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

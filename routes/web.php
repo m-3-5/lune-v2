@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CheckfrontWebhookController;
 use App\Http\Controllers\CheckinController;
 use App\Http\Controllers\PushSubscriptionController;
+use App\Http\Controllers\PwaIconController;
 use App\Http\Controllers\TelegramWebhookController;
 use Livewire\Volt\Volt;
 use App\Livewire\Admin\CanaliInvioPage;
@@ -19,6 +20,11 @@ use App\Livewire\Admin\TestoContrattoPage;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Icone PWA — servite da Laravel (fix 404 su Plesk se la cartella non è nel docroot)
+Route::get('/icons/{filename}', [PwaIconController::class, 'show'])
+    ->where('filename', '[a-z0-9\-]+\.png')
+    ->name('pwa.icon');
 
 // Web Push (PWA admin / ospite)
 Route::post('/push/subscribe', [PushSubscriptionController::class, 'subscribe'])->name('push.subscribe');
