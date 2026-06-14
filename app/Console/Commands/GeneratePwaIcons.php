@@ -8,28 +8,20 @@ use Illuminate\Support\Facades\Route;
 
 class GeneratePwaIcons extends Command
 {
-    protected $signature = 'jlune:pwa-icons {--check : Mostra dove sono (o mancano) le icone} {--trim : Ritaglia bordi bianchi dalle icone esistenti}';
+    protected $signature = 'jlune:pwa-icons {--check : Mostra diagnostica icone}';
 
-    protected $description = 'Genera icone PWA admin/guest in public/icons (richiede GD)';
+    protected $description = 'Genera icone PWA Jlune (180/192/512) per admin e ospite';
+
+    /** @var list<int> */
+    protected array $sizes = [180, 192, 512];
 
     /** @var list<string> */
-    protected array $files = [
-        'admin-192.png',
-        'admin-512.png',
-        'guest-192.png',
-        'guest-512.png',
-        'icon-192.png',
-        'icon-512.png',
-    ];
+    protected array $channels = ['admin', 'guest'];
 
     public function handle(): int
     {
         if ($this->option('check')) {
             return $this->runCheck();
-        }
-
-        if ($this->option('trim')) {
-            return $this->runTrim();
         }
 
         if (! extension_loaded('gd')) {
@@ -43,54 +35,112 @@ class GeneratePwaIcons extends Command
             mkdir($dir, 0755, true);
         }
 
-        $this->importMisplacedIcons($dir);
+        foreach ($this->channels as $channel) {
+            $source = $this->resolveSource($dir, $channel);
+            if (! $source) {
+                $this->warn("Sorgente non trovata per {$channel}. Metti public/icons/source/{$channel}.png");
 
-        foreach ([192, 512] as $size) {
-            $this->writeAdminIcon($dir.'/admin-'.$size.'.png', $size);
-            $this->writeGuestIcon($dir.'/guest-'.$size.'.png', $size);
-            $this->writeAdminIcon($dir.'/icon-'.$size.'.png', $size);
-        }
+                continue;
+            }
 
-        $this->newLine();
-        $this->info('Icone scritte in: '.$dir);
-        $this->line('URL test: '.url('/pwa-icons/admin-192.png'));
-        $this->fixPermissions($dir);
-        $this->runCheck();
-
-        return self::SUCCESS;
-    }
-
-    protected function runTrim(): int
-    {
-        if (! extension_loaded('gd')) {
-            $this->error('Estensione PHP GD richiesta.');
-
-            return self::FAILURE;
-        }
-
-        $dir = public_path('icons');
-        $count = 0;
-        foreach ($this->files as $name) {
-            $path = $dir.'/'.$name;
-            if (is_file($path) && $this->trimIcon($path)) {
-                $count++;
-                $this->line('Ritagliata: '.$name);
+            $this->info("Sorgente {$channel}: ".basename($source));
+            foreach ($this->sizes as $size) {
+                $target = $dir.'/'.$channel.'-'.$size.'.png';
+                $this->buildIcon($source, $target, $size, $channel);
+                $this->line('  → '.$channel.'-'.$size.'.png');
             }
         }
 
-        $this->info("Icone ritagliate: {$count}");
         $this->fixPermissions($dir);
+        $this->newLine();
+        $this->info('Fatto. URL test: '.url('/pwa-icons/admin-192.png'));
 
-        return self::SUCCESS;
+        return $this->runCheck();
     }
 
-    protected function trimIcon(string $path): bool
+    protected function resolveSource(string $dir, string $channel): ?string
     {
-        $src = @imagecreatefrompng($path);
-        if (! $src) {
-            return false;
+        $candidates = [
+            $dir.'/source/'.$channel.'.png',
+            $dir.'/source/'.$channel.'.jpg',
+            $dir.'/'.$channel.'-512.png',
+            $dir.'/'.$channel.'-192.png',
+        ];
+
+        foreach ($candidates as $path) {
+            if (is_file($path) && filesize($path) > 100) {
+                return $path;
+            }
         }
 
+        return null;
+    }
+
+    protected function buildIcon(string $source, string $target, int $size, string $channel): void
+    {
+        $src = $this->loadImage($source);
+        if (! $src) {
+            return;
+        }
+
+        $bounds = $this->findContentBounds($src);
+        if (! $bounds) {
+            imagedestroy($src);
+
+            return;
+        }
+
+        [$minX, $minY, $maxX, $maxY] = $bounds;
+        $cropW = $maxX - $minX + 1;
+        $cropH = $maxY - $minY + 1;
+
+        $cropped = imagecreatetruecolor($cropW, $cropH);
+        imagealphablending($cropped, false);
+        imagesavealpha($cropped, true);
+        $transparent = imagecolorallocatealpha($cropped, 0, 0, 0, 127);
+        imagefill($cropped, 0, 0, $transparent);
+        imagecopy($cropped, $src, 0, 0, $minX, $minY, $cropW, $cropH);
+        imagedestroy($src);
+
+        $bg = $channel === 'admin'
+            ? [15, 23, 42]
+            : [255, 255, 255];
+
+        $out = imagecreatetruecolor($size, $size);
+        imagealphablending($out, false);
+        imagesavealpha($out, true);
+        $bgColor = imagecolorallocate($out, $bg[0], $bg[1], $bg[2]);
+        imagefill($out, 0, 0, $bgColor);
+
+        $padding = (int) round($size * 0.08);
+        $inner = $size - ($padding * 2);
+        $scale = min($inner / $cropW, $inner / $cropH);
+        $destW = (int) round($cropW * $scale);
+        $destH = (int) round($cropH * $scale);
+        $destX = (int) round(($size - $destW) / 2);
+        $destY = (int) round(($size - $destH) / 2);
+
+        imagecopyresampled($out, $cropped, $destX, $destY, 0, 0, $destW, $destH, $cropW, $cropH);
+        imagedestroy($cropped);
+
+        imagepng($out, $target, 6);
+        imagedestroy($out);
+    }
+
+    protected function loadImage(string $path): ?\GdImage
+    {
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+
+        return match ($ext) {
+            'jpg', 'jpeg' => @imagecreatefromjpeg($path) ?: null,
+            'webp' => function_exists('imagecreatefromwebp') ? (@imagecreatefromwebp($path) ?: null) : null,
+            default => @imagecreatefrompng($path) ?: null,
+        };
+    }
+
+    /** @return array{0:int,1:int,2:int,3:int}|null */
+    protected function findContentBounds(\GdImage $src): ?array
+    {
         $width = imagesx($src);
         $height = imagesy($src);
         $minX = $width;
@@ -100,20 +150,9 @@ class GeneratePwaIcons extends Command
 
         for ($y = 0; $y < $height; $y++) {
             for ($x = 0; $x < $width; $x++) {
-                $rgba = imagecolorat($src, $x, $y);
-                $a = ($rgba >> 24) & 0x7F;
-                $r = ($rgba >> 16) & 0xFF;
-                $g = ($rgba >> 8) & 0xFF;
-                $b = $rgba & 0xFF;
-
-                if ($a >= 120) {
+                if (! $this->isContentPixel($src, $x, $y)) {
                     continue;
                 }
-
-                if ($r >= 248 && $g >= 248 && $b >= 248) {
-                    continue;
-                }
-
                 $minX = min($minX, $x);
                 $minY = min($minY, $y);
                 $maxX = max($maxX, $x);
@@ -122,144 +161,58 @@ class GeneratePwaIcons extends Command
         }
 
         if ($maxX <= $minX || $maxY <= $minY) {
-            imagedestroy($src);
+            return null;
+        }
 
+        return [$minX, $minY, $maxX, $maxY];
+    }
+
+    protected function isContentPixel(\GdImage $src, int $x, int $y): bool
+    {
+        $rgba = imagecolorat($src, $x, $y);
+        $a = ($rgba >> 24) & 0x7F;
+        $r = ($rgba >> 16) & 0xFF;
+        $g = ($rgba >> 8) & 0xFF;
+        $b = $rgba & 0xFF;
+
+        if ($a >= 100) {
             return false;
         }
 
-        $target = str_contains(basename($path), '512') ? 512 : 192;
-        $cropW = $maxX - $minX + 1;
-        $cropH = $maxY - $minY + 1;
-        $cropped = imagecreatetruecolor($cropW, $cropH);
-        imagealphablending($cropped, false);
-        imagesavealpha($cropped, true);
-        $transparent = imagecolorallocatealpha($cropped, 0, 0, 0, 127);
-        imagefill($cropped, 0, 0, $transparent);
-        imagecopy($cropped, $src, 0, 0, $minX, $minY, $cropW, $cropH);
-        imagedestroy($src);
-
-        $out = imagecreatetruecolor($target, $target);
-        imagealphablending($out, false);
-        imagesavealpha($out, true);
-        imagefill($out, 0, 0, $transparent);
-        imagecopyresampled($out, $cropped, 0, 0, 0, 0, $target, $target, $cropW, $cropH);
-        imagedestroy($cropped);
-
-        imagepng($out, $path);
-        imagedestroy($out);
-
-        return true;
+        return ! ($r >= 245 && $g >= 245 && $b >= 245);
     }
 
     protected function runCheck(): int
     {
         $this->info('Diagnostica icone PWA');
-        $this->line('public_path(): '.public_path());
-        $this->line('base_path(): '.base_path());
-        $this->newLine();
-
         $rows = [];
-        foreach ($this->files as $name) {
-            $path = public_path('icons/'.$name);
-            $rows[] = [
-                $name,
-                $path,
-                is_file($path) ? number_format(filesize($path)).' B' : 'MANCANTE',
-                is_file($path) && filesize($path) > 32 ? 'OK' : 'NO',
-            ];
+
+        foreach ($this->channels as $channel) {
+            foreach ($this->sizes as $size) {
+                $name = $channel.'-'.$size.'.png';
+                $path = public_path('icons/'.$name);
+                $dim = is_file($path) ? @getimagesize($path) : false;
+                $rows[] = [
+                    $name,
+                    $dim ? $dim[0].'×'.$dim[1] : '—',
+                    is_file($path) ? number_format(filesize($path)).' B' : 'MANCANTE',
+                    ($dim && $dim[0] === $size && $dim[1] === $size) ? 'OK' : 'NO',
+                ];
+            }
         }
 
-        $this->table(['File', 'Percorso', 'Dimensione', 'Stato'], $rows);
-        $this->line('Apri nel browser: '.url('/pwa-icons/admin-192.png'));
-        $this->line('Route registrata: '.(Route::has('pwa.icon') ? 'sì' : 'NO — esegui route:clear'));
+        $this->table(['File', 'Pixel', 'Peso', 'Stato'], $rows);
+        $this->line('Browser: '.url('/pwa-icons/admin-192.png'));
+        $this->line('Route: '.(Route::has('pwa.icon') ? 'ok' : 'manca route:clear'));
 
         return self::SUCCESS;
     }
 
     protected function fixPermissions(string $dir): void
     {
-        if (! is_dir($dir)) {
-            return;
-        }
-
         @chmod($dir, 0755);
         foreach (glob($dir.'/*.png') ?: [] as $file) {
             @chmod($file, 0644);
         }
-    }
-
-    protected function importMisplacedIcons(string $targetDir): void
-    {
-        $candidates = array_unique(array_filter([
-            base_path('icons'),
-            base_path('public/icons'),
-            dirname(public_path()).'/icons',
-        ]));
-
-        foreach ($candidates as $source) {
-            if (! is_dir($source) || realpath($source) === realpath($targetDir)) {
-                continue;
-            }
-
-            foreach (glob($source.'/*.png') ?: [] as $file) {
-                $name = basename($file);
-                if (! in_array($name, $this->files, true)) {
-                    continue;
-                }
-                $dest = $targetDir.'/'.$name;
-                if (! is_file($dest) || filesize($dest) < filesize($file)) {
-                    File::copy($file, $dest);
-                    $this->warn('Copiato da '.$source.' → '.$name);
-                }
-            }
-        }
-    }
-
-    protected function writeAdminIcon(string $path, int $size): void
-    {
-        $img = imagecreatetruecolor($size, $size);
-        imagealphablending($img, true);
-
-        $bg = imagecolorallocate($img, 15, 23, 42);
-        imagefill($img, 0, 0, $bg);
-
-        $teal = imagecolorallocate($img, 94, 234, 212);
-        $white = imagecolorallocate($img, 255, 255, 255);
-        $r = (int) ($size * 0.18);
-        imagefilledellipse($img, (int) ($size * 0.35), (int) ($size * 0.38), $r * 2, $r * 2, $teal);
-        imagefilledellipse($img, (int) ($size * 0.62), (int) ($size * 0.28), (int) ($r * 1.4), (int) ($r * 1.4), $teal);
-
-        $this->drawLetter($img, 'J', $size, $white);
-
-        imagepng($img, $path);
-        imagedestroy($img);
-    }
-
-    protected function writeGuestIcon(string $path, int $size): void
-    {
-        $img = imagecreatetruecolor($size, $size);
-        imagealphablending($img, true);
-
-        $bg = imagecolorallocate($img, 255, 255, 255);
-        imagefill($img, 0, 0, $bg);
-
-        $teal = imagecolorallocate($img, 20, 184, 166);
-        $light = imagecolorallocate($img, 153, 246, 228);
-        $r = (int) ($size * 0.2);
-        imagefilledellipse($img, (int) ($size * 0.32), (int) ($size * 0.36), $r * 2, $r * 2, $teal);
-        imagefilledellipse($img, (int) ($size * 0.68), (int) ($size * 0.3), (int) ($r * 1.5), (int) ($r * 1.5), $light);
-
-        $this->drawLetter($img, 'J', $size, imagecolorallocate($img, 15, 23, 42));
-
-        imagepng($img, $path);
-        imagedestroy($img);
-    }
-
-    protected function drawLetter(\GdImage $img, string $letter, int $size, int $color): void
-    {
-        $font = 5;
-        $tw = imagefontwidth($font) * strlen($letter);
-        $th = imagefontheight($font);
-        imagestring($img, $font, (int) (($size - $tw) / 2), (int) (($size - $th) / 2), $letter, $color);
     }
 }

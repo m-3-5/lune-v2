@@ -2,7 +2,7 @@
 
 @php
     $isGuest = $channel === 'guest';
-    $icon = url('/pwa-icons/'.($isGuest ? 'guest-192.png' : 'admin-192.png'));
+    $icon = url('/pwa-icons/'.($isGuest ? 'guest-180.png' : 'admin-180.png'));
     $appName = $isGuest ? 'Jlune Check-in' : 'Jlune Gestione';
     $tagline = $isGuest
         ? 'Documenti, contratto e soggiorno sul telefono.'

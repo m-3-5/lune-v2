@@ -8,8 +8,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Jlune Admin">
     <link rel="manifest" href="/manifest-admin.webmanifest">
+    <link rel="icon" type="image/png" sizes="512x512" href="/pwa-icons/admin-512.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/pwa-icons/admin-192.png">
-    <link rel="apple-touch-icon" href="/pwa-icons/admin-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/pwa-icons/admin-180.png">
     <title>{{ $title ?? 'Jlune Gestione' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles

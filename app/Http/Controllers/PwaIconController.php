@@ -18,9 +18,14 @@ class PwaIconController extends Controller
             abort(404);
         }
 
-        return response()->file($path, [
-            'Content-Type' => 'image/png',
-            'Cache-Control' => 'public, max-age=604800, immutable',
-        ]);
+        try {
+            return response()->file($path, [
+                'Content-Type' => 'image/png',
+                'Cache-Control' => 'public, max-age=604800, immutable',
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+            abort(404);
+        }
     }
 }
