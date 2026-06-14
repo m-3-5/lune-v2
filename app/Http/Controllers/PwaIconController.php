@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Illuminate\Http\Response;
 
 class PwaIconController extends Controller
 {
-    public function show(string $filename): BinaryFileResponse
+    public function show(string $filename): Response
     {
         if (! preg_match('/^[a-z0-9\-]+\.png$/', $filename)) {
             abort(404);
@@ -18,14 +18,15 @@ class PwaIconController extends Controller
             abort(404);
         }
 
-        try {
-            return response()->file($path, [
-                'Content-Type' => 'image/png',
-                'Cache-Control' => 'public, max-age=604800, immutable',
-            ]);
-        } catch (\Throwable $e) {
-            report($e);
+        $contents = file_get_contents($path);
+        if ($contents === false) {
             abort(404);
         }
+
+        return response($contents, 200, [
+            'Content-Type' => 'image/png',
+            'Content-Length' => (string) strlen($contents),
+            'Cache-Control' => 'public, max-age=604800, immutable',
+        ]);
     }
 }

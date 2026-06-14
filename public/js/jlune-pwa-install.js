@@ -2,6 +2,7 @@ window.jlunePwaInstall = (function () {
     const configs = {};
     let deferredPrompt = null;
 
+    // Cattura l'evento il prima possibile (Chrome Android)
     window.addEventListener('beforeinstallprompt', function (e) {
         e.preventDefault();
         deferredPrompt = e;
@@ -26,16 +27,21 @@ window.jlunePwaInstall = (function () {
             || window.navigator.standalone === true;
     }
 
-    function manualStepsHtml(flags) {
-        if (flags.isIos) {
-            return '<li>Apri in <strong>Safari</strong></li>'
-                + '<li>Tocca <strong>Condividi</strong></li>'
-                + '<li>Scegli <strong>Aggiungi a Home</strong></li>'
-                + '<li>Apri l\'icona <strong>Jlune</strong> dalla home</li>';
-        }
-        return '<li>Tocca il menu <strong>⋮</strong> del browser</li>'
+    function iosStepsHtml() {
+        return '<p class="text-[11px] text-gray-700 mb-2">Su iPhone/iPad non esiste un pulsante automatico. Segui questi passi:</p>'
+            + '<ol class="list-decimal list-inside space-y-1 text-[11px] text-gray-700 leading-relaxed">'
+            + '<li>Tocca <strong>Condividi</strong> (quadrato con freccia in basso)</li>'
+            + '<li>Scorri e scegli <strong>Aggiungi a Home</strong></li>'
+            + '<li>Tocca <strong>Aggiungi</strong> — l\'icona Jlune apparirà sulla home</li>'
+            + '</ol>';
+    }
+
+    function androidManualHtml() {
+        return '<ol class="list-decimal list-inside space-y-1 text-[11px] text-gray-700 leading-relaxed">'
+            + '<li>Tocca il menu <strong>⋮</strong> in alto a destra</li>'
             + '<li>Scegli <strong>Installa app</strong> o <strong>Aggiungi a schermata Home</strong></li>'
-            + '<li>Conferma — l\'icona Jlune apparirà sulla home</li>';
+            + '<li>Conferma — l\'icona Jlune apparirà sulla home</li>'
+            + '</ol>';
     }
 
     function registerServiceWorker(cfg) {
@@ -54,24 +60,35 @@ window.jlunePwaInstall = (function () {
         const nativeBtn = document.getElementById('jlune-pwa-native-install-' + channel);
         const manual = document.getElementById('jlune-pwa-manual-' + channel);
         const steps = document.getElementById('jlune-pwa-steps-' + channel);
+        const iosBox = document.getElementById('jlune-pwa-ios-' + channel);
         const wait = document.getElementById('jlune-pwa-wait-' + channel);
         const push = document.getElementById('jlune-pwa-push-block-' + channel);
 
         wait?.classList.add('hidden');
 
-        if (deferredPrompt && nativeBtn) {
-            nativeBtn.classList.remove('hidden');
+        // iOS: mai pulsante nativo, solo istruzioni Safari
+        if (flags.isIos) {
+            nativeBtn?.classList.add('hidden');
+            iosBox?.classList.remove('hidden');
             manual?.classList.add('hidden');
+            if (cfg.webpush && push) push.classList.remove('hidden');
             return;
         }
 
-        if (manual && steps && (flags.isIos || flags.isMobile)) {
-            manual.classList.remove('hidden');
-            steps.innerHTML = manualStepsHtml(flags);
+        // Android: pulsante nativo se Chrome lo consente
+        if (deferredPrompt && nativeBtn) {
+            nativeBtn.classList.remove('hidden');
+            manual?.classList.add('hidden');
+            iosBox?.classList.add('hidden');
+            return;
         }
 
-        if (cfg.webpush && push && (flags.isIos || flags.isMobile) && !deferredPrompt) {
-            push.classList.remove('hidden');
+        // Android senza evento: istruzioni menu Chrome
+        if (flags.isAndroid && manual && steps) {
+            nativeBtn?.classList.add('hidden');
+            manual.classList.remove('hidden');
+            steps.innerHTML = androidManualHtml();
+            if (cfg.webpush && push) push.classList.remove('hidden');
         }
     }
 
@@ -100,9 +117,6 @@ window.jlunePwaInstall = (function () {
     }
 
     function bind(channel) {
-        const modal = document.getElementById('jlune-pwa-modal-' + channel);
-        if (!modal) return;
-
         document.getElementById('jlune-pwa-later-' + channel)?.addEventListener('click', function () {
             close(channel, true);
         });
@@ -180,14 +194,18 @@ window.jlunePwaInstall = (function () {
         if (!modal) return;
         modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
-        const wait = document.getElementById('jlune-pwa-wait-' + channel);
+
         const flags = uaFlags();
-        if (flags.isAndroid || !flags.isMobile) {
+        const wait = document.getElementById('jlune-pwa-wait-' + channel);
+
+        if (flags.isAndroid) {
             wait?.classList.remove('hidden');
-        }
-        waitForInstallPrompt(flags.isAndroid ? 3500 : 2000).then(function () {
+            waitForInstallPrompt(4000).then(function () {
+                updateUi(channel);
+            });
+        } else {
             updateUi(channel);
-        });
+        }
     }
 
     function close(channel, persist) {
@@ -212,9 +230,9 @@ window.jlunePwaInstall = (function () {
 
         if (!dismissed && !autoShown) {
             sessionStorage.setItem(autoKey, '1');
-            setTimeout(function () { open(channel); }, 800);
+            setTimeout(function () { open(channel); }, 1000);
         }
     }
 
-    return { init, open, close, isStandalone };
+    return { init, open, close, isStandalone, canInstall: function () { return !!deferredPrompt; } };
 })();

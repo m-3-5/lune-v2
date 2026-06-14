@@ -14,6 +14,7 @@
     <title>{{ $title ?? 'Jlune Gestione' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
+    <script src="/js/jlune-pwa-install.js?v=4" defer></script>
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw-admin.js', { scope: '/admin' }).catch(function () {});

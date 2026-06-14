@@ -5,6 +5,7 @@ use App\Http\Controllers\CheckfrontWebhookController;
 use App\Http\Controllers\CheckinController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\PwaIconController;
+use App\Http\Controllers\PwaManifestController;
 use App\Http\Controllers\TelegramWebhookController;
 use Livewire\Volt\Volt;
 use App\Livewire\Admin\CanaliInvioPage;
@@ -39,6 +40,9 @@ Route::post('/webhook/checkfront', [CheckfrontWebhookController::class, 'handle'
 Route::post('/webhook/telegram/{secret?}', [TelegramWebhookController::class, 'handle'])->name('webhook.telegram');
 
 // La porta d'ingresso per l'ospite (Super-Lucchetto)
+Route::get('/checkin/{token}/manifest.webmanifest', [PwaManifestController::class, 'guest'])
+    ->name('checkin.manifest');
+
 Route::get('/checkin/{token}', [CheckinController::class, 'show'])->name('checkin.show');
 
 

@@ -1,12 +1,13 @@
 {
+  "id": "/checkin",
   "name": "Jlune Check-in",
   "short_name": "Jlune",
   "description": "Area ospite Appartamenti Jlune — documenti, contratto e soggiorno",
-  "start_url": "/checkin",
+  "start_url": "/",
   "scope": "/checkin",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#5eead4",
+  "theme_color": "#00D185",
   "orientation": "portrait-primary",
   "icons": [
     {

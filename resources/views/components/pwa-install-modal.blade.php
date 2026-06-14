@@ -33,7 +33,7 @@
         </div>
 
         <div class="px-5 pb-3 space-y-2.5">
-            <p id="jlune-pwa-wait-{{ $channel }}" class="hidden text-center text-xs text-gray-500">Preparazione…</p>
+            <p id="jlune-pwa-wait-{{ $channel }}" class="hidden text-center text-xs text-gray-500">Preparazione installazione…</p>
 
             <button type="button"
                     id="jlune-pwa-native-install-{{ $channel }}"
@@ -41,9 +41,11 @@
                 Installa ora
             </button>
 
+            <div id="jlune-pwa-ios-{{ $channel }}" class="hidden rounded-xl bg-teal-50 border border-teal-100 p-3 text-left"></div>
+
             <div id="jlune-pwa-manual-{{ $channel }}" class="hidden rounded-xl bg-gray-50 border border-gray-100 p-3 text-left">
-                <p class="font-bold text-gray-900 text-xs mb-1.5">Come installare:</p>
-                <ol class="list-decimal list-inside space-y-1 text-[11px] text-gray-700 leading-relaxed" id="jlune-pwa-steps-{{ $channel }}"></ol>
+                <p class="font-bold text-gray-900 text-xs mb-1.5">Come installare su Android:</p>
+                <div id="jlune-pwa-steps-{{ $channel }}"></div>
             </div>
 
             @if ($webPushReady)
@@ -69,10 +71,6 @@
     </div>
 </div>
 
-@once
-    <script src="/js/jlune-pwa-install.js?v=3"></script>
-@endonce
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         if (!window.jlunePwaInstall) return;
@@ -85,5 +83,14 @@
             pushUrl: @json(route('push.subscribe')),
             reservationId: @json($reservationId),
         });
+        const iosBox = document.getElementById('jlune-pwa-ios-{{ $channel }}');
+        if (iosBox) {
+            iosBox.innerHTML = '<p class="text-[11px] text-gray-700 mb-2">Su iPhone/iPad non esiste un pulsante automatico. Segui questi passi:</p>'
+                + '<ol class="list-decimal list-inside space-y-1 text-[11px] text-gray-700 leading-relaxed">'
+                + '<li>Tocca <strong>Condividi</strong> (quadrato con freccia in basso)</li>'
+                + '<li>Scorri e scegli <strong>Aggiungi a Home</strong></li>'
+                + '<li>Tocca <strong>Aggiungi</strong> — l\'icona Jlune apparirà sulla home</li>'
+                + '</ol>';
+        }
     });
 </script>
