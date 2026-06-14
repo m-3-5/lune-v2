@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 class GeneratePwaIcons extends Command
 {
-    protected $signature = 'jlune:pwa-icons {--check : Mostra dove sono (o mancano) le icone}';
+    protected $signature = 'jlune:pwa-icons {--check : Mostra dove sono (o mancano) le icone} {--trim : Ritaglia bordi bianchi dalle icone esistenti}';
 
     protected $description = 'Genera icone PWA admin/guest in public/icons (richiede GD)';
 
@@ -26,6 +26,10 @@ class GeneratePwaIcons extends Command
     {
         if ($this->option('check')) {
             return $this->runCheck();
+        }
+
+        if ($this->option('trim')) {
+            return $this->runTrim();
         }
 
         if (! extension_loaded('gd')) {
@@ -54,6 +58,97 @@ class GeneratePwaIcons extends Command
         $this->runCheck();
 
         return self::SUCCESS;
+    }
+
+    protected function runTrim(): int
+    {
+        if (! extension_loaded('gd')) {
+            $this->error('Estensione PHP GD richiesta.');
+
+            return self::FAILURE;
+        }
+
+        $dir = public_path('icons');
+        $count = 0;
+        foreach ($this->files as $name) {
+            $path = $dir.'/'.$name;
+            if (is_file($path) && $this->trimIcon($path)) {
+                $count++;
+                $this->line('Ritagliata: '.$name);
+            }
+        }
+
+        $this->info("Icone ritagliate: {$count}");
+        $this->fixPermissions($dir);
+
+        return self::SUCCESS;
+    }
+
+    protected function trimIcon(string $path): bool
+    {
+        $src = @imagecreatefrompng($path);
+        if (! $src) {
+            return false;
+        }
+
+        $width = imagesx($src);
+        $height = imagesy($src);
+        $minX = $width;
+        $minY = $height;
+        $maxX = 0;
+        $maxY = 0;
+
+        for ($y = 0; $y < $height; $y++) {
+            for ($x = 0; $x < $width; $x++) {
+                $rgba = imagecolorat($src, $x, $y);
+                $a = ($rgba >> 24) & 0x7F;
+                $r = ($rgba >> 16) & 0xFF;
+                $g = ($rgba >> 8) & 0xFF;
+                $b = $rgba & 0xFF;
+
+                if ($a >= 120) {
+                    continue;
+                }
+
+                if ($r >= 248 && $g >= 248 && $b >= 248) {
+                    continue;
+                }
+
+                $minX = min($minX, $x);
+                $minY = min($minY, $y);
+                $maxX = max($maxX, $x);
+                $maxY = max($maxY, $y);
+            }
+        }
+
+        if ($maxX <= $minX || $maxY <= $minY) {
+            imagedestroy($src);
+
+            return false;
+        }
+
+        $target = str_contains(basename($path), '512') ? 512 : 192;
+        $cropW = $maxX - $minX + 1;
+        $cropH = $maxY - $minY + 1;
+        $cropped = imagecreatetruecolor($cropW, $cropH);
+        imagealphablending($cropped, false);
+        imagesavealpha($cropped, true);
+        $transparent = imagecolorallocatealpha($cropped, 0, 0, 0, 127);
+        imagefill($cropped, 0, 0, $transparent);
+        imagecopy($cropped, $src, 0, 0, $minX, $minY, $cropW, $cropH);
+        imagedestroy($src);
+
+        $out = imagecreatetruecolor($target, $target);
+        imagealphablending($out, false);
+        imagesavealpha($out, true);
+        imagefill($out, 0, 0, $transparent);
+        imagecopyresampled($out, $cropped, 0, 0, 0, 0, $target, $target, $cropW, $cropH);
+        imagedestroy($cropped);
+
+        imagepng($out, $path);
+        imagedestroy($out);
+
+        return true;
     }
 
     protected function runCheck(): int
