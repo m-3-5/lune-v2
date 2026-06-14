@@ -21,10 +21,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Icone PWA — servite da Laravel (fix 404 su Plesk se la cartella non è nel docroot)
-Route::get('/icons/{filename}', [PwaIconController::class, 'show'])
+// Icone PWA — servite da Laravel (path /pwa-icons/ evita blocchi nginx su /icons/)
+Route::get('/pwa-icons/{filename}', [PwaIconController::class, 'show'])
     ->where('filename', '[a-z0-9\-]+\.png')
     ->name('pwa.icon');
+
+Route::get('/icons/{filename}', [PwaIconController::class, 'show'])
+    ->where('filename', '[a-z0-9\-]+\.png');
 
 // Web Push (PWA admin / ospite)
 Route::post('/push/subscribe', [PushSubscriptionController::class, 'subscribe'])->name('push.subscribe');

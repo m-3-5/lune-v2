@@ -12,8 +12,8 @@ self.addEventListener('push', function (event) {
     }
     const options = {
         body: data.body || '',
-        icon: '/icons/guest-192.png',
-        badge: '/icons/guest-192.png',
+        icon: '/pwa-icons/guest-192.png',
+        badge: '/pwa-icons/guest-192.png',
         tag: data.tag || 'jlune-guest',
         vibrate: data.vibrate || [200, 100, 200],
         data: { url: data.url || '/' },

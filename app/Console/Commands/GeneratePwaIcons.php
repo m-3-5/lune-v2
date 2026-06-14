@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Route;
 
 class GeneratePwaIcons extends Command
 {
@@ -48,7 +49,8 @@ class GeneratePwaIcons extends Command
 
         $this->newLine();
         $this->info('Icone scritte in: '.$dir);
-        $this->line('URL test: '.url('/icons/admin-192.png'));
+        $this->line('URL test: '.url('/pwa-icons/admin-192.png'));
+        $this->fixPermissions($dir);
         $this->runCheck();
 
         return self::SUCCESS;
@@ -73,9 +75,22 @@ class GeneratePwaIcons extends Command
         }
 
         $this->table(['File', 'Percorso', 'Dimensione', 'Stato'], $rows);
-        $this->line('Apri nel browser: '.url('/icons/admin-192.png'));
+        $this->line('Apri nel browser: '.url('/pwa-icons/admin-192.png'));
+        $this->line('Route registrata: '.(Route::has('pwa.icon') ? 'sì' : 'NO — esegui route:clear'));
 
         return self::SUCCESS;
+    }
+
+    protected function fixPermissions(string $dir): void
+    {
+        if (! is_dir($dir)) {
+            return;
+        }
+
+        @chmod($dir, 0755);
+        foreach (glob($dir.'/*.png') ?: [] as $file) {
+            @chmod($file, 0644);
+        }
     }
 
     protected function importMisplacedIcons(string $targetDir): void

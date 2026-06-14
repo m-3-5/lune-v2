@@ -8,8 +8,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Jlune Ospite">
     <link rel="manifest" href="/manifest-guest.webmanifest">
-    <link rel="icon" type="image/png" sizes="192x192" href="/icons/guest-192.png">
-    <link rel="apple-touch-icon" href="/icons/guest-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-icons/guest-192.png">
+    <link rel="apple-touch-icon" href="/pwa-icons/guest-192.png">
     <title>{{ $title ?? 'Jlune App - Gestione Soggiorno' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
