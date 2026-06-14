@@ -51,6 +51,9 @@ Route::get('/checkin/{token}/documents', [App\Http\Controllers\CheckinController
 Route::get('/checkin/{token}/contract', [CheckinController::class, 'contract'])->name('checkin.contract');
 
 // Rotta per la Dashboard di Serenella
+Route::get('/admin/manifest.webmanifest', [PwaManifestController::class, 'admin'])
+    ->name('admin.manifest');
+
 Route::get('/admin', function () {
     return view('admin.dashboard');
 })->name('admin.dashboard');

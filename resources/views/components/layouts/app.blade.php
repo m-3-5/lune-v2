@@ -18,7 +18,7 @@
     <title>{{ $title ?? 'Jlune App - Gestione Soggiorno' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
-    <script src="/js/jlune-pwa-install.js?v=4" defer></script>
+    <script src="/js/jlune-pwa-install.js?v=5" defer></script>
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw-guest.js', { scope: '/checkin' }).catch(function () {});

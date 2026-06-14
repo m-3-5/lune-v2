@@ -6,15 +6,16 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Jlune Admin">
-    <link rel="manifest" href="/manifest-admin.webmanifest">
+    <link rel="manifest" href="{{ route('admin.manifest') }}">
     <link rel="icon" type="image/png" sizes="512x512" href="/pwa-icons/admin-512.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/pwa-icons/admin-192.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/pwa-icons/admin-180.png">
     <title>{{ $title ?? 'Jlune Gestione' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
-    <script src="/js/jlune-pwa-install.js?v=4" defer></script>
+    <script src="/js/jlune-pwa-install.js?v=5" defer></script>
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw-admin.js', { scope: '/admin' }).catch(function () {});
@@ -62,7 +63,7 @@
                     <a href="{{ route('admin.progetto') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800 mt-4 border-t border-slate-700 pt-4">📋 Progetto e task</a>
                     <a href="{{ route('admin.canali') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">📧 Canali di invio</a>
                     <a href="{{ route('admin.notifiche') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">🔔 Notifiche</a>
-                    <button type="button" onclick="window.jlunePwaInstall && window.jlunePwaInstall.open('admin')" class="block w-full text-left px-3 py-2 rounded-md font-medium hover:bg-slate-800 text-teal-300">📲 Scarica l'app</button>
+                    <button type="button" onclick="window.jlunePwaInstall && window.jlunePwaInstall.open('admin'); sidebarOpen = false" class="block w-full text-left px-3 py-2 rounded-md font-medium hover:bg-slate-800 text-teal-300">📲 Scarica l'app</button>
                     <a href="{{ route('admin.sviluppo') }}" class="block px-3 py-2 rounded-md text-xs font-medium {{ \App\Support\JluneDeveloperAccess::isGranted() ? 'text-slate-300' : 'text-slate-500' }} hover:bg-slate-800">
                         🔧 Sviluppo (team)@if (! \App\Support\JluneDeveloperAccess::isGranted()) 🔒@endif
                     </a>
@@ -117,6 +118,11 @@
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
             </button>
             <div class="flex-1 text-lg font-bold text-slate-800">Pannello di Controllo</div>
+            <button type="button"
+                    onclick="window.jlunePwaInstall && window.jlunePwaInstall.open('admin')"
+                    class="shrink-0 rounded-lg bg-slate-800 px-3 py-1.5 text-[10px] font-black uppercase text-white tracking-wide">
+                📲 App
+            </button>
         </div>
 
         <!-- AREA DOVE VENGONO CARICATE LE PAGINE (Dinamica) -->

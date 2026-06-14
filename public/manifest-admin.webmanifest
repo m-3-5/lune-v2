@@ -1,8 +1,9 @@
 {
+  "id": "/admin",
   "name": "Jlune Gestione",
   "short_name": "Jlune Admin",
   "description": "Pannello gestione Appartamenti Jlune per Serenella e team",
-  "start_url": "/admin",
+  "start_url": "/admin?source=pwa",
   "scope": "/admin",
   "display": "standalone",
   "background_color": "#0f172a",
