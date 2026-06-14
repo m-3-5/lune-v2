@@ -138,7 +138,12 @@
             @endif
         </a>
 
-        <div class="pt-4 border-t border-gray-100">
+        <div class="pt-4 border-t border-gray-100 space-y-3">
+            <button type="button"
+                    @click="window.jlunePwaInstall && window.jlunePwaInstall.open('guest'); menuOpen = false"
+                    class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700">
+                📲 Scarica l'app
+            </button>
             <x-pwa-push-register
                 channel="guest"
                 :reservation-id="$hasReservation ? $reservation->id : null"
