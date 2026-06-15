@@ -61,8 +61,7 @@
                     <a href="{{ route('admin.testo-contratto') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">📝 Testo contratto</a>
                     <a href="{{ route('admin.prova') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">🧪 Prova flusso</a>
                     <a href="{{ route('admin.progetto') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800 mt-4 border-t border-slate-700 pt-4">📋 Progetto e task</a>
-                    <a href="{{ route('admin.canali') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">📧 Canali di invio</a>
-                    <a href="{{ route('admin.notifiche') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">🔔 Notifiche</a>
+                    <a href="{{ route('admin.notifiche') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">🔔 Notifiche e canali</a>
                     <button type="button" onclick="window.jlunePwaInstall && window.jlunePwaInstall.open('admin'); sidebarOpen = false" class="block w-full text-left px-3 py-2 rounded-md font-medium hover:bg-slate-800 text-teal-300">📲 Scarica l'app</button>
                     <a href="{{ route('admin.sviluppo') }}" class="block px-3 py-2 rounded-md text-xs font-medium {{ \App\Support\JluneDeveloperAccess::isGranted() ? 'text-slate-300' : 'text-slate-500' }} hover:bg-slate-800">
                         🔧 Sviluppo (team)@if (! \App\Support\JluneDeveloperAccess::isGranted()) 🔒@endif
@@ -89,8 +88,7 @@
                             <li><a href="{{ route('admin.testo-contratto') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">📝 Testo contratto</a></li>
                             <li><a href="{{ route('admin.prova') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">🧪 Prova flusso</a></li>
                             <li><a href="{{ route('admin.progetto') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 border-t border-slate-700 pt-4 transition-colors">📋 Progetto e task</a></li>
-                            <li><a href="{{ route('admin.canali') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">📧 Canali di invio</a></li>
-                            <li><a href="{{ route('admin.notifiche') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">🔔 Notifiche</a></li>
+                            <li><a href="{{ route('admin.notifiche') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">🔔 Notifiche e canali</a></li>
                             <li>
                                 <button type="button" onclick="window.jlunePwaInstall && window.jlunePwaInstall.open('admin')" class="block w-full text-left rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors text-teal-300">
                                     📲 Scarica l'app

@@ -295,6 +295,28 @@ class AppSettings
         return (string) static::get('twilio_whatsapp_from', '+14155238886');
     }
 
+    public static function twilioWhatsAppMode(): string
+    {
+        $mode = (string) static::get('twilio_whatsapp_mode', 'sandbox');
+
+        return in_array($mode, ['sandbox', 'business'], true) ? $mode : 'sandbox';
+    }
+
+    public static function setTwilioWhatsAppMode(string $mode): void
+    {
+        static::set('twilio_whatsapp_mode', in_array($mode, ['sandbox', 'business'], true) ? $mode : 'sandbox');
+    }
+
+    public static function twilioContentTemplateSid(): string
+    {
+        return (string) static::get('twilio_content_template_sid', '');
+    }
+
+    public static function twilioMetaBusinessId(): string
+    {
+        return (string) static::get('twilio_meta_business_id', '');
+    }
+
     public static function twilioAuthTokenIsSet(): bool
     {
         return filled(static::get('twilio_auth_token'));

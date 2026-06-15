@@ -48,7 +48,7 @@ class GuestWhatsAppNotifier
             'phone' => $phone,
             'reservation_id' => $reservation->id,
             'message' => $message,
-            'hint' => 'Attiva provider Twilio in Canali di invio per inviare agli ospiti.',
+            'hint' => 'Attiva provider Twilio in Notifiche → WhatsApp per inviare agli ospiti.',
         ]);
     }
 }

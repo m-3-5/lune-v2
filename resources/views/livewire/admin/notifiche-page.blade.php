@@ -3,9 +3,32 @@
         <a href="{{ route('admin.dashboard') }}" class="text-indigo-600 font-bold text-sm">← Dashboard</a>
         <h1 class="text-3xl font-black text-indigo-950 mt-2">🔔 Notifiche</h1>
         <p class="text-gray-500 text-sm mt-1">
-            Panoramica, istruzioni e collegamenti rapidi. Qui non si modificano le impostazioni tecniche: si capisce cosa è attivo e dove configurare.
+            Panoramica e hub dei canali. Ogni canale ha una pagina dedicata con spiegazione, stima costi e configurazione senza codice.
         </p>
     </div>
+
+    {{-- Canali dedicati --}}
+    <section class="grid sm:grid-cols-2 gap-4">
+        @foreach ([
+            ['route' => 'admin.notifiche.email', 'icon' => '📧', 'title' => 'Email', 'ready' => $mailReady, 'hint' => 'SMTP appjlune@inm35.net'],
+            ['route' => 'admin.notifiche.whatsapp', 'icon' => '💬', 'title' => 'WhatsApp', 'ready' => $whatsappReady, 'hint' => 'Twilio — admin e ospiti'],
+            ['route' => 'admin.notifiche.telegram', 'icon' => '✈️', 'title' => 'Telegram', 'ready' => $telegramBotReady, 'hint' => 'Bot @'.$telegramBotUsername],
+            ['route' => 'admin.notifiche.push', 'icon' => '📲', 'title' => 'Web Push', 'ready' => config('webpush.enabled') && filled(config('webpush.vapid.public_key')), 'hint' => 'PWA installata'],
+        ] as $ch)
+            <a href="{{ route($ch['route']) }}"
+               class="block bg-white rounded-2xl border p-5 shadow-sm hover:border-indigo-300 hover:shadow-md transition {{ $ch['ready'] ? 'border-emerald-200' : 'border-gray-200' }}">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">{{ $ch['icon'] }}</span>
+                    <div>
+                        <p class="font-black text-indigo-950">{{ $ch['title'] }}</p>
+                        <p class="text-xs text-gray-500 mt-0.5">{{ $ch['hint'] }}</p>
+                    </div>
+                    <span class="ml-auto text-lg">{{ $ch['ready'] ? '✅' : '⬜' }}</span>
+                </div>
+                <p class="text-[10px] font-black uppercase text-indigo-600 mt-3">Configura →</p>
+            </a>
+        @endforeach
+    </section>
 
     {{-- Stato a colpo d'occhio --}}
     <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
@@ -16,7 +39,7 @@
                 ['Work in progress', $underConstruction, $underConstruction ? 'Gli ospiti reali NON ricevono email/WhatsApp' : 'Modalità live per gli ospiti (se i toggle sono ON)'],
                 ['Notifiche admin', $adminOn, $adminCanReceive ? 'Invio effettivo possibile' : 'Spento o canali non pronti'],
                 ['Notifiche ospiti', $guestOn, $guestCanReceive ? 'Gli ospiti possono ricevere messaggi' : ($underConstruction ? 'Bloccate da work in progress' : 'Spento o canali non pronti')],
-                ['Email SMTP', $mailReady, $mailReady ? 'Pronta per inviare' : 'Configura in Canali di invio'],
+                ['Email SMTP', $mailReady, $mailReady ? 'Pronta per inviare' : 'Configura in Notifiche → Email'],
                 ['WhatsApp', $whatsappReady, $whatsappReady ? ucfirst($whatsappProvider).' attivo' : 'Provider: '.$whatsappProvider],
                 ['Telegram bot', $telegramBotReady, $telegramBotReady ? '@'.$telegramBotUsername.' attivo' : 'Configura TELEGRAM_BOT_TOKEN nel .env'],
                 ['Telegram ospiti', $guestTelegramOn && $telegramBotReady, $guestTelegramOn ? $telegramLinkedCount.' prenotazioni collegate' : 'Toggle spento in Progetto'],
@@ -48,8 +71,11 @@
                 <span class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 text-white font-black flex items-center justify-center text-sm">1</span>
                 <div>
                     <p class="font-bold text-indigo-950">Configura i canali di invio</p>
-                    <p class="text-indigo-900/80 mt-0.5">Email SMTP e WhatsApp (Twilio). Fai un test da quella pagina.</p>
-                    <a href="{{ route('admin.canali') }}" class="inline-block mt-2 text-xs font-black uppercase text-indigo-700 underline">→ Canali di invio</a>
+                    <p class="text-indigo-900/80 mt-0.5">Email e WhatsApp: apri la pagina del canale, inserisci credenziali e fai un test.</p>
+                    <div class="flex flex-wrap gap-3 mt-2">
+                        <a href="{{ route('admin.notifiche.email') }}" class="text-xs font-black uppercase text-indigo-700 underline">→ Email</a>
+                        <a href="{{ route('admin.notifiche.whatsapp') }}" class="text-xs font-black uppercase text-indigo-700 underline">→ WhatsApp</a>
+                    </div>
                 </div>
             </li>
             <li class="flex gap-3">
@@ -159,8 +185,8 @@
     <section class="bg-white rounded-3xl shadow-sm border border-violet-100 p-6">
         <h2 class="text-lg font-black text-violet-950 mb-2">Telegram</h2>
         <p class="text-sm text-gray-600 mb-4">
-            Un solo bot (<strong>@{{ $telegramBotUsername }}</strong>) per admin e ospiti. Gli admin si collegano con <code>/start</code> e il chat ID nel .env.
-            Gli ospiti usano il pulsante <strong>«Collega Telegram»</strong> nel portale check-in.
+            Un solo bot (<strong>@{{ $telegramBotUsername }}</strong>). Dettagli, costi e setup in
+            <a href="{{ route('admin.notifiche.telegram') }}" class="text-violet-700 underline font-bold">pagina Telegram</a>.
         </p>
 
         <div class="grid sm:grid-cols-2 gap-3 text-sm mb-4">
@@ -225,9 +251,13 @@
 
     {{-- Link rapidi --}}
     <section class="flex flex-wrap gap-3">
-        <a href="{{ route('admin.canali') }}"
+        <a href="{{ route('admin.notifiche.whatsapp') }}"
+           class="inline-flex items-center gap-2 px-5 py-3 bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-wide hover:bg-emerald-700">
+            💬 WhatsApp
+        </a>
+        <a href="{{ route('admin.notifiche.email') }}"
            class="inline-flex items-center gap-2 px-5 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-wide hover:bg-indigo-700">
-            📧 Canali di invio
+            📧 Email
         </a>
         <a href="{{ route('admin.progetto') }}"
            class="inline-flex items-center gap-2 px-5 py-3 bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-wide hover:bg-emerald-700">

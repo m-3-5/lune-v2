@@ -8,9 +8,12 @@ use App\Http\Controllers\PwaIconController;
 use App\Http\Controllers\PwaManifestController;
 use App\Http\Controllers\TelegramWebhookController;
 use Livewire\Volt\Volt;
-use App\Livewire\Admin\CanaliInvioPage;
 use App\Livewire\Admin\ContrattiPage;
 use App\Livewire\Admin\DettaglioArrivo;
+use App\Livewire\Admin\Notifiche\CanaleEmailPage;
+use App\Livewire\Admin\Notifiche\CanalePushPage;
+use App\Livewire\Admin\Notifiche\CanaleTelegramPage;
+use App\Livewire\Admin\Notifiche\CanaleWhatsAppPage;
 use App\Livewire\Admin\NotifichePage;
 use App\Livewire\Admin\ProgettoPage;
 use App\Livewire\Admin\ProvaPage;
@@ -76,11 +79,15 @@ Route::prefix('admin')->group(function () {
     })->name('admin.contratti.pdf');
     Route::get('/testo-contratto', TestoContrattoPage::class)->name('admin.testo-contratto');
     Route::get('/progetto', ProgettoPage::class)->name('admin.progetto');
-    Route::get('/canali', CanaliInvioPage::class)->name('admin.canali');
+    Route::redirect('/canali', '/admin/notifiche')->name('admin.canali');
     Route::get('/notifiche', NotifichePage::class)->name('admin.notifiche');
+    Route::get('/notifiche/email', CanaleEmailPage::class)->name('admin.notifiche.email');
+    Route::get('/notifiche/whatsapp', CanaleWhatsAppPage::class)->name('admin.notifiche.whatsapp');
+    Route::get('/notifiche/telegram', CanaleTelegramPage::class)->name('admin.notifiche.telegram');
+    Route::get('/notifiche/push', CanalePushPage::class)->name('admin.notifiche.push');
     Route::get('/prova', ProvaPage::class)->name('admin.prova');
     Route::get('/sviluppo', SviluppoPage::class)->name('admin.sviluppo');
-    Route::redirect('/configura', '/admin/canali');
+    Route::redirect('/configura', '/admin/notifiche');
 });
 
 // Rotta per il modulo di controllo documenti (Livewire)

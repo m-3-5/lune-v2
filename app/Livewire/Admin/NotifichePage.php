@@ -155,7 +155,7 @@ class NotifichePage extends Component
     ): array {
         return [
             [
-                'label' => 'Email SMTP configurata (Canali di invio)',
+                'label' => 'Email SMTP configurata (Notifiche → Email)',
                 'done' => $mailReady,
                 'hint' => 'Host, password e test email ok.',
             ],

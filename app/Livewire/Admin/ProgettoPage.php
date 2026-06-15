@@ -137,7 +137,6 @@ class ProgettoPage extends Component
         $extra = collect($entries)->sum(fn ($e) => (float) ($e['amount'] ?? 0));
 
         return view('livewire.admin.progetto-page', [
-            'appGuide' => AppSettings::appGuide(),
             'projectBaseCost' => $base,
             'costEntries' => $entries,
             'totalCost' => $base + $extra,

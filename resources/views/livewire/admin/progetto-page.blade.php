@@ -1,4 +1,4 @@
-<div class="max-w-4xl mx-auto space-y-8 pb-16">
+<div class="max-w-4xl mx-auto space-y-8 pb-16" x-on:guide-ticket-created.window="document.getElementById('task-board')?.scrollIntoView({ behavior: 'smooth', block: 'start' })">
     <div>
         <a href="{{ route('admin.dashboard') }}" class="text-indigo-600 font-bold text-sm">← Dashboard</a>
         <h1 class="text-3xl font-black text-indigo-950 mt-2">Progetto Jlune</h1>
@@ -19,11 +19,9 @@
     </section>
 
     <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-        <div class="prose prose-sm prose-indigo max-w-none text-gray-700 leading-relaxed
-            prose-headings:font-black prose-h1:text-2xl prose-h2:text-lg prose-h2:mt-8 prose-h2:mb-3
-            prose-strong:text-gray-900 prose-table:text-sm">
-            {!! \Illuminate\Support\Str::markdown($appGuide) !!}
-        </div>
+        <h2 class="text-lg font-black text-indigo-950 mb-1">Guida progetto</h2>
+        <p class="text-sm text-gray-500 mb-4">Argomenti in riquadri — clicca per aprire. Aggiornata giugno 2026.</p>
+        <livewire:admin.project-guide-accordion />
     </section>
 
     <section class="bg-white rounded-3xl shadow-sm border border-indigo-100 p-6">
@@ -64,19 +62,10 @@
             </div>
         @endif
 
-        <div class="flex flex-wrap gap-4 text-sm">
-            <label class="flex items-center gap-2 font-bold">
-                <input type="checkbox" wire:model="adminNotificationsEnabled" class="rounded text-emerald-600" />
-                Invio notifiche attivo
-            </label>
-            <label class="flex items-center gap-2 font-bold">
-                <input type="checkbox" wire:model="adminEmailNotificationsEnabled" class="rounded text-emerald-600" />
-                Email
-            </label>
-            <label class="flex items-center gap-2 font-bold">
-                <input type="checkbox" wire:model="adminWhatsAppNotificationsEnabled" class="rounded text-emerald-600" />
-                WhatsApp
-            </label>
+        <div class="space-y-1 divide-y divide-gray-100">
+            <x-admin.toggle-switch wire:model="adminNotificationsEnabled" label="Invio notifiche attivo" color="emerald" />
+            <x-admin.toggle-switch wire:model="adminEmailNotificationsEnabled" label="Email" color="emerald" />
+            <x-admin.toggle-switch wire:model="adminWhatsAppNotificationsEnabled" label="WhatsApp" color="emerald" />
         </div>
 
         <div class="grid md:grid-cols-2 gap-4">
@@ -99,8 +88,8 @@
         </div>
 
         <p class="text-xs text-gray-500">
-            SMTP e WhatsApp API: configura in
-            <a href="{{ route('admin.canali') }}" class="text-emerald-700 underline font-bold">Canali di invio</a>.
+            SMTP e WhatsApp: configura in
+            <a href="{{ route('admin.notifiche.whatsapp') }}" class="text-emerald-700 underline font-bold">Notifiche → WhatsApp</a>.
             Driver attuale: <code class="bg-gray-100 px-1 rounded">{{ $effectiveMailDriver }}</code>
             @if (! $mailSmtpReady)
                 — <span class="text-amber-700">SMTP non pronto (manca password o toggle)</span>
@@ -127,27 +116,12 @@
             Le prenotazioni TEST non ricevono mai email/WhatsApp reali (solo il pulsante test sotto).
         </p>
 
-        <div class="flex flex-wrap gap-4 text-sm">
-            <label class="flex items-center gap-2 font-bold">
-                <input type="checkbox" wire:model="guestNotificationsEnabled" class="rounded text-sky-600" />
-                Notifiche ospite attive
-            </label>
-            <label class="flex items-center gap-2 font-bold">
-                <input type="checkbox" wire:model="guestEmailNotificationsEnabled" class="rounded text-sky-600" />
-                Email
-            </label>
-            <label class="flex items-center gap-2 font-bold">
-                <input type="checkbox" wire:model="guestWhatsAppNotificationsEnabled" class="rounded text-sky-600" />
-                WhatsApp (log finché non c'è provider business)
-            </label>
-            <label class="flex items-center gap-2 font-bold">
-                <input type="checkbox" wire:model="guestTelegramNotificationsEnabled" class="rounded text-sky-600" />
-                Telegram (ospite collega dal check-in)
-            </label>
-            <label class="flex items-center gap-2 font-bold">
-                <input type="checkbox" wire:model="guestPushNotificationsEnabled" class="rounded text-sky-600" />
-                Push PWA ospite
-            </label>
+        <div class="space-y-1 divide-y divide-gray-100">
+            <x-admin.toggle-switch wire:model="guestNotificationsEnabled" label="Notifiche ospite attive" color="sky" />
+            <x-admin.toggle-switch wire:model="guestEmailNotificationsEnabled" label="Email" color="sky" />
+            <x-admin.toggle-switch wire:model="guestWhatsAppNotificationsEnabled" label="WhatsApp" hint="Configura account Business in Notifiche → WhatsApp" color="sky" />
+            <x-admin.toggle-switch wire:model="guestTelegramNotificationsEnabled" label="Telegram" hint="Ospite collega dal check-in" color="sky" />
+            <x-admin.toggle-switch wire:model="guestPushNotificationsEnabled" label="Push PWA ospite" color="sky" />
         </div>
 
         <p class="text-xs text-gray-500">
@@ -180,9 +154,9 @@
         <x-pwa-push-register channel="admin" class="mb-0" />
     </section>
 
-    <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
+    <section id="task-board" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
         <h2 class="text-lg font-black text-gray-900 mb-2">Task e avanzamenti</h2>
-        <p class="text-sm text-gray-600 mb-4">Aggiungi una richiesta, segui le attività in corso (tue e del team).</p>
+        <p class="text-sm text-gray-600 mb-4">Le domande dalla guida compaiono qui. Aggiungi richieste e segui le risposte del team.</p>
         <livewire:admin.development-tasks-board :developer-mode="false" />
     </section>
 </div>
