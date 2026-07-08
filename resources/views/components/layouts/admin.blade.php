@@ -138,6 +138,7 @@
        class="fixed bottom-5 right-5 z-[70] inline-flex items-center gap-2 px-5 py-3 rounded-full bg-indigo-600 text-white text-xs font-black uppercase tracking-wide shadow-lg shadow-indigo-900/30 hover:bg-indigo-700">
         🎫 Ticket
     </a>
+    @livewire('faq-widget', ['audience' => 'admin', 'position' => 'left'])
 
     @livewireScripts
     <x-pwa-install-modal channel="admin" />

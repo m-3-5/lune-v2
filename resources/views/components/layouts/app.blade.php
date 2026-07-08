@@ -170,6 +170,8 @@
         {{ $slot }}
     </main>
 
+    @livewire('faq-widget', ['audience' => 'guest', 'reservationToken' => $hasReservation ? $reservation->token : null])
+
     @livewireScripts
 </body>
 </html>
