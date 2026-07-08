@@ -46,6 +46,14 @@
                     </button>
                 </div>
             </div>
+
+            <div class="mt-4 pt-4 border-t border-gray-100">
+                <p class="text-xs text-gray-500 mb-2">
+                    In alternativa, nella pagina di manutenzione c'è un login diretto ("Accesso team"): email + questa password condivisa.
+                    Funziona per: {{ implode(', ', $maintenanceLoginEmails) ?: 'nessuna email configurata sopra in Progetto → Contatti' }}.
+                </p>
+                <p class="font-mono text-lg font-black text-slate-900 bg-gray-50 rounded-xl px-4 py-2 inline-block">{{ $maintenanceAccessPassword }}</p>
+            </div>
         @endif
     </section>
 

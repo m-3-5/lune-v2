@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CheckfrontWebhookController;
 use App\Http\Controllers\CheckinController;
+use App\Http\Controllers\MaintenanceAccessController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\PwaIconController;
 use App\Http\Controllers\PwaManifestController;
@@ -56,6 +57,9 @@ Route::post('/ticket/{token}/reply', [TicketTrackingController::class, 'reply'])
 // Link personale "accesso Serenella" — rinnovato a ogni prenotazione reale.
 Route::get('/accesso/{token}', [SerenellaAccessController::class, 'confirm'])->name('serenella.access.confirm');
 Route::get('/entra', [SerenellaAccessController::class, 'enter'])->name('serenella.access.enter');
+
+// Login diretto (email + password) nella pagina di manutenzione — alternativa al link.
+Route::post('/accesso/login', [MaintenanceAccessController::class, 'login'])->name('maintenance.access.login');
 
 // La porta d'ingresso per l'ospite (Super-Lucchetto)
 Route::get('/checkin/{token}/manifest.webmanifest', [PwaManifestController::class, 'guest'])

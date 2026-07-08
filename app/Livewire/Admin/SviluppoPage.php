@@ -278,6 +278,8 @@ class SviluppoPage extends Component
                 : collect(),
             'accessLink' => url('/accesso/'.AppSettings::serenellaAccessToken()),
             'accessExpiresAt' => AppSettings::serenellaAccessExpiresAt(),
+            'maintenanceAccessPassword' => AppSettings::maintenanceAccessPassword(),
+            'maintenanceLoginEmails' => AppSettings::adminEmails(),
         ]);
     }
 }

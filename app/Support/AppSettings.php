@@ -475,6 +475,36 @@ class AppSettings
         return hash_equals(static::serenellaAccessToken(), $token);
     }
 
+    /**
+     * Password semplice, condivisa da tutto il team (Max + Serenella), per il
+     * login diretto nella pagina di manutenzione — alternativa al link via email.
+     */
+    public static function maintenanceAccessPassword(): string
+    {
+        $password = static::get('maintenance_access_password');
+
+        if (is_string($password) && $password !== '') {
+            return $password;
+        }
+
+        $password = 'jlune'.random_int(1000, 9999);
+        static::set('maintenance_access_password', $password);
+
+        return $password;
+    }
+
+    public static function maintenanceLoginValid(?string $email, ?string $password): bool
+    {
+        if (! is_string($email) || ! is_string($password) || $password === '') {
+            return false;
+        }
+
+        $email = strtolower(trim($email));
+
+        return in_array($email, static::adminEmails(), true)
+            && hash_equals(static::maintenanceAccessPassword(), $password);
+    }
+
     public static function appGuide(): string
     {
         return (string) static::get('app_guide', '');
