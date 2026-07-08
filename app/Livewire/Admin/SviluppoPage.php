@@ -25,8 +25,6 @@ class SviluppoPage extends Component
 
     public string $adminPhonesText = '';
 
-    public string $appGuide = '';
-
     public float $projectBaseCost = 3800;
 
     /** @var array<int, array{label: string, amount: string, date: string}> */
@@ -102,7 +100,6 @@ class SviluppoPage extends Component
         $this->maintenanceOn = AppSettings::siteMaintenanceOn();
         $this->adminEmailsText = implode("\n", AppSettings::adminEmails());
         $this->adminPhonesText = implode("\n", AppSettings::adminPhones());
-        $this->appGuide = AppSettings::appGuide();
         $this->projectBaseCost = AppSettings::projectBaseCost();
         $this->costEntries = collect(AppSettings::projectCostEntries())
             ->map(fn ($e) => [
@@ -192,12 +189,6 @@ class SviluppoPage extends Component
         AppSettings::set('admin_emails', $this->linesToArray($this->adminEmailsText));
         AppSettings::set('admin_phones', $this->linesToArray($this->adminPhonesText));
         session()->flash('dev_message', 'Contatti salvati.');
-    }
-
-    public function saveGuide(): void
-    {
-        AppSettings::set('app_guide', $this->appGuide);
-        session()->flash('dev_message', 'Guida aggiornata (visibile in Progetto).');
     }
 
     public function saveCosts(): void

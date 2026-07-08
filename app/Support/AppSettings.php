@@ -479,8 +479,19 @@ class AppSettings
      * Password semplice, condivisa da tutto il team (Max + Serenella), per il
      * login diretto nella pagina di manutenzione — alternativa al link via email.
      */
+    /**
+     * Un'unica password "team" per tutto: sblocca /admin/sviluppo (JluneDeveloperAccess)
+     * e il login diretto nella pagina di manutenzione. Se JLUNE_DEV_PASSWORD è configurata
+     * (produzione) è quella; altrimenti (locale) ne genera una e la salva nel DB.
+     */
     public static function maintenanceAccessPassword(): string
     {
+        $envPassword = (string) config('jlune.dev_password');
+
+        if ($envPassword !== '') {
+            return $envPassword;
+        }
+
         $password = static::get('maintenance_access_password');
 
         if (is_string($password) && $password !== '') {
@@ -503,11 +514,6 @@ class AppSettings
 
         return in_array($email, static::adminEmails(), true)
             && hash_equals(static::maintenanceAccessPassword(), $password);
-    }
-
-    public static function appGuide(): string
-    {
-        return (string) static::get('app_guide', '');
     }
 
     /** Corpo del contratto personalizzato (null = usa testo predefinito). */

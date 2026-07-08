@@ -13,8 +13,8 @@
     @endif
 
     <section class="bg-white rounded-3xl shadow-sm border border-amber-100 p-6">
-        <h2 class="text-lg font-black mb-2">App in costruzione</h2>
-        <p class="text-xs text-gray-500 mb-3">Blocca solo le notifiche reali agli ospiti (email/WhatsApp/Telegram/push). Il sito resta visitabile.</p>
+        <h2 class="text-lg font-black mb-2">App in costruzione <span class="text-xs font-normal text-gray-400">(solo notifiche — diverso da "Sito in manutenzione" qui sotto)</span></h2>
+        <p class="text-xs text-gray-500 mb-3">Blocca solo le notifiche reali agli ospiti (email/WhatsApp/Telegram/push). Il sito resta visitabile e raggiungibile da chiunque.</p>
         <button type="button" wire:click="toggleConstruction"
             class="px-6 py-3 rounded-2xl font-black text-sm uppercase {{ $underConstruction ? 'bg-amber-500 text-amber-950' : 'bg-indigo-600 text-white' }}">
             {{ $underConstruction ? 'Disattiva' : 'Attiva' }}
@@ -49,7 +49,7 @@
 
             <div class="mt-4 pt-4 border-t border-gray-100">
                 <p class="text-xs text-gray-500 mb-2">
-                    In alternativa, nella pagina di manutenzione c'è un login diretto ("Accesso team"): email + questa password condivisa.
+                    In alternativa, nella pagina di manutenzione c'è un login diretto ("Accesso team"): email + questa stessa password che usi per entrare qui in Sviluppo.
                     Funziona per: {{ implode(', ', $maintenanceLoginEmails) ?: 'nessuna email configurata sopra in Progetto → Contatti' }}.
                 </p>
                 <p class="font-mono text-lg font-black text-slate-900 bg-gray-50 rounded-xl px-4 py-2 inline-block">{{ $maintenanceAccessPassword }}</p>
@@ -186,12 +186,6 @@
             <textarea wire:model="adminPhonesText" rows="3" class="w-full rounded-xl border-gray-200 text-sm font-mono"></textarea>
         </div>
         <button type="button" wire:click="saveContacts" class="mt-3 px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-black uppercase">Salva</button>
-    </section>
-
-    <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-        <h2 class="text-lg font-black mb-2">Guida (testo in Progetto)</h2>
-        <textarea wire:model="appGuide" rows="14" class="w-full rounded-xl border-gray-200 text-sm font-mono"></textarea>
-        <button type="button" wire:click="saveGuide" class="mt-3 px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase">Salva guida</button>
     </section>
 
     <section class="bg-white rounded-3xl shadow-sm border border-indigo-100 p-6">
