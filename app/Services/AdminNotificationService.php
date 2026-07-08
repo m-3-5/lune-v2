@@ -62,7 +62,9 @@ class AdminNotificationService
             'reservation_id' => $reservation->id,
         ]);
 
-        if ($type !== self::TYPE_CLIENT_NOTIFICATION_PREVIEW) {
+        if ($type === self::TYPE_BOOKING_SYNCED) {
+            $this->teamAlerts->forNewBooking($reservation, $title, $body ?? '');
+        } elseif ($type !== self::TYPE_CLIENT_NOTIFICATION_PREVIEW) {
             $this->teamAlerts->forReservation(
                 $reservation,
                 $title,

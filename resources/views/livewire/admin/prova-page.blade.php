@@ -20,6 +20,19 @@
         </div>
     @endif
 
+    @if ($maintenanceOn)
+        <div class="bg-amber-50 text-amber-900 p-4 rounded-2xl text-sm border border-amber-200">
+            <p class="font-black uppercase text-xs mb-1">Manutenzione straordinaria attiva</p>
+            <p>
+                A ogni nuova prenotazione reale, oltre al link ospite, arriva via email/Telegram anche un
+                <strong>link PROVA</strong> collegato: puoi aprirlo e inserire documenti finti per verificare
+                l'app, senza toccare la prenotazione vera. Queste copie compaiono qui sotto con la scritta
+                <strong>auto</strong> e si cancellano da sole dopo 5 giorni. Quando disattivi la manutenzione,
+                questi link extra smettono di arrivare.
+            </p>
+        </div>
+    @endif
+
     <section class="bg-white rounded-3xl shadow-sm border border-amber-100 p-6 flex flex-wrap items-center justify-between gap-4">
         <div>
             <h2 class="text-lg font-black text-gray-900">Creazione prove</h2>
@@ -112,6 +125,9 @@
                     <li class="flex flex-wrap items-center justify-between gap-2 bg-gray-50 rounded-xl px-4 py-3">
                         <span>
                             <span class="font-black text-indigo-700 text-xs uppercase">TEST</span>
+                            @if ($tr->source_reservation_id)
+                                <span class="font-black text-amber-600 text-xs uppercase" title="Creata automaticamente da una prenotazione reale, si cancella dopo 5 giorni">auto</span>
+                            @endif
                             {{ $tr->guestDisplayName() }}
                             · {{ $tr->apartment->name ?? '—' }}
                             · {{ $tr->check_in?->format('d/m') }}–{{ $tr->check_out?->format('d/m') }}

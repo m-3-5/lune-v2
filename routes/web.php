@@ -6,6 +6,8 @@ use App\Http\Controllers\CheckinController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\PwaIconController;
 use App\Http\Controllers\PwaManifestController;
+use App\Http\Controllers\SerenellaAccessController;
+use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\TelegramWebhookController;
 use Livewire\Volt\Volt;
 use App\Livewire\Admin\ContrattiPage;
@@ -41,6 +43,14 @@ Route::post('/push/unsubscribe', [PushSubscriptionController::class, 'unsubscrib
 Route::post('/webhook/checkfront', [CheckfrontWebhookController::class, 'handle']);
 
 Route::post('/webhook/telegram/{secret?}', [TelegramWebhookController::class, 'handle'])->name('webhook.telegram');
+
+// Ticket di assistenza — resta raggiungibile anche a sito in manutenzione (vedi AppServiceProvider).
+Route::get('/assistenza', [SupportTicketController::class, 'show'])->name('assistenza');
+Route::post('/assistenza', [SupportTicketController::class, 'store'])->name('assistenza.store');
+
+// Link personale "accesso Serenella" — rinnovato a ogni prenotazione reale.
+Route::get('/accesso/{token}', [SerenellaAccessController::class, 'confirm'])->name('serenella.access.confirm');
+Route::get('/entra', [SerenellaAccessController::class, 'enter'])->name('serenella.access.enter');
 
 // La porta d'ingresso per l'ospite (Super-Lucchetto)
 Route::get('/checkin/{token}/manifest.webmanifest', [PwaManifestController::class, 'guest'])

@@ -19,6 +19,8 @@ class SviluppoPage extends Component
 
     public bool $underConstruction = false;
 
+    public bool $maintenanceOn = false;
+
     public string $adminEmailsText = '';
 
     public string $adminPhonesText = '';
@@ -97,6 +99,7 @@ class SviluppoPage extends Component
     protected function loadDevSettings(): void
     {
         $this->underConstruction = AppSettings::underConstruction();
+        $this->maintenanceOn = AppSettings::siteMaintenanceOn();
         $this->adminEmailsText = implode("\n", AppSettings::adminEmails());
         $this->adminPhonesText = implode("\n", AppSettings::adminPhones());
         $this->appGuide = AppSettings::appGuide();
@@ -166,6 +169,16 @@ class SviluppoPage extends Component
         session()->flash('dev_message', $this->underConstruction
             ? 'App in costruzione attivata.'
             : 'App in costruzione disattivata.');
+    }
+
+    public function toggleMaintenance(): void
+    {
+        $this->maintenanceOn = ! $this->maintenanceOn;
+        AppSettings::setSiteMaintenanceOn($this->maintenanceOn);
+
+        session()->flash('dev_message', $this->maintenanceOn
+            ? 'Sito in manutenzione: attivato. Admin e /assistenza restano raggiungibili.'
+            : 'Sito in manutenzione: disattivato.');
     }
 
     public function saveContacts(): void

@@ -17,6 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'webhook/telegram',
             'webhook/telegram/*',
         ]);
+
+        // Pagina di manutenzione "nostra" (dinamica, non lo down-file nativo di
+        // Laravel): serve stare nel gruppo "web" per leggere sessione/cookie già decifrati.
+        $middleware->web(append: [
+            \App\Http\Middleware\EnforceSiteMaintenance::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

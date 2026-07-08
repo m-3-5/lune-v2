@@ -13,7 +13,7 @@ class DevelopmentTaskNotifier
 
     public function itemCreated(DevelopmentItem $item): void
     {
-        $who = $item->author === 'serenella' ? 'Serenella' : 'Team';
+        $who = $this->authorLabel($item->author);
         $msg = $this->baseMessage('Nuova voce', $item);
         $body = "👤 <b>{$who}</b> ha creato: <b>{$this->telegram->escape($item->typeLabel())}</b>\n\n{$msg}";
 
@@ -22,7 +22,7 @@ class DevelopmentTaskNotifier
 
     public function replyAdded(DevelopmentItem $item, string $author, string $replyBody): void
     {
-        $who = $author === 'serenella' ? 'Serenella' : 'Team';
+        $who = $this->authorLabel($author);
         $msg = $this->baseMessage('Nuova risposta', $item);
         $body = "💬 <b>{$who}</b> ha risposto su: {$this->telegram->escape($item->title)}\n\n"
             .$this->telegram->escape($replyBody)."\n\n{$msg}";
@@ -53,6 +53,16 @@ class DevelopmentTaskNotifier
             $body = "📋 <b>Riaperta</b>\n".$this->baseMessage($item->title, $item);
             $this->deliver($body, 'task_reopen');
         }
+    }
+
+    protected function authorLabel(string $author): string
+    {
+        return match ($author) {
+            'serenella' => 'Serenella',
+            'cliente' => 'Cliente (ticket assistenza)',
+            'team' => 'Team',
+            default => 'Team',
+        };
     }
 
     protected function baseMessage(string $headline, DevelopmentItem $item): string

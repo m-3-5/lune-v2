@@ -17,3 +17,8 @@ Schedule::command('jlune:guest-reminders')
 Schedule::command('jlune:cleanup-documents')
     ->dailyAt('03:30')
     ->timezone('Europe/Rome');
+
+// Cancellazione copie PROVA automatiche (Serenella, durante manutenzione) dopo 5 giorni
+Schedule::command('jlune:cleanup-auto-test-bookings')
+    ->dailyAt('03:45')
+    ->timezone('Europe/Rome');

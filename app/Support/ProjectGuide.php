@@ -148,58 +148,14 @@ Export Polizia / Alloggiati: formato dedicato **da definire** (vedi ticket in Ta
 MD,
             ],
             [
-                'id' => 'da-fare',
-                'icon' => '🚧',
-                'title' => 'Cosa manca ancora',
-                'badge' => 'Roadmap',
+                'id' => 'accordo',
+                'icon' => '🤝',
+                'title' => 'Stato lavori e costi',
+                'badge' => 'In attesa di nuovo accordo',
                 'body' => <<<'MD'
-| Funzione | Stato |
-|----------|--------|
-| Link pagamento Checkfront | Da verificare — serve esempio reale |
-| Login admin (password) | Da fare |
-| Video ingresso | Placeholder |
-| QR elettrodomestici | DB pronto, pagine no |
-| WhatsApp Business ospiti | Config pronta, attesa Twilio |
-| Export Alloggiati Web | Da definire con Serenella |
-MD,
-            ],
-            [
-                'id' => 'tempi',
-                'icon' => '📅',
-                'title' => 'Tempi di completamento (stima aggiornata)',
-                'badge' => 'Giugno 2026',
-                'body' => <<<'MD'
-Molto già consegnato (contratti PDF, cron, notifiche hub, Telegram ospiti, PWA). **Stima residua** per MVP completo:
+Stato avanzamento e costi sono in aggiornamento — ne parliamo insieme e li rimettiamo qui appena ridefiniti.
 
-| Blocco | Contenuto | Stima | Stato |
-|--------|-----------|-------|-------|
-| A | Link pagamento Checkfront + test reale | 0,5–1 gg | Da fare |
-| B | Login admin Serenella + team | 1–2 gg | Da fare |
-| C | Video ingresso admin + ospite | 2–3 gg | Da fare |
-| D | QR elettrodomestici | 1–2 gg | Da fare |
-| E | Email produzione (SMTP già ok) | 0,5 gg | Quasi fatto |
-| F | WhatsApp Business Twilio | 1–2 gg setup + costi | In attesa pagamento |
-| G | Archivio contratti + PDF | — | **Fatto** |
-| H | Notifiche hub + Telegram ospiti + PWA | — | **Fatto** |
-| I | UX da feedback Serenella | 2–3 gg | Continuo |
-| J | Test produzione e deploy | 1 gg | Continuo |
-
-**Totale residuo stimato: ~8–12 giorni lavorativi** (2–3 settimane part-time), ridotto rispetto alla stima iniziale grazie al lavoro già completato.
-
-Priorità: **A → B → C/D → F** (quando Twilio pronto).
-MD,
-            ],
-            [
-                'id' => 'costi-nota',
-                'icon' => '💶',
-                'title' => 'Costi progetto e servizi esterni',
-                'badge' => 'Riepilogo',
-                'body' => <<<'MD'
-Vedi riquadro **Costi progetto** sotto questa guida (base + extra).
-
-**Extra possibili:** Document AI (Google), WhatsApp Twilio (~5–15 €/mese stagione), eventuale export Polizia dedicato.
-
-Per dubbi su una voce di costo: usa **«Chiedi info su questo argomento»** in fondo al riquadro.
+Per qualsiasi domanda nel frattempo: usa **«Chiedi info su questo argomento»** in fondo al riquadro.
 MD,
             ],
         ];

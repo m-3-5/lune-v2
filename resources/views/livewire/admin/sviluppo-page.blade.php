@@ -14,9 +14,20 @@
 
     <section class="bg-white rounded-3xl shadow-sm border border-amber-100 p-6">
         <h2 class="text-lg font-black mb-2">App in costruzione</h2>
+        <p class="text-xs text-gray-500 mb-3">Blocca solo le notifiche reali agli ospiti (email/WhatsApp/Telegram/push). Il sito resta visitabile.</p>
         <button type="button" wire:click="toggleConstruction"
             class="px-6 py-3 rounded-2xl font-black text-sm uppercase {{ $underConstruction ? 'bg-amber-500 text-amber-950' : 'bg-indigo-600 text-white' }}">
             {{ $underConstruction ? 'Disattiva' : 'Attiva' }}
+        </button>
+    </section>
+
+    <section class="bg-white rounded-3xl shadow-sm border border-red-100 p-6">
+        <h2 class="text-lg font-black mb-2">Sito in manutenzione</h2>
+        <p class="text-xs text-gray-500 mb-3">Blocca l'accesso a TUTTO il sito per i visitatori (pagina dedicata con link al ticket di assistenza). Admin e /assistenza restano sempre raggiungibili.</p>
+        <button type="button" wire:click="toggleMaintenance"
+            wire:confirm="Confermi? Il sito diventerà irraggiungibile per i visitatori tranne /admin e /assistenza."
+            class="px-6 py-3 rounded-2xl font-black text-sm uppercase {{ $maintenanceOn ? 'bg-red-500 text-white' : 'bg-indigo-600 text-white' }}">
+            {{ $maintenanceOn ? 'Disattiva' : 'Attiva' }}
         </button>
     </section>
 
