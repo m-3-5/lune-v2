@@ -19,6 +19,7 @@ class EnforceSiteMaintenance
         'admin/*',
         'assistenza',
         'assistenza/*',
+        'ticket/*',
         'accesso/*',
         'entra',
         'webhook/*',

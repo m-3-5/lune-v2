@@ -9,6 +9,7 @@ use App\Http\Controllers\PwaManifestController;
 use App\Http\Controllers\SerenellaAccessController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\TelegramWebhookController;
+use App\Http\Controllers\TicketTrackingController;
 use Livewire\Volt\Volt;
 use App\Livewire\Admin\ContrattiPage;
 use App\Livewire\Admin\DettaglioArrivo;
@@ -47,6 +48,10 @@ Route::post('/webhook/telegram/{secret?}', [TelegramWebhookController::class, 'h
 // Ticket di assistenza — resta raggiungibile anche a sito in manutenzione (vedi AppServiceProvider).
 Route::get('/assistenza', [SupportTicketController::class, 'show'])->name('assistenza');
 Route::post('/assistenza', [SupportTicketController::class, 'store'])->name('assistenza.store');
+
+// Pagina pubblica di tracciamento ticket (link personale nelle email)
+Route::get('/ticket/{token}', [TicketTrackingController::class, 'show'])->name('ticket.show');
+Route::post('/ticket/{token}/reply', [TicketTrackingController::class, 'reply'])->name('ticket.reply');
 
 // Link personale "accesso Serenella" — rinnovato a ogni prenotazione reale.
 Route::get('/accesso/{token}', [SerenellaAccessController::class, 'confirm'])->name('serenella.access.confirm');

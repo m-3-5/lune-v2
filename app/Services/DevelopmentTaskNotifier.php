@@ -2,7 +2,11 @@
 
 namespace App\Services;
 
+use App\Mail\AdminTeamAlertMail;
 use App\Models\DevelopmentItem;
+use App\Support\AppSettings;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class DevelopmentTaskNotifier
 {
@@ -26,6 +30,16 @@ class DevelopmentTaskNotifier
                 "Nuovo ticket di assistenza.\n\n{$item->title}\n\n{$item->body}",
                 url('/admin/progetto').'#task-board'
             );
+
+            if ($item->client_email) {
+                $url = url('/ticket/'.$item->public_token);
+                $this->emailClient(
+                    $item->client_email,
+                    'Ticket ricevuto '.$item->ticketNumber(),
+                    "Ciao,\n\nabbiamo ricevuto il tuo ticket di assistenza {$item->ticketNumber()}.\n\nPuoi seguirlo e rispondere qui:\n{$url}\n\nA presto,\nIl team di M 3.5 S.R.L.",
+                    $url
+                );
+            }
         }
     }
 
@@ -37,6 +51,37 @@ class DevelopmentTaskNotifier
             .$this->telegram->escape($replyBody)."\n\n{$msg}";
 
         $this->deliver($body, 'task_reply');
+
+        if ($author === 'cliente') {
+            $this->email->send(
+                'Risposta cliente: '.$item->title,
+                "Il cliente ha risposto al ticket {$item->ticketNumber()}.\n\n{$replyBody}",
+                url('/admin/progetto').'#task-board'
+            );
+        } elseif ($item->client_email) {
+            $url = url('/ticket/'.$item->public_token);
+            $this->emailClient(
+                $item->client_email,
+                'Risposta al tuo ticket '.$item->ticketNumber(),
+                "Ciao,\n\nil team ha risposto al tuo ticket {$item->ticketNumber()}.\n\n{$replyBody}\n\nRispondi qui:\n{$url}\n\nA presto,\nIl team di M 3.5 S.R.L.",
+                $url
+            );
+        }
+    }
+
+    protected function emailClient(string $to, string $title, string $body, string $url): void
+    {
+        if (! AppSettings::mailSmtpReady()) {
+            Log::debug('Email cliente ticket: SMTP non configurato');
+
+            return;
+        }
+
+        try {
+            Mail::to($to)->send(new AdminTeamAlertMail($title, $body, $url));
+        } catch (\Throwable $e) {
+            Log::error('Email cliente ticket fallita', ['to' => $to, 'error' => $e->getMessage()]);
+        }
     }
 
     public function statusChanged(DevelopmentItem $item, string $previousStatus): void

@@ -26,11 +26,19 @@ class DevelopmentItem extends Model
         'body',
         'test_instructions',
         'author',
+        'client_name',
+        'client_email',
+        'public_token',
     ];
 
     public function replies(): HasMany
     {
         return $this->hasMany(DevelopmentReply::class)->orderBy('created_at');
+    }
+
+    public function ticketNumber(): string
+    {
+        return '#'.str_pad((string) $this->id, 4, '0', STR_PAD_LEFT);
     }
 
     public function typeLabel(): string

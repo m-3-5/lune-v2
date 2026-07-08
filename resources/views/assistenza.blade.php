@@ -14,11 +14,6 @@
             Descrivi la richiesta: la riceviamo subito e ti rispondiamo via email appena possibile.
         </p>
 
-        @if (session('ticket_sent'))
-            <div class="bg-green-100 text-green-800 p-4 rounded-2xl text-sm font-bold mt-6">
-                ✅ Ticket inviato. Grazie — ti risponderemo appena possibile.
-            </div>
-        @else
             <form method="POST" action="{{ route('assistenza.store') }}" class="mt-6 space-y-4">
                 @csrf
 
@@ -55,7 +50,6 @@
                     Invia ticket
                 </button>
             </form>
-        @endif
     </div>
 </body>
 </html>
