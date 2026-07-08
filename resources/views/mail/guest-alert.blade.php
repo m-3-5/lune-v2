@@ -1,12 +1,12 @@
 Jlune
 =====
 
-{{ $alertTitle }}
+{!! $alertTitle !!}
 
-{{ $alertBody }}
+{!! $alertBody !!}
 
-@if ($actionUrl)
-Apri: {{ $actionUrl }}
+@if ($actionUrl && ! str_contains($alertBody, $actionUrl))
+Apri: {!! $actionUrl !!}
 @endif
 
 —
