@@ -16,8 +16,15 @@ class AdminOutboundNotifier
         protected AdminWhatsAppNotifier $whatsapp,
     ) {}
 
-    public function notify(string $title, string $body, ?string $url = null, ?Reservation $reservation = null, bool $force = false): void
-    {
+    public function notify(
+        string $title,
+        string $body,
+        ?string $url = null,
+        ?Reservation $reservation = null,
+        bool $force = false,
+        ?string $attachmentPath = null,
+        ?string $attachmentName = null,
+    ): void {
         if (! $force && ! AppSettings::adminNotificationsEnabled()) {
             return;
         }
@@ -26,7 +33,7 @@ class AdminOutboundNotifier
             $title = '[TEST] '.$title;
         }
 
-        $this->email->send($title, $body, $url, $force);
+        $this->email->send($title, $body, $url, $force, $attachmentPath, $attachmentName);
         $this->whatsapp->send($title, $body, $url, $force);
     }
 }

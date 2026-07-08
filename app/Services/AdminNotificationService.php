@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\AdminNotification;
 use App\Models\Reservation;
+use App\Support\NotificationUrls;
+use Illuminate\Support\Facades\Storage;
 
 class AdminNotificationService
 {
@@ -33,7 +35,10 @@ class AdminNotificationService
         Reservation $reservation,
         string $title,
         ?string $body = null,
-        int $dedupeHours = 2
+        int $dedupeHours = 2,
+        ?string $adminUrl = null,
+        ?string $attachmentPath = null,
+        ?string $attachmentName = null,
     ): AdminNotification {
         if ($dedupeHours > 0) {
             $exists = AdminNotification::query()
@@ -70,6 +75,9 @@ class AdminNotificationService
                 $title,
                 $body ?? '',
                 $type,
+                $adminUrl,
+                $attachmentPath,
+                $attachmentName,
             );
         }
 
@@ -86,6 +94,7 @@ class AdminNotificationService
             $reservation,
             'Documenti da verificare',
             "{$name} · {$apt} — l'ospite ha caricato i documenti.",
+            adminUrl: NotificationUrls::adminReservationDocuments($reservation),
         );
     }
 
@@ -97,6 +106,7 @@ class AdminNotificationService
             'Documenti approvati',
             "Prenotazione {$reservation->booking_code}: puoi estrarre i dati con l'IA.",
             dedupeHours: 0,
+            adminUrl: NotificationUrls::adminReservationContract($reservation),
         );
     }
 
@@ -108,6 +118,7 @@ class AdminNotificationService
             'Documenti rifiutati',
             "Prenotazione {$reservation->booking_code}: l'ospite dovrà ricaricare.",
             dedupeHours: 0,
+            adminUrl: NotificationUrls::adminReservationDocuments($reservation),
         );
     }
 
@@ -120,6 +131,7 @@ class AdminNotificationService
                 'Estrazione IA completata',
                 $detail ?? "Controlla i dati e autorizza il contratto per {$reservation->booking_code}.",
                 dedupeHours: 0,
+                adminUrl: NotificationUrls::adminReservationContract($reservation),
             );
 
             return;
@@ -131,6 +143,7 @@ class AdminNotificationService
             'Estrazione IA non riuscita',
             $detail ?? 'Verifica i documenti o inserisci i dati manualmente.',
             dedupeHours: 0,
+            adminUrl: NotificationUrls::adminReservationDocuments($reservation),
         );
     }
 
@@ -142,19 +155,24 @@ class AdminNotificationService
             'Contratto autorizzato per ospite',
             "{$reservation->booking_code}: l'ospite può firmare dal link check-in.",
             dedupeHours: 0,
+            adminUrl: NotificationUrls::adminReservationContract($reservation),
         );
     }
 
     public function contractSigned(Reservation $reservation): void
     {
         $name = $reservation->guestDisplayName();
+        $hasPdf = $reservation->contract_pdf_path && Storage::disk('local')->exists($reservation->contract_pdf_path);
 
         $this->notify(
             self::TYPE_CONTRACT_SIGNED,
             $reservation,
             'Contratto firmato',
-            "{$name} ha firmato il contratto ({$reservation->booking_code}). Il PDF è disponibile nella pagina Contratti.",
+            "{$name} ha firmato il contratto ({$reservation->booking_code}).",
             dedupeHours: 0,
+            adminUrl: NotificationUrls::contractPdf($reservation),
+            attachmentPath: $hasPdf ? $reservation->contract_pdf_path : null,
+            attachmentName: $hasPdf ? "contratto-{$reservation->booking_code}.pdf" : null,
         );
     }
 

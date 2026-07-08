@@ -9,8 +9,14 @@ use Illuminate\Support\Facades\Mail;
 
 class AdminEmailNotifier
 {
-    public function send(string $title, string $body, ?string $url = null, bool $force = false): void
-    {
+    public function send(
+        string $title,
+        string $body,
+        ?string $url = null,
+        bool $force = false,
+        ?string $attachmentPath = null,
+        ?string $attachmentName = null,
+    ): void {
         if (! $force && (! AppSettings::adminNotificationsEnabled() || ! AppSettings::adminEmailNotificationsEnabled())) {
             return;
         }
@@ -31,7 +37,7 @@ class AdminEmailNotifier
 
         foreach ($recipients as $email) {
             try {
-            Mail::to($email)->send(new AdminTeamAlertMail($title, $body, $url));
+            Mail::to($email)->send(new AdminTeamAlertMail($title, $body, $url, $attachmentPath, $attachmentName));
             } catch (\Throwable $e) {
                 Log::error('Admin email fallita', [
                     'to' => $email,

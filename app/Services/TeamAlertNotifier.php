@@ -19,8 +19,15 @@ class TeamAlertNotifier
         protected TestReservationService $testReservations,
     ) {}
 
-    public function alert(string $title, string $body, ?string $url = null, string $tag = 'team', ?Reservation $reservation = null): void
-    {
+    public function alert(
+        string $title,
+        string $body,
+        ?string $url = null,
+        string $tag = 'team',
+        ?Reservation $reservation = null,
+        ?string $attachmentPath = null,
+        ?string $attachmentName = null,
+    ): void {
         if ($reservation?->is_test && ! str_starts_with($title, '[TEST]')) {
             $title = '[TEST] '.$title;
         }
@@ -35,20 +42,27 @@ class TeamAlertNotifier
 
         $this->telegram->notifyAdmins($html);
         $this->push->notifyAdmins($bodyWithLink, $tag, $url ?? url('/admin/arrivi'));
-        $this->outbound->notify($title, $bodyWithLink, $url, $reservation);
+        $this->outbound->notify($title, $bodyWithLink, $url, $reservation, attachmentPath: $attachmentPath, attachmentName: $attachmentName);
     }
 
-    public function forReservation(Reservation $reservation, string $title, string $body, string $tag = 'team'): void
-    {
+    public function forReservation(
+        Reservation $reservation,
+        string $title,
+        string $body,
+        string $tag = 'team',
+        ?string $adminUrl = null,
+        ?string $attachmentPath = null,
+        ?string $attachmentName = null,
+    ): void {
         $reservation->loadMissing('apartment');
         $code = $reservation->booking_code ?? '#'.$reservation->checkfront_booking_id;
         $apt = $reservation->apartment?->name ?? '—';
         $prefix = "{$code} · {$apt}\n";
-        $url = NotificationUrls::adminReservation($reservation);
+        $url = $adminUrl ?? NotificationUrls::adminReservation($reservation);
 
         $bodyWithGuestLink = NotificationUrls::appendLinkLine($prefix.$body, NotificationUrls::guestPortal($reservation), 'Link ospite (check-in)');
 
-        $this->alert($title, $bodyWithGuestLink, $url, $tag, $reservation);
+        $this->alert($title, $bodyWithGuestLink, $url, $tag, $reservation, $attachmentPath, $attachmentName);
     }
 
     /**

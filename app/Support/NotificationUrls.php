@@ -26,6 +26,21 @@ class NotificationUrls
         return route('admin.arrivi.show', $reservation->id);
     }
 
+    public static function adminReservationDocuments(Reservation $reservation): string
+    {
+        return route('admin.arrivi.show', $reservation->id).'#documenti';
+    }
+
+    public static function adminReservationContract(Reservation $reservation): string
+    {
+        return route('admin.arrivi.show', $reservation->id).'#contratto';
+    }
+
+    public static function contractPdf(Reservation $reservation): string
+    {
+        return route('admin.contratti.pdf', $reservation);
+    }
+
     public static function absolute(?string $url, Reservation $reservation): string
     {
         if (blank($url)) {

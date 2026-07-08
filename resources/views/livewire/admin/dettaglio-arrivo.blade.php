@@ -142,7 +142,7 @@
         <!-- Contratto: estrazione IA + invio firma -->
         @if($reservation->documents_validated)
             @php $contracts = app(\App\Services\ContractRenderService::class); @endphp
-            <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-indigo-100 space-y-4">
+            <div id="contratto" class="bg-white rounded-[2rem] p-6 shadow-sm border border-indigo-100 space-y-4">
                 <h3 class="text-[10px] font-black uppercase tracking-widest text-indigo-600">Contratto</h3>
 
                 @if($reservation->contract_ready_for_guest)
@@ -255,7 +255,7 @@
         @endif
 
         <!-- LISTA DOCUMENTI -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div id="documenti" class="grid grid-cols-1 md:grid-cols-2 gap-6">
             @foreach($reservation->guestDocuments as $doc)
                 <div class="bg-white rounded-[2rem] p-4 shadow-sm border {{ $doc->status === 'approved' ? 'border-green-500' : ($doc->status === 'rejected' ? 'border-red-500' : 'border-gray-100') }} transition-all">
                     <div class="flex justify-between items-center mb-4 px-2">
