@@ -24,22 +24,22 @@
 
                 <div>
                     <label class="text-[10px] font-black uppercase text-gray-400">Nome (facoltativo)</label>
-                    <input type="text" name="name" value="{{ old('name') }}"
-                        class="w-full rounded-xl border-gray-200 text-sm mt-1">
+                    <input type="text" name="name" value="{{ old('name') }}" placeholder="Il tuo nome"
+                        class="w-full rounded-lg border-2 border-gray-300 text-sm mt-1 p-3">
                     @error('name') <p class="text-red-600 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
                     <label class="text-[10px] font-black uppercase text-gray-400">Email (facoltativo, per la risposta)</label>
-                    <input type="email" name="email" value="{{ old('email') }}"
-                        class="w-full rounded-xl border-gray-200 text-sm mt-1">
+                    <input type="email" name="email" value="{{ old('email') }}" placeholder="latua@email.it"
+                        class="w-full rounded-lg border-2 border-gray-300 text-sm mt-1 p-3">
                     @error('email') <p class="text-red-600 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
                     <label class="text-[10px] font-black uppercase text-gray-400">Oggetto</label>
-                    <input type="text" name="subject" value="{{ old('subject') }}" required
-                        class="w-full rounded-xl border-gray-200 text-sm mt-1">
+                    <input type="text" name="subject" value="{{ old('subject') }}" required placeholder="Es: Problema con il pagamento"
+                        class="w-full rounded-lg border-2 border-gray-300 text-sm mt-1 p-3">
                     @error('subject') <p class="text-red-600 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
