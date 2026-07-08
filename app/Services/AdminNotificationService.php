@@ -28,6 +28,8 @@ class AdminNotificationService
 
     public const TYPE_BOOKING_SYNCED = 'booking_synced';
 
+    public const TYPE_CHECKOUT_SOON = 'checkout_soon';
+
     public const TYPE_CLIENT_NOTIFICATION_PREVIEW = 'client_notification_preview';
 
     public function notify(
@@ -184,6 +186,24 @@ class AdminNotificationService
             'Nuova prenotazione Checkfront',
             "{$reservation->guestDisplayName()} · {$reservation->apartment?->name} ({$reservation->booking_code})",
             dedupeHours: 6,
+        );
+    }
+
+    /**
+     * Ospite in uscita oggi. Per ora va solo al team (email/Telegram/push/WhatsApp);
+     * in futuro basterà aggiungere il contatto della cameriera agli stessi canali.
+     */
+    public function checkoutSoon(Reservation $reservation): void
+    {
+        $name = $reservation->guestDisplayName();
+        $apt = $reservation->apartment?->name ?? 'Appartamento';
+
+        $this->notify(
+            self::TYPE_CHECKOUT_SOON,
+            $reservation,
+            'Ospite in uscita oggi',
+            "{$name} · {$apt} — check-out oggi.",
+            dedupeHours: 20,
         );
     }
 

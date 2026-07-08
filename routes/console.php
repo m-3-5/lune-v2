@@ -13,6 +13,11 @@ Schedule::command('jlune:guest-reminders')
     ->dailyAt('10:00')
     ->timezone('Europe/Rome');
 
+// Ospiti in uscita oggi (per ora al team, in futuro anche alla cameriera)
+Schedule::command('jlune:checkout-reminders')
+    ->dailyAt('08:00')
+    ->timezone('Europe/Rome');
+
 // Cancellazione documenti d'identità dopo il check-out (privacy)
 Schedule::command('jlune:cleanup-documents')
     ->dailyAt('03:30')
