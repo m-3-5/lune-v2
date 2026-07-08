@@ -25,6 +25,7 @@ class EnforceSiteMaintenance
         'webhook/*',
         'push/*',
         'up',
+        'livewire-*',
     ];
 
     public function handle(Request $request, Closure $next)
