@@ -9,6 +9,7 @@ class DevelopmentTaskNotifier
     public function __construct(
         protected TelegramNotifier $telegram,
         protected AdminPushNotifier $push,
+        protected AdminEmailNotifier $email,
     ) {}
 
     public function itemCreated(DevelopmentItem $item): void
@@ -18,6 +19,14 @@ class DevelopmentTaskNotifier
         $body = "👤 <b>{$who}</b> ha creato: <b>{$this->telegram->escape($item->typeLabel())}</b>\n\n{$msg}";
 
         $this->deliver($body, 'task_created');
+
+        if ($item->author === 'cliente') {
+            $this->email->send(
+                $item->title,
+                "Nuovo ticket di assistenza.\n\n{$item->title}\n\n{$item->body}",
+                url('/admin/progetto').'#task-board'
+            );
+        }
     }
 
     public function replyAdded(DevelopmentItem $item, string $author, string $replyBody): void

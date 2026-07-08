@@ -19,13 +19,13 @@ class SupportTicketController extends Controller
     {
         $data = $request->validate([
             'name' => 'nullable|string|max:120',
-            'email' => 'nullable|email|max:255',
+            'email' => 'required|email|max:255',
             'subject' => 'required|string|max:255',
             'message' => 'required|string|max:5000',
         ]);
 
-        $contact = trim(($data['name'] ?? '').(filled($data['email'] ?? null) ? ' <'.$data['email'].'>' : ''));
-        $body = ($contact !== '' ? "Da: {$contact}\n\n" : '')."{$data['message']}";
+        $contact = trim(($data['name'] ?? '').' <'.$data['email'].'>');
+        $body = "Da: {$contact}\n\n{$data['message']}";
 
         $item = DevelopmentItem::create([
             'type' => DevelopmentItem::TYPE_SERENELLA_REQUEST,

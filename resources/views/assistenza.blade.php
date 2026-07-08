@@ -11,7 +11,7 @@
     <div class="max-w-lg w-full bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
         <h1 class="text-2xl font-black text-slate-900">Scrivi un ticket di assistenza</h1>
         <p class="text-gray-500 text-sm mt-2">
-            Descrivi la richiesta: la riceviamo subito e ti rispondiamo qui via email (se la lasci) appena possibile.
+            Descrivi la richiesta: la riceviamo subito e ti rispondiamo via email appena possibile.
         </p>
 
         @if (session('ticket_sent'))
@@ -30,8 +30,8 @@
                 </div>
 
                 <div>
-                    <label class="text-[10px] font-black uppercase text-gray-400">Email (facoltativo, per la risposta)</label>
-                    <input type="email" name="email" value="{{ old('email') }}" placeholder="latua@email.it"
+                    <label class="text-[10px] font-black uppercase text-gray-400">Email (per la risposta)</label>
+                    <input type="email" name="email" value="{{ old('email') }}" required placeholder="latua@email.it"
                         class="w-full rounded-lg border-2 border-gray-300 text-sm mt-1 p-3">
                     @error('email') <p class="text-red-600 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
