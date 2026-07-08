@@ -31,14 +31,16 @@ class NotifyClientTicketSystem extends Command
         $body = <<<TEXT
 Ciao,
 
-da oggi ({$today}) abbiamo attivato in automatico le notifiche email su questo indirizzo, così siete sempre aggiornati insieme a noi.
+è pianificata da sistema, per oggi ({$today}), l'attivazione automatica delle notifiche via email su questo indirizzo — un passaggio preparatorio in vista degli ultimi aggiornamenti.
+
+Se stai leggendo questo messaggio, l'attivazione automatica ha funzionato correttamente.
 
 Per qualsiasi dettaglio, domanda o richiesta, da ora potete scriverci direttamente un ticket di assistenza qui:
 {$ticketUrl}
 Arriva subito al team, che vi risponde personalmente.
 
 A presto,
-Il team Jlune
+Il team di M 3.5 S.R.L.
 TEXT;
 
         Mail::to($to)->send(new AdminTeamAlertMail(

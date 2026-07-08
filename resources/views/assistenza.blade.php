@@ -45,8 +45,8 @@
 
                 <div>
                     <label class="text-[10px] font-black uppercase text-gray-400">Messaggio</label>
-                    <textarea name="message" rows="5" required
-                        class="w-full rounded-xl border-gray-200 text-sm mt-1">{{ old('message') }}</textarea>
+                    <textarea name="message" rows="10" required placeholder="Scrivi qui il tuo messaggio…"
+                        class="w-full rounded-lg border-2 border-gray-300 text-sm mt-1 p-3">{{ old('message') }}</textarea>
                     @error('message') <p class="text-red-600 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
