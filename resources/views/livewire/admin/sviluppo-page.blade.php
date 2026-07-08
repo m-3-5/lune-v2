@@ -29,6 +29,24 @@
             class="px-6 py-3 rounded-2xl font-black text-sm uppercase {{ $maintenanceOn ? 'bg-red-500 text-white' : 'bg-indigo-600 text-white' }}">
             {{ $maintenanceOn ? 'Disattiva' : 'Attiva' }}
         </button>
+
+        @if ($maintenanceOn)
+            <div class="mt-4 pt-4 border-t border-gray-100">
+                <p class="text-xs text-gray-500 mb-2">
+                    Il tuo link per vedere il sito vero durante la manutenzione (lo stesso che arriva a Serenella con ogni nuova prenotazione)
+                    @if ($accessExpiresAt)
+                        — valido fino al {{ $accessExpiresAt->format('d/m/Y H:i') }}
+                    @endif
+                    :
+                </p>
+                <a href="{{ $accessLink }}" target="_blank" rel="noopener" class="text-indigo-600 font-bold break-all underline text-sm">{{ $accessLink }}</a>
+                <div>
+                    <button type="button" wire:click="generateAccessLink" class="mt-3 px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-black uppercase">
+                        Genera nuovo link
+                    </button>
+                </div>
+            </div>
+        @endif
     </section>
 
     @if ($testBookingsEnabled)

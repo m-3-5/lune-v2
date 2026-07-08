@@ -181,6 +181,12 @@ class SviluppoPage extends Component
             : 'Sito in manutenzione: disattivato.');
     }
 
+    public function generateAccessLink(): void
+    {
+        AppSettings::refreshSerenellaAccessToken();
+        session()->flash('dev_message', 'Nuovo link di accesso generato qui sotto — aprilo per vedere il sito vero durante la manutenzione.');
+    }
+
     public function saveContacts(): void
     {
         AppSettings::set('admin_emails', $this->linesToArray($this->adminEmailsText));
@@ -270,6 +276,8 @@ class SviluppoPage extends Component
             'testReservations' => config('jlune.test_bookings_enabled')
                 ? Reservation::query()->test()->with('apartment')->orderByDesc('created_at')->limit(15)->get()
                 : collect(),
+            'accessLink' => url('/accesso/'.AppSettings::serenellaAccessToken()),
+            'accessExpiresAt' => AppSettings::serenellaAccessExpiresAt(),
         ]);
     }
 }
