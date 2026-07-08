@@ -1,8 +1,8 @@
 {{ $alertBody }}
 
-@if ($actionUrl)
+@if ($actionUrl && ! str_contains($alertBody, $actionUrl))
 ---
 Apri in admin: {{ $actionUrl }}
 @endif
 
-— Jlune App
+— Il team di M 3.5 S.R.L.

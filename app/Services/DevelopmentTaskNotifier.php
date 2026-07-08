@@ -36,7 +36,7 @@ class DevelopmentTaskNotifier
                 $this->emailClient(
                     $item->client_email,
                     'Ticket ricevuto '.$item->ticketNumber(),
-                    "Ciao,\n\nabbiamo ricevuto il tuo ticket di assistenza {$item->ticketNumber()}.\n\nPuoi seguirlo e rispondere qui:\n{$url}\n\nA presto,\nIl team di M 3.5 S.R.L.",
+                    "Ciao,\n\nabbiamo ricevuto il tuo ticket di assistenza {$item->ticketNumber()}.\n\nPuoi seguirlo e rispondere qui:\n{$url}",
                     $url
                 );
             }
@@ -63,7 +63,7 @@ class DevelopmentTaskNotifier
             $this->emailClient(
                 $item->client_email,
                 'Risposta al tuo ticket '.$item->ticketNumber(),
-                "Ciao,\n\nil team ha risposto al tuo ticket {$item->ticketNumber()}.\n\n{$replyBody}\n\nRispondi qui:\n{$url}\n\nA presto,\nIl team di M 3.5 S.R.L.",
+                "Ciao,\n\nil team ha risposto al tuo ticket {$item->ticketNumber()}.\n\n{$replyBody}\n\nRispondi qui:\n{$url}",
                 $url
             );
         }

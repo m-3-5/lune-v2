@@ -38,9 +38,6 @@ Se stai leggendo questo messaggio, l'attivazione automatica ha funzionato corret
 Per qualsiasi dettaglio, domanda o richiesta, da ora potete scriverci direttamente un ticket di assistenza qui:
 {$ticketUrl}
 Arriva subito al team, che vi risponde personalmente.
-
-A presto,
-Il team di M 3.5 S.R.L.
 TEXT;
 
         Mail::to($to)->send(new AdminTeamAlertMail(
