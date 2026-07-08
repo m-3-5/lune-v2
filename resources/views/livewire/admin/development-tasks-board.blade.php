@@ -62,6 +62,8 @@
                                     class="px-2 py-1 rounded-lg text-[10px] font-bold {{ $item->status === 'in_progress' ? 'bg-indigo-600 text-white' : 'bg-gray-100' }}">In corso</button>
                                 <button type="button" wire:click="completeItem({{ $item->id }})"
                                     class="px-3 py-1 rounded-lg text-[10px] font-black bg-green-600 text-white">Completata → invia notifica</button>
+                                <button type="button" wire:click="deleteItem({{ $item->id }})" wire:confirm="Eliminare definitivamente questa voce?"
+                                    class="px-3 py-1 rounded-lg text-[10px] font-black bg-red-50 text-red-600">Elimina</button>
                             </div>
                         @endif
                         @foreach ($item->replies as $reply)

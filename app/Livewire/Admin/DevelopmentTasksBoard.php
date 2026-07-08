@@ -101,6 +101,23 @@ class DevelopmentTasksBoard extends Component
         app(DevelopmentTaskNotifier::class)->statusChanged($item->fresh(), $previous);
     }
 
+    public function deleteItem(int $id): void
+    {
+        if (! $this->developerMode) {
+            return;
+        }
+
+        $item = DevelopmentItem::findOrFail($id);
+        $item->replies()->delete();
+        $item->delete();
+
+        if ($this->expandedId === $id) {
+            $this->expandedId = null;
+        }
+
+        session()->flash('tasks_message', 'Voce eliminata.');
+    }
+
     public function completeItem(int $id): void
     {
         if (! $this->developerMode) {
