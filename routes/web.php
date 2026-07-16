@@ -11,6 +11,7 @@ use App\Http\Controllers\SerenellaAccessController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\TelegramWebhookController;
 use App\Http\Controllers\TicketTrackingController;
+use App\Support\AppSettings;
 use Livewire\Volt\Volt;
 use App\Livewire\Admin\ContrattiPage;
 use App\Livewire\Admin\DettaglioArrivo;
@@ -26,9 +27,19 @@ use App\Livewire\Admin\ReservationsModule;
 use App\Livewire\Admin\SviluppoPage;
 use App\Livewire\Admin\TestoContrattoPage;
 
-Route::get('/', function () {
+// Chi arriva sulla home nuda va reindirizzato dove ha davvero accesso:
+// il team (Max/Serenella, cookie di bypass valido + già "entrato") dritto in admin,
+// chiunque altro su una pagina minimale che rimanda al proprio link di prenotazione.
+Route::get('/', function (\Illuminate\Http\Request $request) {
+    $hasTeamAccess = AppSettings::serenellaAccessValid($request->cookie('jlune_bypass'))
+        && $request->session()->get('jlune_entered');
+
+    if ($hasTeamAccess) {
+        return redirect()->route('admin.dashboard');
+    }
+
     return view('welcome');
-});
+})->name('home');
 
 // Icone PWA — servite da Laravel (path /pwa-icons/ evita blocchi nginx su /icons/)
 Route::get('/pwa-icons/{filename}', [PwaIconController::class, 'show'])
