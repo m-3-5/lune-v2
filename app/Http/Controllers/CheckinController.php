@@ -34,7 +34,7 @@ class CheckinController extends Controller
         $is_unlocked = $is_paid && $docs_validated && !$is_early;
 
         $entryVideos = $is_unlocked
-            ? EntryVideo::where('apartment_id', $apartment->id)->orderBy('step_order')->get()
+            ? EntryVideo::where('apartment_id', $apartment->id)->where('category', 'ingresso')->orderBy('step_order')->get()
             : collect();
 
         // Passiamo tutte queste variabili alla pagina Blade che hai già creato
@@ -77,5 +77,18 @@ class CheckinController extends Controller
         app(GuestNotificationService::class)->syncStatusNotifications($reservation);
 
         return view('checkin.contract', compact('reservation', 'apartment'));
+    }
+
+    public function appliances(string $token)
+    {
+        $reservation = Reservation::with('apartment')->where('token', $token)->firstOrFail();
+        $apartment = $reservation->apartment;
+
+        $applianceVideos = EntryVideo::where('apartment_id', $apartment->id)
+            ->where('category', 'elettrodomestico')
+            ->orderBy('step_order')
+            ->get();
+
+        return view('checkin.appliances', compact('reservation', 'apartment', 'applianceVideos'));
     }
 }

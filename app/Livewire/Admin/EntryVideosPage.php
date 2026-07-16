@@ -16,9 +16,15 @@ class EntryVideosPage extends Component
 
     public int $apartmentId = 0;
 
+    public string $category = 'ingresso';
+
     public string $newTitle = '';
 
+    public string $newMode = 'file';
+
     public $newVideo;
+
+    public string $newVideoUrl = '';
 
     public function mount(): void
     {
@@ -28,26 +34,36 @@ class EntryVideosPage extends Component
 
     public function addVideo(): void
     {
-        $this->validate([
+        $rules = [
             'apartmentId' => 'required|exists:apartments,id',
             'newTitle' => 'required|string|max:120',
-            'newVideo' => 'required|file|mimetypes:video/mp4,video/quicktime,video/webm|max:51200',
-        ]);
+        ];
 
-        $path = $this->newVideo->store('entry-videos', 'public');
-        $nextOrder = (int) EntryVideo::where('apartment_id', $this->apartmentId)->max('step_order') + 1;
+        $rules = $this->newMode === 'file'
+            ? $rules + ['newVideo' => 'required|file|mimetypes:video/mp4,video/quicktime,video/webm|max:51200']
+            : $rules + ['newVideoUrl' => 'required|url|max:500'];
+
+        $this->validate($rules);
+
+        $path = $this->newMode === 'file' ? $this->newVideo->store('entry-videos', 'public') : null;
+        $nextOrder = (int) EntryVideo::where('apartment_id', $this->apartmentId)
+            ->where('category', $this->category)
+            ->max('step_order') + 1;
 
         EntryVideo::create([
             'apartment_id' => $this->apartmentId,
+            'category' => $this->category,
             'step_order' => $nextOrder,
             'title' => $this->newTitle,
             'video_path' => $path,
+            'video_url' => $this->newMode === 'url' ? $this->newVideoUrl : null,
             'qr_token' => Str::random(24),
         ]);
 
         $this->newTitle = '';
         $this->newVideo = null;
-        session()->flash('video_message', 'Video caricato.');
+        $this->newVideoUrl = '';
+        session()->flash('video_message', 'Video aggiunto.');
     }
 
     public function moveUp(int $id): void
@@ -64,6 +80,7 @@ class EntryVideosPage extends Component
     {
         $video = EntryVideo::findOrFail($id);
         $neighbor = EntryVideo::where('apartment_id', $video->apartment_id)
+            ->where('category', $video->category)
             ->where('step_order', $direction < 0 ? '<' : '>', $video->step_order)
             ->orderBy('step_order', $direction < 0 ? 'desc' : 'asc')
             ->first();
@@ -91,7 +108,10 @@ class EntryVideosPage extends Component
     {
         return view('livewire.admin.entry-videos-page', [
             'apartments' => Apartment::query()->orderBy('display_order')->orderBy('name')->get(),
-            'videos' => EntryVideo::where('apartment_id', $this->apartmentId)->orderBy('step_order')->get(),
+            'videos' => EntryVideo::where('apartment_id', $this->apartmentId)
+                ->where('category', $this->category)
+                ->orderBy('step_order')
+                ->get(),
         ]);
     }
 }

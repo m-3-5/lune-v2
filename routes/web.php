@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CheckfrontWebhookController;
 use App\Http\Controllers\CheckinController;
 use App\Http\Controllers\EntryVideoController;
-use App\Http\Controllers\MaintenanceAccessController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\PwaIconController;
 use App\Http\Controllers\PwaManifestController;
@@ -68,8 +67,9 @@ Route::get('/accesso/{token}', [SerenellaAccessController::class, 'confirm'])->n
 Route::post('/accesso/{token}/richiedi', [SerenellaAccessController::class, 'requestAccess'])->name('serenella.access.request');
 Route::get('/entra', [SerenellaAccessController::class, 'enter'])->name('serenella.access.enter');
 
-// Login diretto (email + password) nella pagina di manutenzione — alternativa al link.
-Route::post('/accesso/login', [MaintenanceAccessController::class, 'login'])->name('maintenance.access.login');
+// Richiesta accesso direttamente dalla pagina di manutenzione (senza link personale in mano):
+// basta l'email registrata (Max o Serenella), niente più password.
+Route::post('/accesso/richiedi', [SerenellaAccessController::class, 'requestGeneralAccess'])->name('serenella.access.request.general');
 
 // La porta d'ingresso per l'ospite (Super-Lucchetto)
 Route::get('/checkin/{token}/manifest.webmanifest', [PwaManifestController::class, 'guest'])
@@ -81,6 +81,8 @@ Route::get('/checkin/{token}', [CheckinController::class, 'show'])->name('checki
 Route::get('/checkin/{token}/documents', [App\Http\Controllers\CheckinController::class, 'documents'])->name('checkin.documents');
 
 Route::get('/checkin/{token}/contract', [CheckinController::class, 'contract'])->name('checkin.contract');
+
+Route::get('/checkin/{token}/elettrodomestici', [CheckinController::class, 'appliances'])->name('checkin.appliances');
 
 // Rotta per la Dashboard di Serenella
 Route::get('/admin/manifest.webmanifest', [PwaManifestController::class, 'admin'])

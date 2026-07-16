@@ -11,11 +11,9 @@
         <p class="text-indigo-600 font-black text-xs uppercase tracking-widest mb-1">{{ $video->apartment->name }}</p>
         <h1 class="text-2xl font-black text-slate-900 mb-4">{{ $video->title }}</h1>
 
-        @if ($video->videoUrl())
-            <video src="{{ $video->videoUrl() }}" controls playsinline class="w-full rounded-2xl shadow-sm border border-gray-100 mb-6"></video>
-        @else
-            <div class="bg-white rounded-2xl border border-gray-100 p-8 text-center text-gray-400 mb-6">Video non disponibile</div>
-        @endif
+        <div class="rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+            <x-video-player :video="$video" />
+        </div>
 
         @if ($allSteps->count() > 1)
             <p class="text-xs font-black uppercase text-gray-400 mb-2">Tutti i passaggi</p>

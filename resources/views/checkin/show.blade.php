@@ -41,24 +41,29 @@
     @endif
 
     {{-- Griglia icone di navigazione --}}
-    <div class="grid grid-cols-3 gap-3 mb-5">
+    <div class="grid grid-cols-4 gap-3 mb-5">
         <a href="{{ $reservation->is_paid ? route('checkin.documents', $reservation->token) : '#' }}"
-            class="bg-white rounded-2xl p-4 text-center shadow-sm border border-gray-100 flex flex-col items-center gap-2 {{ !$reservation->is_paid ? 'opacity-40 pointer-events-none' : 'active:scale-95' }} transition-transform">
+            class="bg-white rounded-2xl p-3 text-center shadow-sm border border-gray-100 flex flex-col items-center gap-2 {{ !$reservation->is_paid ? 'opacity-40 pointer-events-none' : 'active:scale-95' }} transition-transform">
             <span class="w-11 h-11 rounded-xl bg-indigo-50 flex items-center justify-center text-xl">📄</span>
-            <span class="text-[11px] font-bold text-gray-800">Documenti</span>
+            <span class="text-[10px] font-bold text-gray-800">Documenti</span>
         </a>
         <a href="{{ $reservation->is_paid ? route('checkin.contract', $reservation->token) : '#' }}"
-            class="bg-white rounded-2xl p-4 text-center shadow-sm border border-gray-100 flex flex-col items-center gap-2 {{ !$reservation->is_paid ? 'opacity-40 pointer-events-none' : 'active:scale-95' }} transition-transform">
+            class="bg-white rounded-2xl p-3 text-center shadow-sm border border-gray-100 flex flex-col items-center gap-2 {{ !$reservation->is_paid ? 'opacity-40 pointer-events-none' : 'active:scale-95' }} transition-transform">
             <span class="w-11 h-11 rounded-xl bg-indigo-50 flex items-center justify-center text-xl">✍️</span>
-            <span class="text-[11px] font-bold text-gray-800">Contratto</span>
+            <span class="text-[10px] font-bold text-gray-800">Contratto</span>
             @if($reservation->contract_accepted)
                 <span class="text-[9px] font-black uppercase text-green-600">✓ Firmato</span>
             @endif
         </a>
+        <a href="{{ $is_unlocked ? route('checkin.appliances', $reservation->token) : '#' }}"
+            class="bg-white rounded-2xl p-3 text-center shadow-sm border border-gray-100 flex flex-col items-center gap-2 {{ !$is_unlocked ? 'opacity-40 pointer-events-none' : 'active:scale-95' }} transition-transform">
+            <span class="w-11 h-11 rounded-xl bg-indigo-50 flex items-center justify-center text-xl">🔌</span>
+            <span class="text-[10px] font-bold text-gray-800">Elettrodom.</span>
+        </a>
         <a href="{{ route('assistenza') }}"
-            class="bg-white rounded-2xl p-4 text-center shadow-sm border border-gray-100 flex flex-col items-center gap-2 active:scale-95 transition-transform">
+            class="bg-white rounded-2xl p-3 text-center shadow-sm border border-gray-100 flex flex-col items-center gap-2 active:scale-95 transition-transform">
             <span class="w-11 h-11 rounded-xl bg-indigo-50 flex items-center justify-center text-xl">🆘</span>
-            <span class="text-[11px] font-bold text-gray-800">Assistenza</span>
+            <span class="text-[10px] font-bold text-gray-800">Assistenza</span>
         </a>
     </div>
 
@@ -86,9 +91,7 @@
             <div class="space-y-3">
                 @foreach ($entryVideos as $video)
                     <div class="border border-gray-100 rounded-2xl overflow-hidden">
-                        @if ($video->videoUrl())
-                            <video src="{{ $video->videoUrl() }}" controls playsinline class="w-full"></video>
-                        @endif
+                        <x-video-player :video="$video" />
                         <p class="px-3 py-2 text-sm font-bold text-gray-800">{{ $loop->iteration }}. {{ $video->title }}</p>
                     </div>
                 @endforeach

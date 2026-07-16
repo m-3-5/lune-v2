@@ -30,6 +30,21 @@ class SerenellaAccessController extends Controller
     {
         abort_unless(AppSettings::serenellaAccessValid($token), 404);
 
+        return $this->sendVerificationLink($request);
+    }
+
+    /**
+     * Stesso meccanismo di requestAccess(), ma raggiungibile direttamente dalla pagina
+     * di manutenzione (senza un link personale di prenotazione già in mano): basta che
+     * l'email inserita sia una di quelle registrate (Max o Serenella).
+     */
+    public function requestGeneralAccess(Request $request): RedirectResponse
+    {
+        return $this->sendVerificationLink($request);
+    }
+
+    protected function sendVerificationLink(Request $request): RedirectResponse
+    {
         $data = $request->validate(['email' => 'required|email']);
         $email = strtolower(trim($data['email']));
 
@@ -38,7 +53,7 @@ class SerenellaAccessController extends Controller
         }
 
         if (! AppSettings::mailSmtpReady()) {
-            return back()->withErrors(['email' => 'Email non configurata sul server al momento — riprova più tardi o usa il login con password nella pagina di manutenzione.']);
+            return back()->withErrors(['email' => 'Email non configurata sul server al momento — riprova più tardi.']);
         }
 
         $verifyUrl = URL::temporarySignedRoute('serenella.access.verify', now()->addMinutes(30), ['email' => $email]);
