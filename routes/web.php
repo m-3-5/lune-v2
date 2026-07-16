@@ -55,7 +55,12 @@ Route::get('/ticket/{token}', [TicketTrackingController::class, 'show'])->name('
 Route::post('/ticket/{token}/reply', [TicketTrackingController::class, 'reply'])->name('ticket.reply');
 
 // Link personale "accesso Serenella" — rinnovato a ogni prenotazione reale.
+// Chiede conferma email prima di attivare l'accesso permanente (non basta più il solo link).
+// La rotta /accesso/verifica va registrata PRIMA di /accesso/{token} (jolly), altrimenti
+// quest'ultima la intercetta trattando "verifica" come se fosse il token.
+Route::get('/accesso/verifica', [SerenellaAccessController::class, 'verify'])->name('serenella.access.verify')->middleware('signed');
 Route::get('/accesso/{token}', [SerenellaAccessController::class, 'confirm'])->name('serenella.access.confirm');
+Route::post('/accesso/{token}/richiedi', [SerenellaAccessController::class, 'requestAccess'])->name('serenella.access.request');
 Route::get('/entra', [SerenellaAccessController::class, 'enter'])->name('serenella.access.enter');
 
 // Login diretto (email + password) nella pagina di manutenzione — alternativa al link.
