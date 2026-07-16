@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CheckfrontWebhookController;
 use App\Http\Controllers\CheckinController;
+use App\Http\Controllers\EntryVideoController;
 use App\Http\Controllers\MaintenanceAccessController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\PwaIconController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\TicketTrackingController;
 use Livewire\Volt\Volt;
 use App\Livewire\Admin\ContrattiPage;
 use App\Livewire\Admin\DettaglioArrivo;
+use App\Livewire\Admin\EntryVideosPage;
 use App\Livewire\Admin\Notifiche\CanaleEmailPage;
 use App\Livewire\Admin\Notifiche\CanalePushPage;
 use App\Livewire\Admin\Notifiche\CanaleTelegramPage;
@@ -54,6 +56,9 @@ Route::post('/assistenza', [SupportTicketController::class, 'store'])->name('ass
 Route::get('/ticket/{token}', [TicketTrackingController::class, 'show'])->name('ticket.show');
 Route::post('/ticket/{token}/reply', [TicketTrackingController::class, 'reply'])->name('ticket.reply');
 
+// Pagina pubblica del video di ingresso — raggiunta scansionando il QR fisico.
+Route::get('/qr/{token}', [EntryVideoController::class, 'show'])->name('qr.show');
+
 // Link personale "accesso Serenella" — rinnovato a ogni prenotazione reale.
 // Chiede conferma email prima di attivare l'accesso permanente (non basta più il solo link).
 // La rotta /accesso/verifica va registrata PRIMA di /accesso/{token} (jolly), altrimenti
@@ -88,7 +93,7 @@ Route::get('/admin', function () {
 // Rotte per i Moduli Admin di Serenella
 Route::prefix('admin')->group(function () {
     Route::get('/arrivi', function () { return view('admin.arrivi'); })->name('admin.arrivi');
-    Route::get('/video', function () { return view('admin.video'); })->name('admin.video');
+    Route::get('/video', EntryVideosPage::class)->name('admin.video');
     Route::get('/contratti', ContrattiPage::class)->name('admin.contratti');
     Route::get('/contratti/{reservation}/pdf', function (\App\Models\Reservation $reservation) {
         abort_unless(

@@ -52,4 +52,21 @@
 
     </div>
 
+    @if(($entryVideos ?? collect())->isNotEmpty())
+        <div class="bg-white rounded-2xl shadow-sm p-6 border-t-4 border-indigo-600 mt-4">
+            <h2 class="text-xl font-bold mb-1 flex items-center gap-2 text-gray-900">🎥 Video di ingresso</h2>
+            <p class="text-sm text-gray-500 mb-4">Guardali in ordine, un passaggio alla volta.</p>
+            <div class="space-y-3">
+                @foreach ($entryVideos as $video)
+                    <div class="border border-gray-100 rounded-xl overflow-hidden">
+                        @if ($video->videoUrl())
+                            <video src="{{ $video->videoUrl() }}" controls playsinline class="w-full"></video>
+                        @endif
+                        <p class="px-3 py-2 text-sm font-bold text-gray-800">{{ $loop->iteration }}. {{ $video->title }}</p>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
 </x-layouts.app>

@@ -11,6 +11,7 @@
     "require": {
         "php": "^8.3",
         "barryvdh/laravel-dompdf": "*",
+        "endroid/qr-code": "*",
         "google/cloud-document-ai": "*",
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",

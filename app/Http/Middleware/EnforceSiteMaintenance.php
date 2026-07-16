@@ -21,6 +21,7 @@ class EnforceSiteMaintenance
         'assistenza/*',
         'ticket/*',
         'accesso/*',
+        'qr/*',
         'entra',
         'webhook/*',
         'push/*',

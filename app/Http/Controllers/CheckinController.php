@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EntryVideo;
 use App\Models\Reservation;
 use App\Services\GuestNotificationService;
 use Carbon\Carbon;
@@ -32,14 +33,19 @@ class CheckinController extends Controller
         // 4. Il Super-Lucchetto: si sblocca SOLO se tutto è in regola!
         $is_unlocked = $is_paid && $docs_validated && !$is_early;
 
+        $entryVideos = $is_unlocked
+            ? EntryVideo::where('apartment_id', $apartment->id)->orderBy('step_order')->get()
+            : collect();
+
         // Passiamo tutte queste variabili alla pagina Blade che hai già creato
         return view('checkin.show', compact(
-            'reservation', 
-            'apartment', 
-            'is_paid', 
-            'pending_docs', 
-            'is_early', 
-            'is_unlocked'
+            'reservation',
+            'apartment',
+            'is_paid',
+            'pending_docs',
+            'is_early',
+            'is_unlocked',
+            'entryVideos'
         ));
     }
 
