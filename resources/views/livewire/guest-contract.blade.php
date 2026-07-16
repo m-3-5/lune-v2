@@ -1,6 +1,6 @@
 <div class="space-y-6">
     @if (session('success'))
-        <div class="bg-green-50 border border-green-200 text-green-800 p-4 rounded-xl text-sm">{{ session('success') }}</div>
+        <div class="bg-green-50 border border-green-200 text-green-800 p-4 rounded-2xl text-sm">{{ session('success') }}</div>
     @endif
 
     @if (! $reservation->extracted_guests)
@@ -20,7 +20,7 @@
                 <form wire:submit="saveTaxCodes" class="space-y-4">
                     @foreach ($missingTax as $guest)
                         @php $slot = (int) ($guest['slot'] ?? 0); @endphp
-                        <div class="border border-gray-100 rounded-xl p-4">
+                        <div class="border border-gray-100 rounded-2xl p-4">
                             <label class="block text-sm font-bold text-gray-800 mb-2">
                                 {{ $guest['name'] ?? "Ospite {$slot}" }}
                             </label>
@@ -47,7 +47,7 @@
                     @endforeach
 
                     <button type="submit"
-                        class="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl text-sm">
+                        class="w-full py-3 bg-indigo-600 text-white font-bold rounded-2xl text-sm">
                         Salva codice fiscale
                     </button>
                 </form>

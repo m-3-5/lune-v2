@@ -51,20 +51,20 @@
                 </div>
 
                 <div class="flex px-4 items-center h-12">
-                    <h1 class="text-2xl font-black tracking-widest uppercase text-indigo-400">Jlune Admin</h1>
+                    <h1 class="text-xl font-black tracking-tight text-white">Jlune <span class="text-indigo-400">Admin</span></h1>
                 </div>
-                <nav class="mt-5 h-full overflow-y-auto px-4 space-y-2">
-                    <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">📊 Dashboard</a>
-                    <a href="{{ route('admin.arrivi') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">📇 Arrivi e Documenti</a>
-                    <a href="{{ route('admin.video') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">🎥 Gestione Video</a>
-                    <a href="{{ route('admin.contratti') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">📄 Contratti</a>
-                    <a href="{{ route('admin.testo-contratto') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">📝 Testo contratto</a>
-                    <a href="{{ route('admin.prova') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">🧪 Prova flusso</a>
-                    <a href="{{ route('admin.progetto') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800 mt-4 border-t border-slate-700 pt-4">📋 Progetto e task</a>
-                    <a href="{{ route('admin.notifiche') }}" class="block px-3 py-2 rounded-md font-medium hover:bg-slate-800">🔔 Notifiche e canali</a>
-                    <button type="button" onclick="window.jlunePwaInstall && window.jlunePwaInstall.open('admin'); sidebarOpen = false" class="block w-full text-left px-3 py-2 rounded-md font-medium hover:bg-slate-800 text-teal-300">📲 Scarica l'app</button>
-                    <a href="{{ route('admin.sviluppo') }}" class="block px-3 py-2 rounded-md text-xs font-medium {{ \App\Support\JluneDeveloperAccess::isGranted() ? 'text-slate-300' : 'text-slate-500' }} hover:bg-slate-800">
-                        🔧 Sviluppo (team)@if (! \App\Support\JluneDeveloperAccess::isGranted()) 🔒@endif
+                <nav class="mt-5 h-full overflow-y-auto px-4 space-y-1.5">
+                    <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">📊</span> Dashboard</a>
+                    <a href="{{ route('admin.arrivi') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">📇</span> Arrivi e Documenti</a>
+                    <a href="{{ route('admin.video') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">🎥</span> Gestione Video</a>
+                    <a href="{{ route('admin.contratti') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">📄</span> Contratti</a>
+                    <a href="{{ route('admin.testo-contratto') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">📝</span> Testo contratto</a>
+                    <a href="{{ route('admin.prova') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">🧪</span> Prova flusso</a>
+                    <a href="{{ route('admin.progetto') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-colors mt-4 border-t border-slate-800 pt-4"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">📋</span> Progetto e task</a>
+                    <a href="{{ route('admin.notifiche') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">🔔</span> Notifiche e canali</a>
+                    <button type="button" onclick="window.jlunePwaInstall && window.jlunePwaInstall.open('admin'); sidebarOpen = false" class="flex items-center gap-3 w-full text-left px-3 py-2.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-colors text-teal-300"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">📲</span> Scarica l'app</button>
+                    <a href="{{ route('admin.sviluppo') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl text-xs font-bold hover:bg-slate-800 transition-colors {{ \App\Support\JluneDeveloperAccess::isGranted() ? 'text-slate-300' : 'text-slate-500' }}">
+                        <span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">🔧</span> Sviluppo (team)@if (! \App\Support\JluneDeveloperAccess::isGranted()) 🔒@endif
                     </a>
                 </nav>
             </div>
@@ -74,29 +74,29 @@
     <!-- SIDEBAR FISSA (SOLO DESKTOP) -->
     <div class="hidden md:fixed md:inset-y-0 md:z-50 md:flex md:w-64 md:flex-col">
         <div class="flex grow flex-col overflow-y-auto bg-slate-900 px-6 pb-4 shadow-2xl text-white">
-            <div class="flex h-20 shrink-0 items-center border-b border-slate-700 mb-6">
-                <h1 class="text-2xl font-black tracking-widest uppercase text-indigo-400">Jlune Admin</h1>
+            <div class="flex h-20 shrink-0 items-center border-b border-slate-800 mb-6">
+                <h1 class="text-xl font-black tracking-tight text-white">Jlune <span class="text-indigo-400">Admin</span></h1>
             </div>
             <nav class="flex flex-1 flex-col">
                 <ul role="list" class="flex flex-1 flex-col gap-y-7">
                     <li>
-                        <ul role="list" class="-mx-2 space-y-2">
-                            <li><a href="{{ route('admin.dashboard') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">📊 Dashboard</a></li>
-                            <li><a href="{{ route('admin.arrivi') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">📇 Arrivi e Documenti</a></li>
-                            <li><a href="{{ route('admin.video') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">🎥 Gestione Video</a></li>
-                            <li><a href="{{ route('admin.contratti') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">📄 Contratti</a></li>
-                            <li><a href="{{ route('admin.testo-contratto') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">📝 Testo contratto</a></li>
-                            <li><a href="{{ route('admin.prova') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">🧪 Prova flusso</a></li>
-                            <li><a href="{{ route('admin.progetto') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 border-t border-slate-700 pt-4 transition-colors">📋 Progetto e task</a></li>
-                            <li><a href="{{ route('admin.notifiche') }}" class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors">🔔 Notifiche e canali</a></li>
+                        <ul role="list" class="-mx-2 space-y-1.5">
+                            <li><a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-bold hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">📊</span> Dashboard</a></li>
+                            <li><a href="{{ route('admin.arrivi') }}" class="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-bold hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">📇</span> Arrivi e Documenti</a></li>
+                            <li><a href="{{ route('admin.video') }}" class="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-bold hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">🎥</span> Gestione Video</a></li>
+                            <li><a href="{{ route('admin.contratti') }}" class="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-bold hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">📄</span> Contratti</a></li>
+                            <li><a href="{{ route('admin.testo-contratto') }}" class="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-bold hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">📝</span> Testo contratto</a></li>
+                            <li><a href="{{ route('admin.prova') }}" class="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-bold hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">🧪</span> Prova flusso</a></li>
+                            <li><a href="{{ route('admin.progetto') }}" class="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-bold hover:bg-slate-800 border-t border-slate-800 pt-4 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">📋</span> Progetto e task</a></li>
+                            <li><a href="{{ route('admin.notifiche') }}" class="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-bold hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">🔔</span> Notifiche e canali</a></li>
                             <li>
-                                <button type="button" onclick="window.jlunePwaInstall && window.jlunePwaInstall.open('admin')" class="block w-full text-left rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition-colors text-teal-300">
-                                    📲 Scarica l'app
+                                <button type="button" onclick="window.jlunePwaInstall && window.jlunePwaInstall.open('admin')" class="flex items-center gap-3 w-full text-left rounded-2xl px-3 py-2.5 text-sm font-bold hover:bg-slate-800 transition-colors text-teal-300">
+                                    <span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">📲</span> Scarica l'app
                                 </button>
                             </li>
                             <li>
-                                <a href="{{ route('admin.sviluppo') }}" class="block rounded-md px-3 py-2 text-xs font-semibold {{ \App\Support\JluneDeveloperAccess::isGranted() ? 'text-slate-300' : 'text-slate-500' }} hover:bg-slate-800 transition-colors">
-                                    🔧 Sviluppo (team)@if (! \App\Support\JluneDeveloperAccess::isGranted()) 🔒@endif
+                                <a href="{{ route('admin.sviluppo') }}" class="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-xs font-bold {{ \App\Support\JluneDeveloperAccess::isGranted() ? 'text-slate-300' : 'text-slate-500' }} hover:bg-slate-800 transition-colors">
+                                    <span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">🔧</span> Sviluppo (team)@if (! \App\Support\JluneDeveloperAccess::isGranted()) 🔒@endif
                                 </a>
                             </li>
                         </ul>
@@ -115,10 +115,10 @@
                 <span class="sr-only">Apri sidebar</span>
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
             </button>
-            <div class="flex-1 text-lg font-bold text-slate-800">Pannello di Controllo</div>
+            <div class="flex-1 text-lg font-black text-slate-900">Jlune <span class="text-indigo-600">Admin</span></div>
             <button type="button"
                     onclick="window.jlunePwaInstall && window.jlunePwaInstall.open('admin')"
-                    class="shrink-0 rounded-lg bg-slate-800 px-3 py-1.5 text-[10px] font-black uppercase text-white tracking-wide">
+                    class="shrink-0 rounded-full bg-slate-900 px-3 py-1.5 text-[10px] font-black uppercase text-white tracking-wide">
                 📲 App
             </button>
         </div>
