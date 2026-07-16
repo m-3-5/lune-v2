@@ -1,64 +1,91 @@
 <x-layouts.app :apartmentName="$apartment->name" :reservation="$reservation" :hasDocuments="false" :isCheckinTime="false">
-    
+
     @if(session('success'))
-        <div class="bg-green-50 border border-green-200 text-green-800 p-4 rounded-xl mb-4 text-sm">
+        <div class="bg-green-50 border border-green-200 text-green-800 p-4 rounded-2xl mb-4 text-sm">
             {{ session('success') }}
         </div>
     @endif
 
-    <div class="bg-white rounded-2xl shadow-sm p-6 border-t-4 border-indigo-600">
-        <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-gray-900">
-            👋 Benvenuto, {{ $reservation->guest_name }}!
-        </h2>
-        
-        <p class="text-gray-600 mb-4">
-            Stai visualizzando i dettagli del tuo soggiorno presso <strong>{{ $apartment->name }}</strong>.
-        </p>
+    @if(session('error'))
+        <div class="bg-red-50 border border-red-200 text-red-800 p-4 rounded-2xl mb-4 text-sm">
+            {{ session('error') }}
+        </div>
+    @endif
 
-        @if(!$reservation->is_paid)
-            <div class="bg-red-50 p-4 rounded-xl border border-red-200 text-center mb-4">
-                <p class="text-red-800 font-bold mb-2">⚠️ Acconto/Saldo Richiesto</p>
-                <p class="text-sm text-red-600 mb-3">Per sbloccare il caricamento dei documenti, completa il pagamento.</p>
-                <a href="{{ $reservation->checkfront_payment_url }}" target="_blank" class="inline-block bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-red-700">
-                    Paga su Checkfront
-                </a>
-            </div>
-        @else
-            <div class="bg-green-50 p-4 rounded-xl border border-green-200 text-center mb-4">
-                <p class="text-green-800 font-bold">✅ {{ $reservation->paymentLabel() }}</p>
-                <p class="text-sm text-green-700">Puoi caricare i documenti dal menu.</p>
-                @if($reservation->balance > 0)
-                    <p class="text-xs text-green-600 mt-2">Saldo residuo: € {{ number_format($reservation->balance, 2, ',', '.') }}</p>
-                @endif
-            </div>
-        @endif
+    {{-- Card di benvenuto --}}
+    <div class="rounded-[2rem] p-6 text-white shadow-lg mb-5" style="background:linear-gradient(135deg,#4f46e5,#4338ca);">
+        <p class="text-indigo-200 text-[10px] font-black uppercase tracking-widest mb-1">{{ $reservation->booking_code ?? $apartment->name }}</p>
+        <h1 class="text-2xl font-black">Ciao {{ $reservation->guest_name }} 👋</h1>
+        <p class="text-indigo-100 text-sm mt-1">{{ $apartment->name }}</p>
 
-        @if($reservation->hasDocumentsPendingReview())
-            <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 text-center mb-4">
-                <p class="text-amber-800 font-bold">📋 Documenti in verifica</p>
-                <p class="text-sm text-amber-700">Serenella sta controllando i file. Il contratto si sbloccherà dopo l'approvazione.</p>
-            </div>
-        @elseif($reservation->documents_validated && $reservation->contract_ready_for_guest)
-            <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-200 text-center mb-4">
-                <p class="text-indigo-800 font-bold">✅ Documenti approvati</p>
-                <p class="text-sm text-indigo-700">Puoi firmare il contratto dal menu.</p>
-            </div>
-        @elseif($reservation->documents_validated)
-            <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-200 text-center mb-4">
-                <p class="text-indigo-800 font-bold">✅ Documenti approvati</p>
-                <p class="text-sm text-indigo-700">Il contratto sarà disponibile dopo la verifica finale di Serenella.</p>
-            </div>
-        @endif
+        <div class="flex flex-wrap gap-2 mt-4">
+            @if(!$reservation->is_paid)
+                <span class="text-[10px] font-black uppercase bg-white/15 rounded-full px-3 py-1.5">⚠️ Acconto da pagare</span>
+            @else
+                <span class="text-[10px] font-black uppercase bg-white/15 rounded-full px-3 py-1.5">✅ {{ $reservation->paymentLabel() }}</span>
+            @endif
 
+            @if($reservation->hasDocumentsPendingReview())
+                <span class="text-[10px] font-black uppercase bg-white/15 rounded-full px-3 py-1.5">📋 Documenti in verifica</span>
+            @elseif($reservation->documents_validated)
+                <span class="text-[10px] font-black uppercase bg-white/15 rounded-full px-3 py-1.5">✅ Documenti ok</span>
+            @endif
+        </div>
     </div>
 
+    @if(!$reservation->is_paid)
+        <a href="{{ $reservation->checkfront_payment_url }}" target="_blank"
+            class="block text-center bg-red-600 text-white font-black text-sm uppercase tracking-wide py-4 rounded-2xl shadow-sm mb-5 hover:bg-red-700">
+            Paga su Checkfront
+        </a>
+    @endif
+
+    {{-- Griglia icone di navigazione --}}
+    <div class="grid grid-cols-3 gap-3 mb-5">
+        <a href="{{ $reservation->is_paid ? route('checkin.documents', $reservation->token) : '#' }}"
+            class="bg-white rounded-2xl p-4 text-center shadow-sm border border-gray-100 flex flex-col items-center gap-2 {{ !$reservation->is_paid ? 'opacity-40 pointer-events-none' : 'active:scale-95' }} transition-transform">
+            <span class="w-11 h-11 rounded-xl bg-indigo-50 flex items-center justify-center text-xl">📄</span>
+            <span class="text-[11px] font-bold text-gray-800">Documenti</span>
+        </a>
+        <a href="{{ $reservation->is_paid ? route('checkin.contract', $reservation->token) : '#' }}"
+            class="bg-white rounded-2xl p-4 text-center shadow-sm border border-gray-100 flex flex-col items-center gap-2 {{ !$reservation->is_paid ? 'opacity-40 pointer-events-none' : 'active:scale-95' }} transition-transform">
+            <span class="w-11 h-11 rounded-xl bg-indigo-50 flex items-center justify-center text-xl">✍️</span>
+            <span class="text-[11px] font-bold text-gray-800">Contratto</span>
+            @if($reservation->contract_accepted)
+                <span class="text-[9px] font-black uppercase text-green-600">✓ Firmato</span>
+            @endif
+        </a>
+        <a href="{{ route('assistenza') }}"
+            class="bg-white rounded-2xl p-4 text-center shadow-sm border border-gray-100 flex flex-col items-center gap-2 active:scale-95 transition-transform">
+            <span class="w-11 h-11 rounded-xl bg-indigo-50 flex items-center justify-center text-xl">🆘</span>
+            <span class="text-[11px] font-bold text-gray-800">Assistenza</span>
+        </a>
+    </div>
+
+    @if($reservation->hasDocumentsPendingReview())
+        <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200 text-center mb-4">
+            <p class="text-amber-800 font-bold text-sm">📋 Documenti in verifica</p>
+            <p class="text-xs text-amber-700 mt-1">Serenella sta controllando i file. Il contratto si sbloccherà dopo l'approvazione.</p>
+        </div>
+    @elseif($reservation->documents_validated && $reservation->contract_ready_for_guest)
+        <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-200 text-center mb-4">
+            <p class="text-indigo-800 font-bold text-sm">✅ Documenti approvati</p>
+            <p class="text-xs text-indigo-700 mt-1">Puoi firmare il contratto qui sopra.</p>
+        </div>
+    @elseif($reservation->documents_validated)
+        <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-200 text-center mb-4">
+            <p class="text-indigo-800 font-bold text-sm">✅ Documenti approvati</p>
+            <p class="text-xs text-indigo-700 mt-1">Il contratto sarà disponibile dopo la verifica finale di Serenella.</p>
+        </div>
+    @endif
+
     @if(($entryVideos ?? collect())->isNotEmpty())
-        <div class="bg-white rounded-2xl shadow-sm p-6 border-t-4 border-indigo-600 mt-4">
-            <h2 class="text-xl font-bold mb-1 flex items-center gap-2 text-gray-900">🎥 Video di ingresso</h2>
-            <p class="text-sm text-gray-500 mb-4">Guardali in ordine, un passaggio alla volta.</p>
+        <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-5 mb-5">
+            <h2 class="text-base font-black text-gray-900 mb-1 flex items-center gap-2">🎥 Video di ingresso</h2>
+            <p class="text-xs text-gray-500 mb-4">Guardali in ordine, un passaggio alla volta.</p>
             <div class="space-y-3">
                 @foreach ($entryVideos as $video)
-                    <div class="border border-gray-100 rounded-xl overflow-hidden">
+                    <div class="border border-gray-100 rounded-2xl overflow-hidden">
                         @if ($video->videoUrl())
                             <video src="{{ $video->videoUrl() }}" controls playsinline class="w-full"></video>
                         @endif
