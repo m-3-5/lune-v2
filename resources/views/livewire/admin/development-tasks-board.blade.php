@@ -6,7 +6,7 @@
     <div class="flex flex-wrap gap-2 mb-4">
         @foreach ([
             'active' => 'In corso',
-            'serenella' => 'Per Serenella',
+            'client' => 'Per il cliente',
             'production' => 'Produzione',
             'done' => 'Completati',
             'all' => 'Tutti',
@@ -25,8 +25,8 @@
         @if ($developerMode)
             <select wire:model="newType" class="mb-2 rounded-lg border-gray-200 text-sm w-full max-w-xs">
                 <option value="production_task">Task produzione</option>
-                <option value="question_for_serenella">Domanda per Serenella</option>
-                <option value="serenella_request">Richiesta (come Serenella)</option>
+                <option value="question_for_client">Domanda per il cliente</option>
+                <option value="client_request">Richiesta (come cliente)</option>
             </select>
         @endif
         <input type="text" wire:model="newTitle" placeholder="Titolo breve" class="w-full rounded-xl border-gray-200 text-sm mb-2" />
@@ -68,7 +68,7 @@
                         @endif
                         @foreach ($item->replies as $reply)
                             <div class="bg-gray-50 rounded-xl p-3">
-                                <p class="text-[10px] font-black uppercase text-gray-400 mb-1">{{ $reply->author === 'team' ? 'Team' : 'Serenella' }}</p>
+                                <p class="text-[10px] font-black uppercase text-gray-400 mb-1">{{ $reply->author === 'team' ? 'Team' : 'Cliente' }}</p>
                                 <p class="whitespace-pre-wrap">{{ $reply->body }}</p>
                             </div>
                         @endforeach

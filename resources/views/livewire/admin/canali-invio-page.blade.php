@@ -94,7 +94,7 @@
         </div>
 
         <p class="text-sm text-gray-600">
-            Consigliato: <strong>Twilio</strong> (sandbox per test, account Serenella in produzione).
+            Consigliato: <strong>Twilio</strong> (sandbox per test, account del gestore in produzione).
             CallMeBot resta disponibile come alternativa leggera.
         </p>
 
@@ -119,7 +119,7 @@
                         <li>Numero From sandbox: di solito <code class="bg-white px-1 rounded">+14155238886</code></li>
                         <li>Salva qui → test al tuo <code>+393487564418</code></li>
                     </ol>
-                    <p class="text-xs text-emerald-800">Alla pubblicazione: account Twilio di Serenella + numero WhatsApp Business approvato — cambi solo SID, token e From qui.</p>
+                    <p class="text-xs text-emerald-800">Alla pubblicazione: account Twilio del gestore + numero WhatsApp Business approvato — cambi solo SID, token e From qui.</p>
                 </div>
 
                 <div>

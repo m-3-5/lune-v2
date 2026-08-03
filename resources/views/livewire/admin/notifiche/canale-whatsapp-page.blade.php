@@ -37,7 +37,7 @@
         <x-admin.toggle-switch
             wire:model.live="adminWhatsAppNotificationsEnabled"
             label="WhatsApp verso admin"
-            hint="Serenella / team — usa i cellulari sotto."
+            hint="Team — usa i cellulari sotto."
             color="emerald"
         />
 
@@ -68,7 +68,7 @@
             <h2 class="text-lg font-black text-emerald-950">Setup account ufficiale (Meta + Twilio)</h2>
             <p class="text-sm text-emerald-900/90">Segui questi passi una volta sola. Poi cambi solo i campi sotto se passi a un altro account.</p>
             <ol class="list-decimal list-inside space-y-2 text-sm text-emerald-900/90">
-                <li><strong>Meta Business Suite</strong> → WhatsApp Manager → collega il numero ufficiale del canale (es. Serenella).</li>
+                <li><strong>Meta Business Suite</strong> → WhatsApp Manager → collega il numero ufficiale del canale.</li>
                 <li><strong>Twilio Console</strong> → Messaging → WhatsApp Senders → «Connect with Facebook» e completa l’onboarding Meta.</li>
                 <li>Attendi approvazione del numero (può richiedere 1–3 giorni).</li>
                 <li>In Twilio copia il numero approvato (formato <code class="bg-white px-1 rounded">+39…</code>) nel campo <strong>Numero From</strong> sotto.</li>

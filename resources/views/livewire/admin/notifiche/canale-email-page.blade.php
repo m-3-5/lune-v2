@@ -14,7 +14,7 @@
     <section class="bg-indigo-50 rounded-3xl border border-indigo-100 p-6 space-y-3">
         <h2 class="text-lg font-black text-indigo-950">A cosa serve</h2>
         <p class="text-sm text-indigo-900/90">
-            Invia email transazionali: promemoria check-in agli ospiti, avvisi a Serenella (firma contratto, documenti caricati, pagamento mancante).
+            Invia email transazionali: promemoria check-in agli ospiti, avvisi al gestore (firma contratto, documenti caricati, pagamento mancante).
             Usa la casella dedicata <strong>appjlune@inm35.net</strong> — separata dalla posta personale.
         </p>
         <div class="grid sm:grid-cols-2 gap-3 text-sm">

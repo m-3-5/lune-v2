@@ -69,7 +69,7 @@ class GuestContract extends Component
 
         $this->taxUploadFile = null;
         $this->taxUploadSlot = null;
-        session()->flash('success', 'Tessera sanitaria caricata. Serenella potrà verificarla.');
+        session()->flash('success', 'Tessera sanitaria caricata. Il gestore potrà verificarla.');
     }
 
     public function render(ContractRenderService $contracts)

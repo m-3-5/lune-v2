@@ -12,10 +12,10 @@ class AppGuideSeeder extends Seeder
     {
         AppSettings::set('app_guide', self::guideText());
 
-        foreach (self::openQuestionsForSerenella() as $question) {
+        foreach (self::openQuestionsForClient() as $question) {
             DevelopmentItem::firstOrCreate(
                 [
-                    'type' => DevelopmentItem::TYPE_QUESTION_FOR_SERENELLA,
+                    'type' => DevelopmentItem::TYPE_QUESTION_FOR_CLIENT,
                     'title' => $question['title'],
                 ],
                 [
@@ -28,13 +28,13 @@ class AppGuideSeeder extends Seeder
 
         DevelopmentItem::firstOrCreate(
             [
-                'type' => DevelopmentItem::TYPE_SERENELLA_REQUEST,
+                'type' => DevelopmentItem::TYPE_CLIENT_REQUEST,
                 'title' => 'Link pagamento Checkfront reale (esempio per cliente)',
             ],
             [
                 'status' => DevelopmentItem::STATUS_OPEN,
                 'body' => <<<'BODY'
-Ciao Serenella,
+Ciao,
 
 nell’app il pulsante «Paga su Checkfront» per l’ospite a volte non porta alla pagina giusta (URL da verificare in produzione).
 
@@ -69,13 +69,13 @@ GUIDE;
     /**
      * @return array<int, array{title: string, body: string}>
      */
-    public static function openQuestionsForSerenella(): array
+    public static function openQuestionsForClient(): array
     {
         return [
             [
                 'title' => 'Logo app: quale icona sulla home del telefono?',
                 'body' => <<<'BODY'
-Ciao Serenella,
+Ciao,
 
 per le due app (gestione admin e check-in ospite) serve un’icona/logo da mettere sulla home del telefono.
 
@@ -122,7 +122,7 @@ BODY,
             [
                 'title' => 'Export Polizia: usi Alloggiati Web o altro formato?',
                 'body' => <<<'BODY'
-Ciao Serenella,
+Ciao,
 
 l’app ora estrae i dati dai documenti e permette di scaricare **JSON, CSV e XML** (dati ospiti).
 
@@ -139,11 +139,11 @@ Grazie!
 BODY,
             ],
             [
-                'title' => 'Serenella: vuoi notifiche anche su Telegram?',
+                'title' => 'Vuoi notifiche anche su Telegram?',
                 'body' => <<<'BODY'
 Oggi le notifiche operative per te arrivano tramite **app installata + Attiva notifiche** in Progetto.
 
-Max riceve anche **Telegram** (@jlune_notifiche_bot).
+Il team riceve anche **Telegram** (@jlune_notifiche_bot).
 
 Vuoi essere aggiunta anche su Telegram (oltre alla PWA), o ti basta il telefono con l’app Jlune Admin?
 

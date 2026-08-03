@@ -46,7 +46,7 @@ return new class extends Migration
             ['Dove vedo i costi del progetto?', 'costi prezzo preventivo', 'I costi sono modificabili in Sviluppo → Modifica costi. Non sono più mostrati nella pagina Progetto in attesa di un nuovo accordo.', '/admin/sviluppo', 'Vai a Sviluppo'],
             ['Come faccio a sapere quando un ospite sta per uscire?', 'checkout uscita pulizie', 'Ogni mattina alle 8:00 arriva una notifica automatica con gli ospiti che fanno check-out quel giorno.', null, null],
             ['Come elimino una voce vecchia dalla bacheca task?', 'eliminare cancellare task vecchio', 'Da Sviluppo, apri la voce e usa il pulsante rosso "Elimina" (disponibile solo lì, non nella vista di Progetto).', '/admin/sviluppo', 'Vai a Sviluppo'],
-            ['Come do a Serenella l\'accesso a Sviluppo?', 'password sviluppo serenella accesso', 'Condividi con lei la stessa password che usi tu per entrare in Sviluppo — è unica per tutto il team.', '/admin/sviluppo', 'Vai a Sviluppo'],
+            ['Come do a qualcuno del team l\'accesso a Sviluppo?', 'password sviluppo team accesso', 'Condividi la stessa password che usi tu per entrare in Sviluppo — è unica per tutto il team.', '/admin/sviluppo', 'Vai a Sviluppo'],
         ];
 
         $guest = [

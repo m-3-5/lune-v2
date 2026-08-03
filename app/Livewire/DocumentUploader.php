@@ -60,7 +60,7 @@ class DocumentUploader extends Component
         if (!$file) return;
 
         try {
-            // Salva il file fisicamente nella dashboard per Serenella
+            // Salva il file fisicamente nella dashboard per il gestore
             $path = $file->store('documents', 'public');
 
             $this->guestSlots[$guestIndex]['documents'][$docType]['status'] = 'approved';
@@ -129,7 +129,7 @@ class DocumentUploader extends Component
         }
         // ------------------------------------------------------------------
 
-        // In attesa di verifica Serenella (non sbloccare contratto/ingresso)
+        // In attesa di verifica del gestore (non sbloccare contratto/ingresso)
         $this->reservation->update([
             'documents_validated' => false,
             'documents_submitted_at' => now(),
@@ -141,7 +141,7 @@ class DocumentUploader extends Component
 
         // Andiamo alla firma del contratto
         return redirect()->route('checkin.show', ['token' => $this->reservation->token])
-            ->with('success', 'Documenti inviati. Serenella li verificherà a breve: riceverai accesso al contratto dopo l\'approvazione.');
+            ->with('success', 'Documenti inviati. Il gestore li verificherà a breve: riceverai accesso al contratto dopo l\'approvazione.');
     }
 
     public function render()

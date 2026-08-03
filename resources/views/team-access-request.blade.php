@@ -26,7 +26,7 @@
                 <p class="text-red-600 text-xs mt-4 text-center font-bold">{{ $errors->first() }}</p>
             @endif
 
-            <form method="POST" action="{{ route('serenella.access.request', $token) }}" class="mt-6 space-y-3">
+            <form method="POST" action="{{ route('team.access.request', $token) }}" class="mt-6 space-y-3">
                 @csrf
                 <input type="email" name="email" value="{{ old('email') }}" required placeholder="latua@email.it"
                     class="w-full rounded-lg border-2 border-gray-300 text-sm p-3">

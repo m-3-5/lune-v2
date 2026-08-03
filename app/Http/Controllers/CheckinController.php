@@ -20,7 +20,7 @@ class CheckinController extends Controller
         // 2. Calcoliamo i "Semafori" per la vista
         $is_paid = $reservation->is_paid;
         
-        // Contiamo se ci sono documenti in attesa di validazione da parte di Serenella
+        // Contiamo se ci sono documenti in attesa di validazione da parte del gestore
         $pending_docs = $reservation->guestDocuments()->where('status', 'pending')->count();
         $docs_validated = $reservation->documents_validated;
 

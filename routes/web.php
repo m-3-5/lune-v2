@@ -7,8 +7,8 @@ use App\Http\Controllers\EntryVideoController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\PwaIconController;
 use App\Http\Controllers\PwaManifestController;
-use App\Http\Controllers\SerenellaAccessController;
 use App\Http\Controllers\SupportTicketController;
+use App\Http\Controllers\TeamAccessController;
 use App\Http\Controllers\TelegramWebhookController;
 use App\Http\Controllers\TicketTrackingController;
 use App\Support\AppSettings;
@@ -28,10 +28,10 @@ use App\Livewire\Admin\SviluppoPage;
 use App\Livewire\Admin\TestoContrattoPage;
 
 // Chi arriva sulla home nuda va reindirizzato dove ha davvero accesso:
-// il team (Max/Serenella, cookie di bypass valido + già "entrato") dritto in admin,
+// il team (cookie di bypass valido + già "entrato") dritto in admin,
 // chiunque altro su una pagina minimale che rimanda al proprio link di prenotazione.
 Route::get('/', function (\Illuminate\Http\Request $request) {
-    $hasTeamAccess = AppSettings::serenellaAccessValid($request->cookie('jlune_bypass'))
+    $hasTeamAccess = AppSettings::teamAccessValid($request->cookie('jlune_bypass'))
         && $request->session()->get('jlune_entered');
 
     if ($hasTeamAccess) {
@@ -69,18 +69,18 @@ Route::post('/ticket/{token}/reply', [TicketTrackingController::class, 'reply'])
 // Pagina pubblica del video di ingresso — raggiunta scansionando il QR fisico.
 Route::get('/qr/{token}', [EntryVideoController::class, 'show'])->name('qr.show');
 
-// Link personale "accesso Serenella" — rinnovato a ogni prenotazione reale.
+// Link personale "accesso team" — rinnovato a ogni prenotazione reale.
 // Chiede conferma email prima di attivare l'accesso permanente (non basta più il solo link).
 // La rotta /accesso/verifica va registrata PRIMA di /accesso/{token} (jolly), altrimenti
 // quest'ultima la intercetta trattando "verifica" come se fosse il token.
-Route::get('/accesso/verifica', [SerenellaAccessController::class, 'verify'])->name('serenella.access.verify')->middleware('signed');
-Route::get('/accesso/{token}', [SerenellaAccessController::class, 'confirm'])->name('serenella.access.confirm');
-Route::post('/accesso/{token}/richiedi', [SerenellaAccessController::class, 'requestAccess'])->name('serenella.access.request');
-Route::get('/entra', [SerenellaAccessController::class, 'enter'])->name('serenella.access.enter');
+Route::get('/accesso/verifica', [TeamAccessController::class, 'verify'])->name('team.access.verify')->middleware('signed');
+Route::get('/accesso/{token}', [TeamAccessController::class, 'confirm'])->name('team.access.confirm');
+Route::post('/accesso/{token}/richiedi', [TeamAccessController::class, 'requestAccess'])->name('team.access.request');
+Route::get('/entra', [TeamAccessController::class, 'enter'])->name('team.access.enter');
 
 // Richiesta accesso direttamente dalla pagina di manutenzione (senza link personale in mano):
-// basta l'email registrata (Max o Serenella), niente più password.
-Route::post('/accesso/richiedi', [SerenellaAccessController::class, 'requestGeneralAccess'])->name('serenella.access.request.general');
+// basta un'email registrata tra i contatti admin, niente più password.
+Route::post('/accesso/richiedi', [TeamAccessController::class, 'requestGeneralAccess'])->name('team.access.request.general');
 
 // La porta d'ingresso per l'ospite (Super-Lucchetto)
 Route::get('/checkin/{token}/manifest.webmanifest', [PwaManifestController::class, 'guest'])
@@ -95,7 +95,7 @@ Route::get('/checkin/{token}/contract', [CheckinController::class, 'contract'])-
 
 Route::get('/checkin/{token}/elettrodomestici', [CheckinController::class, 'appliances'])->name('checkin.appliances');
 
-// Rotta per la Dashboard di Serenella
+// Rotta per la Dashboard admin
 Route::get('/admin/manifest.webmanifest', [PwaManifestController::class, 'admin'])
     ->name('admin.manifest');
 
@@ -103,7 +103,7 @@ Route::get('/admin', function () {
     return view('admin.dashboard');
 })->name('admin.dashboard');
 
-// Rotte per i Moduli Admin di Serenella
+// Rotte per i Moduli Admin
 Route::prefix('admin')->group(function () {
     Route::get('/arrivi', function () { return view('admin.arrivi'); })->name('admin.arrivi');
     Route::get('/video', EntryVideosPage::class)->name('admin.video');

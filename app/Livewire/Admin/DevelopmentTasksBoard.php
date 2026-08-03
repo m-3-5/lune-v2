@@ -19,7 +19,7 @@ class DevelopmentTasksBoard extends Component
 
     public string $newBody = '';
 
-    public string $newType = DevelopmentItem::TYPE_SERENELLA_REQUEST;
+    public string $newType = DevelopmentItem::TYPE_CLIENT_REQUEST;
 
     public string $replyBody = '';
 
@@ -54,9 +54,9 @@ class DevelopmentTasksBoard extends Component
 
         $type = $this->developerMode
             ? $this->newType
-            : DevelopmentItem::TYPE_SERENELLA_REQUEST;
+            : DevelopmentItem::TYPE_CLIENT_REQUEST;
 
-        if (! $this->developerMode && $type !== DevelopmentItem::TYPE_SERENELLA_REQUEST) {
+        if (! $this->developerMode && $type !== DevelopmentItem::TYPE_CLIENT_REQUEST) {
             return;
         }
 
@@ -65,7 +65,7 @@ class DevelopmentTasksBoard extends Component
             'status' => DevelopmentItem::STATUS_OPEN,
             'title' => $this->newTitle,
             'body' => $this->newBody,
-            'author' => $this->developerMode ? 'team' : 'serenella',
+            'author' => $this->developerMode ? 'team' : 'client',
         ]);
 
         app(DevelopmentTaskNotifier::class)->itemCreated($item);
@@ -139,7 +139,7 @@ class DevelopmentTasksBoard extends Component
     {
         $this->validate(['replyBody' => 'required|string|max:5000']);
 
-        $author = $this->developerMode ? 'team' : 'serenella';
+        $author = $this->developerMode ? 'team' : 'client';
         DevelopmentReply::create([
             'development_item_id' => $itemId,
             'author' => $author,
@@ -164,10 +164,10 @@ class DevelopmentTasksBoard extends Component
             ]);
         } elseif ($this->filter === 'done') {
             $query->where('status', DevelopmentItem::STATUS_DONE);
-        } elseif ($this->filter === 'serenella') {
+        } elseif ($this->filter === 'client') {
             $query->whereIn('type', [
-                DevelopmentItem::TYPE_SERENELLA_REQUEST,
-                DevelopmentItem::TYPE_QUESTION_FOR_SERENELLA,
+                DevelopmentItem::TYPE_CLIENT_REQUEST,
+                DevelopmentItem::TYPE_QUESTION_FOR_CLIENT,
             ]);
         } elseif ($this->filter === 'production') {
             $query->where('type', DevelopmentItem::TYPE_PRODUCTION_TASK);

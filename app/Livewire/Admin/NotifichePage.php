@@ -106,7 +106,7 @@ class NotifichePage extends Component
                 'event' => 'Documenti approvati / rifiutati',
                 'admin' => 'Campanella',
                 'guest' => 'Email/WhatsApp/push (se attivi)',
-                'when' => 'Quando Serenella approva o rifiuta',
+                'when' => 'Quando il gestore approva o rifiuta',
             ],
             [
                 'event' => 'Contratto pronto per la firma',

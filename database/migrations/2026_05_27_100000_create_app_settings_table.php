@@ -19,12 +19,10 @@ return new class extends Migration
         $defaults = [
             'under_construction' => false,
             'admin_emails' => [
-                'serenella@esempio.it — da aggiornare',
-                'max@esempio.it — da aggiornare',
+                'tuaemail@esempio.it — da aggiornare',
             ],
             'admin_phones' => [
-                '+39 … Serenella — da aggiornare',
-                '+39 … Max — da aggiornare',
+                '+39 … — da aggiornare',
             ],
             'app_guide' => $this->defaultGuide(),
             'project_base_cost' => 3800,
@@ -55,7 +53,7 @@ return new class extends Migration
     protected function defaultGuide(): string
     {
         return <<<'GUIDE'
-# Jlune App — Guida per Serenella (bozza)
+# Jlune App — Guida (bozza)
 
 ## Cosa fa l'app
 Jlune collega le prenotazioni Checkfront con l'area ospite e il pannello admin.

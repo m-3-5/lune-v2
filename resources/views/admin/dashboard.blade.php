@@ -7,7 +7,7 @@
         <div class="bg-indigo-700 p-6 rounded-b-[2.5rem] shadow-lg mb-8">
             <div class="max-w-md mx-auto flex justify-between items-center">
                 <div>
-                    <h1 class="text-2xl font-black text-white uppercase tracking-tight">Area Serenella</h1>
+                    <h1 class="text-2xl font-black text-white uppercase tracking-tight">Area gestione</h1>
                     <p class="text-indigo-100 text-sm">Gestione appartamenti e documenti</p>
                 </div>
             </div>
@@ -51,7 +51,7 @@
                 </a>
             </div>
 
-            <x-serenella-open-questions />
+            <x-client-open-questions />
 
             <div class="mt-6">
                 <div class="flex items-center justify-between mb-4 px-2">

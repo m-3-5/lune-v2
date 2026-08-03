@@ -70,7 +70,7 @@
     @if($reservation->hasDocumentsPendingReview())
         <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200 text-center mb-4">
             <p class="text-amber-800 font-bold text-sm">📋 Documenti in verifica</p>
-            <p class="text-xs text-amber-700 mt-1">Serenella sta controllando i file. Il contratto si sbloccherà dopo l'approvazione.</p>
+            <p class="text-xs text-amber-700 mt-1">Il gestore sta controllando i file. Il contratto si sbloccherà dopo l'approvazione.</p>
         </div>
     @elseif($reservation->documents_validated && $reservation->contract_ready_for_guest)
         <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-200 text-center mb-4">
@@ -80,7 +80,7 @@
     @elseif($reservation->documents_validated)
         <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-200 text-center mb-4">
             <p class="text-indigo-800 font-bold text-sm">✅ Documenti approvati</p>
-            <p class="text-xs text-indigo-700 mt-1">Il contratto sarà disponibile dopo la verifica finale di Serenella.</p>
+            <p class="text-xs text-indigo-700 mt-1">Il contratto sarà disponibile dopo la verifica finale del gestore.</p>
         </div>
     @endif
 

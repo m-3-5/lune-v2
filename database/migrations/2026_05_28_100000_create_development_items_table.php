@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('status', 24)->default('open');
             $table->string('title');
             $table->text('body')->nullable();
-            $table->string('author', 24)->default('serenella');
+            $table->string('author', 24)->default('client');
             $table->timestamps();
 
             $table->index(['type', 'status']);

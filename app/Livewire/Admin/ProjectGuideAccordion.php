@@ -58,14 +58,14 @@ class ProjectGuideAccordion extends Component
         }
 
         $body = "Argomento guida: {$section['title']} (id: {$section['id']})\n\n"
-            ."Domanda di Serenella:\n{$this->askQuestion}";
+            ."Domanda del cliente:\n{$this->askQuestion}";
 
         $item = DevelopmentItem::create([
-            'type' => DevelopmentItem::TYPE_SERENELLA_REQUEST,
+            'type' => DevelopmentItem::TYPE_CLIENT_REQUEST,
             'status' => DevelopmentItem::STATUS_OPEN,
             'title' => 'Guida: '.$section['title'],
             'body' => $body,
-            'author' => 'serenella',
+            'author' => 'client',
         ]);
 
         app(DevelopmentTaskNotifier::class)->itemCreated($item);

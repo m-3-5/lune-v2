@@ -33,9 +33,11 @@
 
     <div class="box">
         <p class="box-title">{{ $locale === 'en' ? 'Landlord' : 'Locatore' }}</p>
-        <p><strong>Serenella Marongiu</strong></p>
-        <p>Lungomare Palmasera 32 - Cala Gonone ({{ $locale === 'en' ? 'Italy' : 'Italia' }})</p>
-        <p class="muted">info@appartamentijlune.com | +39 349 5377378</p>
+        <p><strong>{{ \App\Support\AppSettings::landlordName() ?: ($locale === 'en' ? '[Landlord name to configure]' : '[Nome gestore da configurare]') }}</strong></p>
+        @if (\App\Support\AppSettings::landlordAddress())
+            <p>{{ \App\Support\AppSettings::landlordAddress() }}</p>
+        @endif
+        <p class="muted">{{ \App\Support\AppSettings::landlordEmail() }} | {{ \App\Support\AppSettings::landlordPhone() }}</p>
     </div>
 
     <div class="box">

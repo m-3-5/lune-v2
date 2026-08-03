@@ -33,7 +33,7 @@
         @if ($maintenanceOn)
             <div class="mt-4 pt-4 border-t border-gray-100">
                 <p class="text-xs text-gray-500 mb-2">
-                    Il tuo link per vedere il sito vero durante la manutenzione (lo stesso che arriva a Serenella con ogni nuova prenotazione)
+                    Il tuo link per vedere il sito vero durante la manutenzione (lo stesso che arriva al team con ogni nuova prenotazione)
                     @if ($accessExpiresAt)
                         — valido fino al {{ $accessExpiresAt->format('d/m/Y H:i') }}
                     @endif
@@ -62,10 +62,10 @@
         <div class="flex flex-wrap justify-between gap-2 items-start">
             <div>
                 <h2 class="text-lg font-black text-indigo-950">Prenotazione TEST (team)</h2>
-                <p class="text-xs text-gray-600">Form completo (extra, note). Serenella usa <a href="{{ route('admin.prova') }}" class="text-indigo-600 font-bold underline">Prova flusso</a>.</p>
+                <p class="text-xs text-gray-600">Form completo (extra, note). Il team usa <a href="{{ route('admin.prova') }}" class="text-indigo-600 font-bold underline">Prova flusso</a>.</p>
             </div>
             <p class="text-[10px] font-black uppercase {{ \App\Support\AppSettings::testBookingsAdminEnabled() ? 'text-green-700' : 'text-gray-400' }}">
-                Prova Serenella: {{ \App\Support\AppSettings::testBookingsAdminEnabled() ? 'ON' : 'OFF' }}
+                Prova team: {{ \App\Support\AppSettings::testBookingsAdminEnabled() ? 'ON' : 'OFF' }}
             </p>
         </div>
 
@@ -215,7 +215,7 @@
     </section>
 
     <section class="bg-white rounded-3xl shadow-sm border border-emerald-100 p-6 space-y-4">
-        <h2 class="text-lg font-black text-emerald-950">Notifiche Serenella ↔ Team</h2>
+        <h2 class="text-lg font-black text-emerald-950">Notifiche team</h2>
         <div class="text-sm text-gray-600 space-y-2">
             <p><strong>Telegram</strong> (consigliato): BotFather → token → <code>TELEGRAM_ENABLED=true</code>, chat ID in <code>TELEGRAM_NOTIFY_CHAT_IDS</code>. Ogni persona avvia il bot con <code>/start</code>, poi <code>php artisan jlune:telegram-test</code>.</p>
             <p><strong>Web Push</strong>: <code>php artisan jlune:vapid-keys</code> → .env → <code>WEBPUSH_ENABLED=true</code> → Plesk <code>composer install</code> → PWA + «Attiva notifiche» su Progetto.</p>

@@ -42,7 +42,7 @@
                     @if ($errors->any())
                         <p class="text-red-600 text-xs mb-2">{{ $errors->first() }}</p>
                     @endif
-                    <form method="POST" action="{{ route('serenella.access.request.general') }}" class="space-y-2">
+                    <form method="POST" action="{{ route('team.access.request.general') }}" class="space-y-2">
                         @csrf
                         <input type="email" name="email" value="{{ old('email') }}" placeholder="La tua email" required
                             class="w-full rounded-lg border-2 border-gray-300 text-sm p-3">

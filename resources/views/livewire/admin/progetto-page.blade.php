@@ -94,6 +94,41 @@
         </div>
     </section>
 
+    <section class="bg-white rounded-3xl shadow-sm border border-indigo-100 p-6 space-y-4">
+        <h2 class="text-lg font-black text-indigo-950">Dati locatore (contratti)</h2>
+        <p class="text-sm text-gray-600">
+            Questi dati compaiono come "Locatore" nei contratti di locazione generati per gli ospiti (PDF e pagina firma).
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-4">
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-400">Nome / ragione sociale</label>
+                <input type="text" wire:model="landlordName" placeholder="Nome Cognome o Struttura Srl"
+                    class="w-full rounded-xl border-gray-200 text-sm mt-1">
+            </div>
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-400">Indirizzo</label>
+                <input type="text" wire:model="landlordAddress" placeholder="Via Esempio 1 - Città (Italia)"
+                    class="w-full rounded-xl border-gray-200 text-sm mt-1">
+            </div>
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-400">Email</label>
+                <input type="email" wire:model="landlordEmail" placeholder="info@tuastruttura.it"
+                    class="w-full rounded-xl border-gray-200 text-sm mt-1">
+            </div>
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-400">Telefono</label>
+                <input type="text" wire:model="landlordPhone" placeholder="+39 …"
+                    class="w-full rounded-xl border-gray-200 text-sm mt-1">
+            </div>
+        </div>
+
+        <button type="button" wire:click="saveLandlordDetails"
+            class="px-5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase">
+            Salva dati locatore
+        </button>
+    </section>
+
     <section class="bg-white rounded-3xl shadow-sm border border-sky-100 p-6 space-y-4">
         <h2 class="text-lg font-black text-sky-950">Notifiche verso gli ospiti</h2>
         <p class="text-sm text-gray-600">
@@ -135,7 +170,7 @@
         <h2 class="text-lg font-black text-indigo-950 mb-2">Notifiche sul telefono</h2>
         <p class="text-sm text-gray-600 mb-3">
             Task e avvisi operativi (documenti, contratti…): installa come app (Aggiungi a schermata Home) e attiva qui.
-            Con <strong>app in costruzione</strong> attiva, le anteprime ospite arrivano solo a te/Serenella (Telegram + push), non al cliente.
+            Con <strong>app in costruzione</strong> attiva, le anteprime ospite arrivano solo al team (Telegram + push), non al cliente.
         </p>
         <x-pwa-push-register channel="admin" class="mb-0" />
     </section>

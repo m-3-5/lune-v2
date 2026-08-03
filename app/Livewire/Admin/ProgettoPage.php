@@ -35,6 +35,14 @@ class ProgettoPage extends Component
 
     public string $guestTestEmail = '';
 
+    public string $landlordName = '';
+
+    public string $landlordAddress = '';
+
+    public string $landlordEmail = '';
+
+    public string $landlordPhone = '';
+
     public function mount(): void
     {
         $this->adminNotificationsEnabled = AppSettings::adminNotificationsEnabled();
@@ -42,6 +50,11 @@ class ProgettoPage extends Component
         $this->adminWhatsAppNotificationsEnabled = AppSettings::adminWhatsAppNotificationsEnabled();
         $this->adminEmailsText = implode("\n", AppSettings::get('admin_emails', []));
         $this->adminPhonesText = implode("\n", AppSettings::get('admin_phones', []));
+
+        $this->landlordName = AppSettings::landlordName();
+        $this->landlordAddress = AppSettings::landlordAddress();
+        $this->landlordEmail = AppSettings::landlordEmail();
+        $this->landlordPhone = AppSettings::landlordPhone();
 
         $this->guestNotificationsEnabled = AppSettings::guestNotificationsEnabled();
         $this->guestEmailNotificationsEnabled = AppSettings::guestEmailNotificationsEnabled();
@@ -65,6 +78,18 @@ class ProgettoPage extends Component
         AppSettings::setGuestTelegramNotificationsEnabled($this->guestTelegramNotificationsEnabled);
 
         session()->flash('progetto_message', 'Impostazioni notifiche salvate.');
+    }
+
+    public function saveLandlordDetails(): void
+    {
+        AppSettings::setLandlordDetails(
+            $this->landlordName,
+            $this->landlordAddress,
+            $this->landlordEmail,
+            $this->landlordPhone,
+        );
+
+        session()->flash('progetto_message', 'Dati locatore salvati — usati nei contratti generati.');
     }
 
     public function sendTestNotification(AdminOutboundNotifier $notifier, AdminWhatsAppNotifier $whatsapp): void

@@ -180,7 +180,7 @@ class SviluppoPage extends Component
 
     public function generateAccessLink(): void
     {
-        AppSettings::refreshSerenellaAccessToken();
+        AppSettings::refreshTeamAccessToken();
         session()->flash('dev_message', 'Nuovo link di accesso generato qui sotto — aprilo per vedere il sito vero durante la manutenzione.');
     }
 
@@ -267,8 +267,8 @@ class SviluppoPage extends Component
             'testReservations' => config('jlune.test_bookings_enabled')
                 ? Reservation::query()->test()->with('apartment')->orderByDesc('created_at')->limit(15)->get()
                 : collect(),
-            'accessLink' => url('/accesso/'.AppSettings::serenellaAccessToken()),
-            'accessExpiresAt' => AppSettings::serenellaAccessExpiresAt(),
+            'accessLink' => url('/accesso/'.AppSettings::teamAccessToken()),
+            'accessExpiresAt' => AppSettings::teamAccessExpiresAt(),
             'maintenanceAccessPassword' => AppSettings::maintenanceAccessPassword(),
             'maintenanceLoginEmails' => AppSettings::adminEmails(),
         ]);

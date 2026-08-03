@@ -430,49 +430,78 @@ class AppSettings
     }
 
     /**
-     * Token per il link "accesso Serenella" (bypass pagina di manutenzione).
+     * Token per il link "accesso team" (bypass pagina di manutenzione).
      * Ha una scadenza — viene rinnovato automaticamente a ogni nuova prenotazione reale.
      */
-    public static function serenellaAccessToken(): string
+    public static function teamAccessToken(): string
     {
-        $token = static::get('serenella_access_token');
+        $token = static::get('team_access_token');
 
         if (is_string($token) && $token !== '') {
             return $token;
         }
 
-        return static::refreshSerenellaAccessToken();
+        return static::refreshTeamAccessToken();
     }
 
-    public static function serenellaAccessExpiresAt(): ?\Illuminate\Support\Carbon
+    public static function teamAccessExpiresAt(): ?\Illuminate\Support\Carbon
     {
-        $value = static::get('serenella_access_expires_at');
+        $value = static::get('team_access_expires_at');
 
         return is_string($value) && $value !== '' ? \Illuminate\Support\Carbon::parse($value) : null;
     }
 
-    public static function refreshSerenellaAccessToken(int $days = 30): string
+    public static function refreshTeamAccessToken(int $days = 30): string
     {
         $token = \Illuminate\Support\Str::random(40);
-        static::set('serenella_access_token', $token);
-        static::set('serenella_access_expires_at', now()->addDays($days)->toDateTimeString());
+        static::set('team_access_token', $token);
+        static::set('team_access_expires_at', now()->addDays($days)->toDateTimeString());
 
         return $token;
     }
 
-    public static function serenellaAccessValid(?string $token): bool
+    public static function teamAccessValid(?string $token): bool
     {
         if (! is_string($token) || $token === '') {
             return false;
         }
 
-        $expiresAt = static::serenellaAccessExpiresAt();
+        $expiresAt = static::teamAccessExpiresAt();
 
         if ($expiresAt !== null && $expiresAt->isPast()) {
             return false;
         }
 
-        return hash_equals(static::serenellaAccessToken(), $token);
+        return hash_equals(static::teamAccessToken(), $token);
+    }
+
+    /** Dati del locatore mostrati sui contratti generati — da configurare in Progetto → Contatti. */
+    public static function landlordName(): string
+    {
+        return (string) static::get('landlord_name', '');
+    }
+
+    public static function landlordAddress(): string
+    {
+        return (string) static::get('landlord_address', '');
+    }
+
+    public static function landlordEmail(): string
+    {
+        return (string) static::get('landlord_email', '');
+    }
+
+    public static function landlordPhone(): string
+    {
+        return (string) static::get('landlord_phone', '');
+    }
+
+    public static function setLandlordDetails(string $name, string $address, string $email, string $phone): void
+    {
+        static::set('landlord_name', trim($name));
+        static::set('landlord_address', trim($address));
+        static::set('landlord_email', trim($email));
+        static::set('landlord_phone', trim($phone));
     }
 
     /**
@@ -543,7 +572,7 @@ class AppSettings
     {
         return array_values(array_filter(array_map(function ($line) {
             $line = trim(is_string($line) ? $line : '');
-            // Rimuove commenti tipo "email@x.it — Serenella"
+            // Rimuove commenti tipo "email@x.it — Nome"
             if (str_contains($line, '—')) {
                 $line = trim(explode('—', $line, 2)[0]);
             }

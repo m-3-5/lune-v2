@@ -8,9 +8,11 @@
     <div class="space-y-4 my-4 not-prose text-sm">
         <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
             <p class="font-bold text-indigo-900 uppercase border-b pb-1 mb-2">Locatore</p>
-            <p class="font-semibold">Serenella Marongiu</p>
-            <p>Lungomare Palmasera 32 - Cala Gonone (Italia)</p>
-            <p class="text-xs text-gray-600 mt-1">info@appartamentijlune.com | +39 349 5377378</p>
+            <p class="font-semibold">{{ \App\Support\AppSettings::landlordName() ?: '[Nome gestore da configurare in Progetto → Contatti]' }}</p>
+            @if (\App\Support\AppSettings::landlordAddress())
+                <p>{{ \App\Support\AppSettings::landlordAddress() }}</p>
+            @endif
+            <p class="text-xs text-gray-600 mt-1">{{ \App\Support\AppSettings::landlordEmail() }} | {{ \App\Support\AppSettings::landlordPhone() }}</p>
         </div>
 
         <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-4">

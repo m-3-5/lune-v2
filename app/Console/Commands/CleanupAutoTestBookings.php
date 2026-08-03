@@ -11,7 +11,7 @@ class CleanupAutoTestBookings extends Command
 {
     protected $signature = 'jlune:cleanup-auto-test-bookings {--dry-run : Mostra cosa verrebbe cancellato senza eliminare nulla}';
 
-    protected $description = 'Cancella le copie PROVA create in automatico per Serenella sulle prenotazioni reali (durante la manutenzione), dopo 5 giorni';
+    protected $description = 'Cancella le copie PROVA create in automatico sulle prenotazioni reali (durante la manutenzione), dopo 5 giorni';
 
     public function handle(TestReservationService $tests): int
     {

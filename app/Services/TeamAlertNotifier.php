@@ -69,7 +69,7 @@ class TeamAlertNotifier
      * Solo per la prenotazione appena sincronizzata da Checkfront (una volta a prenotazione
      * reale). A sito in manutenzione, aggiunge anche: una copia di PROVA collegata (stesso
      * appartamento/date, dati finti, cancellata da sola dopo 5 giorni — vedi
-     * jlune:cleanup-auto-test-bookings) e il link di accesso di Serenella (rinnovato ogni volta).
+     * jlune:cleanup-auto-test-bookings) e il link di accesso team (rinnovato ogni volta).
      * A manutenzione disattivata questi extra spariscono da soli: nessuna modifica da fare qui.
      */
     public function forNewBooking(Reservation $reservation, string $title, string $body): void
@@ -97,10 +97,10 @@ class TeamAlertNotifier
                 );
             }
 
-            AppSettings::refreshSerenellaAccessToken();
+            AppSettings::refreshTeamAccessToken();
             $bodyWithLinks = NotificationUrls::appendLinkLine(
                 $bodyWithLinks,
-                url('/accesso/'.AppSettings::serenellaAccessToken()),
+                url('/accesso/'.AppSettings::teamAccessToken()),
                 'Tuo accesso app (si rinnova a ogni prenotazione)'
             );
         }
@@ -120,7 +120,7 @@ class TeamAlertNotifier
             $copy = $this->testReservations->create([
                 'apartment_id' => $reservation->apartment_id,
                 'guest_name' => 'Prova',
-                'guest_cognome' => 'Serenella',
+                'guest_cognome' => 'Test',
                 'check_in' => $reservation->check_in->format('Y-m-d'),
                 'check_out' => $reservation->check_out->format('Y-m-d'),
                 'adults' => $reservation->adults ?: 1,

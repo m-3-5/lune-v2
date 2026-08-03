@@ -48,7 +48,7 @@ In alto a destra c’è la **campanella**: promemoria su pagamento, documenti, c
 2. Preme **Collega Telegram** → si apre il bot `@jlune_notifiche_bot`.
 3. Preme **Avvia** (Start) in Telegram.
 4. Il bot collega Telegram **a quella prenotazione** — compare ✅ «Telegram collegato».
-5. I promemoria arrivano su Telegram **solo se** Serenella ha acceso «Telegram ospiti» in Progetto.
+5. I promemoria arrivano su Telegram **solo se** il team ha acceso «Telegram ospiti» in Progetto.
 
 **Nota:** ogni prenotazione va collegata una volta; se cambia telefono, ripete «Collega Telegram».
 
@@ -89,7 +89,7 @@ MD,
             [
                 'id' => 'notifiche-admin',
                 'icon' => '🔔',
-                'title' => 'Notifiche team (Serenella / Max)',
+                'title' => 'Notifiche team',
                 'badge' => 'Hub per canale',
                 'body' => <<<'MD'
 **Admin → Notifiche** — panoramica con card per ogni canale:
@@ -103,8 +103,7 @@ MD,
 
 Toggle on/off con **interruttori** in Progetto o nella pagina WhatsApp. **Di default tutto spento** finché non testate.
 
-**Max:** Telegram `@jlune_notifiche_bot` + PWA admin.  
-**Serenella:** PWA admin + «Attiva notifiche» in Progetto.
+**Team:** Telegram `@jlune_notifiche_bot` + PWA admin + «Attiva notifiche» in Progetto.
 MD,
             ],
             [
@@ -142,7 +141,7 @@ MD,
                 'body' => <<<'MD'
 Estrae dati da CI e tessera sanitaria. **Non era nel preventivo base** — offerto dal team in avvio.
 
-**Prossimo passo:** progetto Google Cloud di Serenella con pagamento proprio. Istruzioni PDF in **Progetto → Scarica istruzioni Document AI**.
+**Prossimo passo:** progetto Google Cloud del gestore con pagamento proprio. Istruzioni PDF in **Progetto → Scarica istruzioni Document AI**.
 
 Export Polizia / Alloggiati: formato dedicato **da definire** (vedi ticket in Task).
 MD,

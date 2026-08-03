@@ -123,7 +123,7 @@
             @if(!$isLocked)
                 <p class="text-3xl mb-2">🎉</p>
                 <h3 class="text-base font-black text-green-900 mb-1">Tutto pronto</h3>
-                <p class="text-xs text-gray-500 mb-5">Invia i documenti a Serenella per la verifica.</p>
+                <p class="text-xs text-gray-500 mb-5">Invia i documenti al gestore per la verifica.</p>
             @else
                 <p class="text-3xl mb-2">📋</p>
                 <h3 class="text-base font-black text-gray-700 mb-1">Manca qualche documento</h3>
@@ -134,7 +134,7 @@
                 wire:click="salvaEProcedi"
                 @if($isLocked) disabled @endif
                 class="w-full py-4 rounded-2xl font-black text-sm uppercase tracking-wide transition-all {{ !$isLocked ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md' : 'bg-gray-200 text-gray-400 cursor-not-allowed' }}">
-                {{ $isLocked ? 'In attesa dei documenti…' : 'Invia documenti a Serenella' }}
+                {{ $isLocked ? 'In attesa dei documenti…' : 'Invia documenti al gestore' }}
             </button>
         </div>
     </div>

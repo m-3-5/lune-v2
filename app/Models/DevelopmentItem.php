@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DevelopmentItem extends Model
 {
-    public const TYPE_SERENELLA_REQUEST = 'serenella_request';
+    public const TYPE_CLIENT_REQUEST = 'client_request';
 
     public const TYPE_PRODUCTION_TASK = 'production_task';
 
-    public const TYPE_QUESTION_FOR_SERENELLA = 'question_for_serenella';
+    public const TYPE_QUESTION_FOR_CLIENT = 'question_for_client';
 
     public const STATUS_OPEN = 'open';
 
@@ -44,9 +44,9 @@ class DevelopmentItem extends Model
     public function typeLabel(): string
     {
         return match ($this->type) {
-            self::TYPE_SERENELLA_REQUEST => 'Richiesta Serenella',
+            self::TYPE_CLIENT_REQUEST => 'Richiesta cliente',
             self::TYPE_PRODUCTION_TASK => 'Produzione',
-            self::TYPE_QUESTION_FOR_SERENELLA => 'Domanda per Serenella',
+            self::TYPE_QUESTION_FOR_CLIENT => 'Domanda per il cliente',
             default => $this->type,
         };
     }

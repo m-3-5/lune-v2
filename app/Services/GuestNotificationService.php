@@ -123,7 +123,7 @@ class GuestNotificationService
                 $reservation,
                 self::TYPE_DOCUMENTS_UNDER_REVIEW,
                 'Documenti in verifica',
-                'Abbiamo ricevuto i tuoi file. Serenella li controllerà a breve.',
+                'Abbiamo ricevuto i tuoi file. Il gestore li controllerà a breve.',
                 $homeUrl,
                 dedupeHours: 72,
             );
@@ -208,7 +208,7 @@ class GuestNotificationService
             $reservation,
             self::TYPE_DOCUMENTS_UNDER_REVIEW,
             'Documenti in verifica',
-            'Serenella sta controllando i file caricati.',
+            'Il gestore sta controllando i file caricati.',
             route('checkin.show', ['token' => $reservation->token]),
             dedupeHours: 0,
         );

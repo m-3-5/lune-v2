@@ -129,7 +129,7 @@
             <thead>
                 <tr class="border-b border-gray-200 text-xs uppercase text-gray-500">
                     <th class="py-2 pr-3 font-black">Evento</th>
-                    <th class="py-2 pr-3 font-black">Admin (Serenella)</th>
+                    <th class="py-2 pr-3 font-black">Admin (team)</th>
                     <th class="py-2 pr-3 font-black">Ospite</th>
                     <th class="py-2 font-black">Quando</th>
                 </tr>
@@ -191,7 +191,7 @@
 
         <div class="grid sm:grid-cols-2 gap-3 text-sm mb-4">
             <div class="rounded-xl border p-3 {{ $telegramAdminReady ? 'bg-emerald-50 border-emerald-200' : 'bg-gray-50 border-gray-200' }}">
-                <p class="font-bold">Admin (Serenella / team)</p>
+                <p class="font-bold">Admin (team)</p>
                 <p class="text-xs text-gray-600 mt-1">
                     @if ($telegramAdminReady)
                         ✅ Bot attivo — chat ID in <code>TELEGRAM_NOTIFY_CHAT_IDS</code>
@@ -243,7 +243,7 @@
         <h2 class="text-lg font-black text-indigo-950 mb-2">In arrivo (prossime fasi)</h2>
         <ul class="text-sm text-gray-600 space-y-2 list-disc list-inside">
             <li><strong>App installabile</strong> — icone separate admin (scura) e ospite (chiara) già configurate; installa da browser «Aggiungi a schermata Home».</li>
-            <li><strong>Accesso admin</strong> con utente e password per Serenella e il team.</li>
+            <li><strong>Accesso admin</strong> con utente e password per il team.</li>
             <li><strong>Profilo ospite</strong> opzionale dopo il check-out, per restare in contatto e ricevere sconti per prenotazioni dirette.</li>
         </ul>
         <p class="text-xs text-gray-400 mt-3">Queste funzioni non sono ancora attive; le implementeremo in un passo successivo.</p>

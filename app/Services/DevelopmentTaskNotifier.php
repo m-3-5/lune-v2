@@ -112,7 +112,7 @@ class DevelopmentTaskNotifier
     protected function authorLabel(string $author): string
     {
         return match ($author) {
-            'serenella' => 'Serenella',
+            'client' => 'Cliente',
             'cliente' => 'Cliente (ticket assistenza)',
             'team' => 'Team',
             default => 'Team',

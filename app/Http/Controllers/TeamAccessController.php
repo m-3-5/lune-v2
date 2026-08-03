@@ -11,24 +11,24 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 use Illuminate\View\View;
 
-class SerenellaAccessController extends Controller
+class TeamAccessController extends Controller
 {
     /**
      * Link personale ricevuto via email a ogni nuova prenotazione. Non dà accesso
      * subito: chiede di confermare l'email registrata, per legare l'accesso permanente
-     * a lei e non a chiunque intercetti il link.
+     * a chi la possiede e non a chiunque intercetti il link.
      */
     public function confirm(Request $request, string $token): View
     {
-        abort_unless(AppSettings::serenellaAccessValid($token), 404);
+        abort_unless(AppSettings::teamAccessValid($token), 404);
 
-        return view('serenella-access-request', ['token' => $token]);
+        return view('team-access-request', ['token' => $token]);
     }
 
     /** Invia il link di verifica vero all'email inserita, se è tra i contatti admin registrati. */
     public function requestAccess(Request $request, string $token): RedirectResponse
     {
-        abort_unless(AppSettings::serenellaAccessValid($token), 404);
+        abort_unless(AppSettings::teamAccessValid($token), 404);
 
         return $this->sendVerificationLink($request);
     }
@@ -36,7 +36,7 @@ class SerenellaAccessController extends Controller
     /**
      * Stesso meccanismo di requestAccess(), ma raggiungibile direttamente dalla pagina
      * di manutenzione (senza un link personale di prenotazione già in mano): basta che
-     * l'email inserita sia una di quelle registrate (Max o Serenella).
+     * l'email inserita sia una di quelle registrate come contatto admin.
      */
     public function requestGeneralAccess(Request $request): RedirectResponse
     {
@@ -56,10 +56,10 @@ class SerenellaAccessController extends Controller
             return back()->withErrors(['email' => 'Email non configurata sul server al momento — riprova più tardi.']);
         }
 
-        $verifyUrl = URL::temporarySignedRoute('serenella.access.verify', now()->addMinutes(30), ['email' => $email]);
+        $verifyUrl = URL::temporarySignedRoute('team.access.verify', now()->addMinutes(30), ['email' => $email]);
 
         Mail::to($email)->send(new AdminTeamAlertMail(
-            'Conferma il tuo accesso Jlune',
+            'Conferma il tuo accesso',
             "Ciao,\n\nclicca qui per confermare e attivare il tuo accesso permanente all'app (valido 30 minuti):\n{$verifyUrl}\n\nSe non hai richiesto tu l'accesso, ignora questa email.",
             $verifyUrl
         ));
@@ -74,18 +74,18 @@ class SerenellaAccessController extends Controller
 
         abort_unless(in_array($email, AppSettings::adminEmails(), true), 404);
 
-        $minutes = max(1, now()->diffInMinutes(AppSettings::serenellaAccessExpiresAt() ?? now()->addDays(30)));
+        $minutes = max(1, now()->diffInMinutes(AppSettings::teamAccessExpiresAt() ?? now()->addDays(30)));
 
-        Cookie::queue(Cookie::make('jlune_bypass', AppSettings::serenellaAccessToken(), $minutes));
+        Cookie::queue(Cookie::make('jlune_bypass', AppSettings::teamAccessToken(), $minutes));
         $request->session()->put('jlune_entered', true);
 
         return redirect('/')->with('access_confirmed', true);
     }
 
-    /** Lei clicca "Visita il sito" sulla pagina di manutenzione: da qui in poi naviga il sito vero. */
+    /** Clic su "Visita il sito" nella pagina di manutenzione: da qui in poi naviga il sito vero. */
     public function enter(Request $request): RedirectResponse
     {
-        abort_unless(AppSettings::serenellaAccessValid($request->cookie('jlune_bypass')), 404);
+        abort_unless(AppSettings::teamAccessValid($request->cookie('jlune_bypass')), 404);
 
         $request->session()->put('jlune_entered', true);
 

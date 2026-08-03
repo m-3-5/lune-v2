@@ -29,7 +29,7 @@ class SupportTicketController extends Controller
         $body = "Da: {$contact}\n\n{$data['message']}";
 
         $item = DevelopmentItem::create([
-            'type' => DevelopmentItem::TYPE_SERENELLA_REQUEST,
+            'type' => DevelopmentItem::TYPE_CLIENT_REQUEST,
             'status' => DevelopmentItem::STATUS_OPEN,
             'title' => 'Ticket assistenza: '.$data['subject'],
             'body' => $body,

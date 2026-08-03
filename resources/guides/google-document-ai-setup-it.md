@@ -1,6 +1,6 @@
 # Istruzioni — Google Document AI per Jlune App
 
-**Per:** Serenella / titolare progetto  
+**Per:** titolare struttura  
 **Obiettivo:** far leggere i documenti (CI, tessera sanitaria) dall’app Jlune usando **il vostro** account Google Cloud, con fatturazione sul vostro metodo di pagamento.
 
 ---
@@ -12,7 +12,7 @@ L’app usa **Document AI (OCR)** per estrarre da foto:
 - codice fiscale dalla tessera sanitaria.
 
 Oggi il servizio è collegato a un account Google del team di sviluppo (**fatturazione temporanea**).  
-Per andare in produzione stabile conviene spostare tutto su **un account Google di Serenella** (o società).
+Per andare in produzione stabile conviene spostare tutto su **un account Google del gestore** (o società).
 
 ---
 
@@ -35,8 +35,8 @@ Document AI OCR si paga a pagina elaborata; per pochi check-in al mese l’impor
 
 ### 3.2 Crea un progetto (se non ne avete già uno)
 1. In alto: seleziona progetto → **Nuovo progetto**.
-2. Nome esempio: `jlune-app` o `serenella-app`.
-3. Annotate il **Project ID** (es. `serenella-app`) — serve per il file `.env` dell’app.
+2. Nome esempio: `jlune-app` o `tuastruttura-app`.
+3. Annotate il **Project ID** (es. `tuastruttura-app`) — serve per il file `.env` dell’app.
 
 ### 3.3 Abilita Document AI
 1. Menu → **API e servizi** → **Libreria**.
@@ -68,7 +68,7 @@ Inviate al tecnico che gestisce il server (Plesk) questi dati:
 
 | Dato | Esempio |
 |------|---------|
-| Project ID | `serenella-app` |
+| Project ID | `tuastruttura-app` |
 | Regione processor | `us` |
 | ID processore | `2bf88abe4f2f2f04` |
 | File JSON | `google-credentials.json` (allegato sicuro) |
@@ -78,7 +78,7 @@ Il tecnico caricherà il file sul server in:
 e imposterà nel file `.env` di produzione:
 
 ```env
-GOOGLE_CLOUD_PROJECT_ID=serenella-app
+GOOGLE_CLOUD_PROJECT_ID=tuastruttura-app
 GOOGLE_DOCUMENT_AI_LOCATION=us
 GOOGLE_DOCUMENT_AI_PROCESSOR_ID=il_vostro_id_qui
 GOOGLE_APPLICATION_CREDENTIALS=/percorso/assoluto/sul/server/storage/app/google-credentials.json
@@ -109,13 +109,13 @@ No. Se lo perdete, create una **nuova chiave** nell’account di servizio e elim
 Sì in fase iniziale, ma la fattura Google resta a suo carico. Per chiarezza conviene il **vostro** account.
 
 **Serve anche per la Polizia di Stato (Alloggiati)?**  
-Il formato ufficiale per la questura è **diverso** (XML/portale Alloggiati Web). Lo valuteremo con Serenella; potrebbe essere una voce extra in futuro.
+Il formato ufficiale per la questura è **diverso** (XML/portale Alloggiati Web). Lo valuteremo insieme; potrebbe essere una voce extra in futuro.
 
 ---
 
 ## 7. Contatti
 
 Per problemi tecnici: team sviluppo Jlune.  
-Per decisioni su costi e formato Polizia: Serenella + team.
+Per decisioni su costi e formato Polizia: gestore + team.
 
 _Ultimo aggiornamento: maggio 2026_

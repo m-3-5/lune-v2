@@ -6,7 +6,7 @@
     @if (! $reservation->extracted_guests)
         <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center">
             <p class="text-amber-900 font-bold">Contratto in preparazione</p>
-            <p class="text-sm text-amber-800 mt-2">Serenella sta completando i dati dalla tua prenotazione. Riceverai una notifica quando potrai firmare.</p>
+            <p class="text-sm text-amber-800 mt-2">Il gestore sta completando i dati dalla tua prenotazione. Riceverai una notifica quando potrai firmare.</p>
         </div>
     @else
         @if (count($missingTax) > 0)
@@ -56,7 +56,7 @@
 
         @if (! $reservation->contract_ready_for_guest)
             <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center">
-                <p class="text-amber-900 font-bold">In attesa di invio da Serenella</p>
+                <p class="text-amber-900 font-bold">In attesa di invio dal gestore</p>
                 <p class="text-sm text-amber-800 mt-2">
                     Lingua prevista:
                     <strong>{{ $reservation->contract_locale === 'en' ? 'English' : 'Italiano' }}</strong>.

@@ -13,7 +13,7 @@ class PwaManifestController extends Controller
             'id' => '/admin',
             'name' => 'Jlune Gestione',
             'short_name' => 'Jlune Admin',
-            'description' => 'Pannello gestione Appartamenti Jlune per Serenella e team',
+            'description' => 'Pannello gestione Appartamenti Jlune per il team',
             'start_url' => '/admin?source=pwa',
             'scope' => '/admin',
             'display' => 'standalone',
