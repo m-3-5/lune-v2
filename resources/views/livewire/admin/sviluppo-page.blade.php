@@ -12,6 +12,7 @@
         <div class="bg-green-100 text-green-800 p-4 rounded-2xl text-sm font-bold">{{ session('dev_message') }}</div>
     @endif
 
+    <x-admin.desktop-only title="Sviluppo — apri da desktop">
     <section class="bg-white rounded-3xl shadow-sm border border-amber-100 p-6">
         <h2 class="text-lg font-black mb-2">App in costruzione</h2>
         <p class="text-xs text-gray-500 mb-3">Blocca solo le notifiche reali agli ospiti (email/WhatsApp/Telegram/push). Il sito resta visitabile e raggiungibile da chiunque.</p>
@@ -197,4 +198,5 @@
         <h2 class="text-lg font-black mb-2">Task (gestione team)</h2>
         <livewire:admin.development-tasks-board :developer-mode="true" />
     </section>
+    </x-admin.desktop-only>
 </div>

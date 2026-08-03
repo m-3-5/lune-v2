@@ -7,6 +7,7 @@
         </p>
     </div>
 
+    <x-admin.desktop-only title="WhatsApp — apri da desktop">
     <x-admin.channel-flash />
 
     {{-- Interruttori principali --}}
@@ -185,4 +186,5 @@
             <p class="text-sm text-amber-700">Accendi «Canale Twilio attivo» per inviare test reali.</p>
         @endif
     </section>
+    </x-admin.desktop-only>
 </div>

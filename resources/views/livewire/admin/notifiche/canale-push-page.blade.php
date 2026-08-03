@@ -7,6 +7,7 @@
         </p>
     </div>
 
+    <x-admin.desktop-only title="Web Push — apri da desktop">
     <section class="bg-sky-50 rounded-3xl border border-sky-100 p-6 space-y-3">
         <h2 class="text-lg font-black text-sky-950">A cosa serve</h2>
         <p class="text-sm text-sky-900/90">
@@ -64,4 +65,5 @@
             L'ospite deve installare la PWA e premere «Attiva notifiche».
         </p>
     </section>
+    </x-admin.desktop-only>
 </div>

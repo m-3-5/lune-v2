@@ -70,6 +70,7 @@ class NotifichePage extends Component
             'pilotCount' => $pilotCount,
             'adminEmails' => AppSettings::adminEmails(),
             'adminPhones' => AppSettings::adminPhones(),
+            'isSuperAdmin' => auth()->user()?->isSuperAdmin() ?? false,
             'canToggleConstruction' => JluneDeveloperAccess::isGranted(),
             'notificationMatrix' => self::notificationMatrix(),
             'liveChecklist' => self::liveChecklist(

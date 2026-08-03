@@ -11,6 +11,7 @@
         </p>
     </div>
 
+    <x-admin.desktop-only title="Telegram — apri da desktop">
     <section class="bg-amber-50 rounded-3xl border border-amber-100 p-6 space-y-3">
         <h2 class="text-lg font-black text-amber-950">Crea il tuo bot (una tantum, gratis)</h2>
         <ol class="text-sm text-gray-700 space-y-2 list-decimal list-inside">
@@ -85,4 +86,5 @@
             <a href="{{ route('admin.progetto') }}#notifiche" class="text-indigo-600 underline font-bold">Progetto → Notifiche</a>.
         </p>
     </section>
+    </x-admin.desktop-only>
 </div>

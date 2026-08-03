@@ -15,18 +15,32 @@
             ['route' => 'admin.notifiche.telegram', 'icon' => '✈️', 'title' => 'Telegram', 'ready' => $telegramBotReady, 'hint' => 'Bot @'.$telegramBotUsername],
             ['route' => 'admin.notifiche.push', 'icon' => '📲', 'title' => 'Web Push', 'ready' => config('webpush.enabled') && filled(config('webpush.vapid.public_key')), 'hint' => 'PWA installata'],
         ] as $ch)
-            <a href="{{ route($ch['route']) }}"
-               class="block bg-white rounded-2xl border p-5 shadow-sm hover:border-indigo-300 hover:shadow-md transition {{ $ch['ready'] ? 'border-emerald-200' : 'border-gray-200' }}">
-                <div class="flex items-center gap-3">
-                    <span class="text-2xl">{{ $ch['icon'] }}</span>
-                    <div>
-                        <p class="font-black text-indigo-950">{{ $ch['title'] }}</p>
-                        <p class="text-xs text-gray-500 mt-0.5">{{ $ch['hint'] }}</p>
+            @if ($isSuperAdmin)
+                <a href="{{ route($ch['route']) }}"
+                   class="block bg-white rounded-2xl border p-5 shadow-sm hover:border-indigo-300 hover:shadow-md transition {{ $ch['ready'] ? 'border-emerald-200' : 'border-gray-200' }}">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">{{ $ch['icon'] }}</span>
+                        <div>
+                            <p class="font-black text-indigo-950">{{ $ch['title'] }}</p>
+                            <p class="text-xs text-gray-500 mt-0.5">{{ $ch['hint'] }}</p>
+                        </div>
+                        <span class="ml-auto text-lg">{{ $ch['ready'] ? '✅' : '⬜' }}</span>
                     </div>
-                    <span class="ml-auto text-lg">{{ $ch['ready'] ? '✅' : '⬜' }}</span>
+                    <p class="text-[10px] font-black uppercase text-indigo-600 mt-3">Configura →</p>
+                </a>
+            @else
+                <div class="block bg-gray-50 rounded-2xl border border-gray-200 p-5 opacity-60">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">{{ $ch['icon'] }}</span>
+                        <div>
+                            <p class="font-black text-gray-500">{{ $ch['title'] }}</p>
+                            <p class="text-xs text-gray-400 mt-0.5">{{ $ch['hint'] }}</p>
+                        </div>
+                        <span class="ml-auto text-lg">{{ $ch['ready'] ? '✅' : '⬜' }}</span>
+                    </div>
+                    <p class="text-[10px] font-black uppercase text-gray-400 mt-3">🔒 Riservato al super admin</p>
                 </div>
-                <p class="text-[10px] font-black uppercase text-indigo-600 mt-3">Configura →</p>
-            </a>
+            @endif
         @endforeach
     </section>
 
@@ -72,10 +86,14 @@
                 <div>
                     <p class="font-bold text-indigo-950">Configura i canali di invio</p>
                     <p class="text-indigo-900/80 mt-0.5">Email e WhatsApp: apri la pagina del canale, inserisci credenziali e fai un test.</p>
-                    <div class="flex flex-wrap gap-3 mt-2">
-                        <a href="{{ route('admin.notifiche.email') }}" class="text-xs font-black uppercase text-indigo-700 underline">→ Email</a>
-                        <a href="{{ route('admin.notifiche.whatsapp') }}" class="text-xs font-black uppercase text-indigo-700 underline">→ WhatsApp</a>
-                    </div>
+                    @if ($isSuperAdmin)
+                        <div class="flex flex-wrap gap-3 mt-2">
+                            <a href="{{ route('admin.notifiche.email') }}" class="text-xs font-black uppercase text-indigo-700 underline">→ Email</a>
+                            <a href="{{ route('admin.notifiche.whatsapp') }}" class="text-xs font-black uppercase text-indigo-700 underline">→ WhatsApp</a>
+                        </div>
+                    @else
+                        <p class="text-xs text-indigo-700/60 mt-2">🔒 Riservato al super admin</p>
+                    @endif
                 </div>
             </li>
             <li class="flex gap-3">
@@ -94,10 +112,10 @@
                         Usa «Invia test admin» e una prenotazione TEST con «Prova notifiche».
                         Quando sei pronta, il team disattiva <strong>Work in progress</strong>.
                     </p>
-                    @if ($canToggleConstruction)
+                    @if ($isSuperAdmin)
                         <a href="{{ route('admin.sviluppo') }}" class="inline-block mt-2 text-xs font-black uppercase text-indigo-700 underline">→ Sviluppo (work in progress)</a>
                     @else
-                        <p class="text-xs text-indigo-700/70 mt-2">Solo il team sviluppo può spegnere «Work in progress».</p>
+                        <p class="text-xs text-indigo-700/70 mt-2">Solo il super admin può spegnere «Work in progress».</p>
                     @endif
                 </div>
             </li>
@@ -185,8 +203,13 @@
     <section class="bg-white rounded-3xl shadow-sm border border-violet-100 p-6">
         <h2 class="text-lg font-black text-violet-950 mb-2">Telegram</h2>
         <p class="text-sm text-gray-600 mb-4">
-            Un solo bot (<strong>@{{ $telegramBotUsername }}</strong>). Dettagli, costi e setup in
-            <a href="{{ route('admin.notifiche.telegram') }}" class="text-violet-700 underline font-bold">pagina Telegram</a>.
+            Un solo bot (<strong>@{{ $telegramBotUsername }}</strong>).
+            @if ($isSuperAdmin)
+                Dettagli, costi e setup in
+                <a href="{{ route('admin.notifiche.telegram') }}" class="text-violet-700 underline font-bold">pagina Telegram</a>.
+            @else
+                Dettagli e setup: 🔒 riservato al super admin.
+            @endif
         </p>
 
         <div class="grid sm:grid-cols-2 gap-3 text-sm mb-4">
@@ -251,14 +274,16 @@
 
     {{-- Link rapidi --}}
     <section class="flex flex-wrap gap-3">
-        <a href="{{ route('admin.notifiche.whatsapp') }}"
-           class="inline-flex items-center gap-2 px-5 py-3 bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-wide hover:bg-emerald-700">
-            💬 WhatsApp
-        </a>
-        <a href="{{ route('admin.notifiche.email') }}"
-           class="inline-flex items-center gap-2 px-5 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-wide hover:bg-indigo-700">
-            📧 Email
-        </a>
+        @if ($isSuperAdmin)
+            <a href="{{ route('admin.notifiche.whatsapp') }}"
+               class="inline-flex items-center gap-2 px-5 py-3 bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-wide hover:bg-emerald-700">
+                💬 WhatsApp
+            </a>
+            <a href="{{ route('admin.notifiche.email') }}"
+               class="inline-flex items-center gap-2 px-5 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-wide hover:bg-indigo-700">
+                📧 Email
+            </a>
+        @endif
         <a href="{{ route('admin.progetto') }}"
            class="inline-flex items-center gap-2 px-5 py-3 bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-wide hover:bg-emerald-700">
             📋 Toggle e test

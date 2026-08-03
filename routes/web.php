@@ -126,16 +126,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/progetto', ProgettoPage::class)->name('admin.progetto');
         Route::redirect('/canali', '/admin/notifiche')->name('admin.canali');
         Route::get('/notifiche', NotifichePage::class)->name('admin.notifiche');
-        Route::get('/notifiche/email', CanaleEmailPage::class)->name('admin.notifiche.email');
-        Route::get('/notifiche/whatsapp', CanaleWhatsAppPage::class)->name('admin.notifiche.whatsapp');
-        Route::get('/notifiche/telegram', CanaleTelegramPage::class)->name('admin.notifiche.telegram');
-        Route::get('/notifiche/push', CanalePushPage::class)->name('admin.notifiche.push');
         Route::get('/prova', ProvaPage::class)->name('admin.prova');
-        Route::get('/sviluppo', SviluppoPage::class)->name('admin.sviluppo');
         Route::redirect('/configura', '/admin/notifiche');
 
+        // Sezioni tecniche (credenziali, provider, sviluppo): solo super admin.
+        // Il blocco desktop-only è invece grafico (vedi x-admin.desktop-only nelle viste).
         Route::middleware('super_admin')->group(function () {
             Route::get('/utenti', UsersPage::class)->name('admin.utenti');
+            Route::get('/notifiche/email', CanaleEmailPage::class)->name('admin.notifiche.email');
+            Route::get('/notifiche/whatsapp', CanaleWhatsAppPage::class)->name('admin.notifiche.whatsapp');
+            Route::get('/notifiche/telegram', CanaleTelegramPage::class)->name('admin.notifiche.telegram');
+            Route::get('/notifiche/push', CanalePushPage::class)->name('admin.notifiche.push');
+            Route::get('/sviluppo', SviluppoPage::class)->name('admin.sviluppo');
         });
     });
 

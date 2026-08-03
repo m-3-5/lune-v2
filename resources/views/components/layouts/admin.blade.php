@@ -67,9 +67,11 @@
                         <a href="{{ route('admin.utenti') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">👥</span> Utenti</a>
                     @endif
                     <button type="button" onclick="window.jlunePwaInstall && window.jlunePwaInstall.open('admin'); sidebarOpen = false" class="flex items-center gap-3 w-full text-left px-3 py-2.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-colors text-teal-300"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">📲</span> Scarica l'app</button>
-                    <a href="{{ route('admin.sviluppo') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl text-xs font-bold hover:bg-slate-800 transition-colors {{ \App\Support\JluneDeveloperAccess::isGranted() ? 'text-slate-300' : 'text-slate-500' }}">
-                        <span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">🔧</span> Sviluppo (team)@if (! \App\Support\JluneDeveloperAccess::isGranted()) 🔒@endif
-                    </a>
+                    @if (auth()->user()?->isSuperAdmin())
+                        <a href="{{ route('admin.sviluppo') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl text-xs font-bold hover:bg-slate-800 transition-colors {{ \App\Support\JluneDeveloperAccess::isGranted() ? 'text-slate-300' : 'text-slate-500' }}">
+                            <span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">🔧</span> Sviluppo{{ ! \App\Support\JluneDeveloperAccess::isGranted() ? ' 🔒' : '' }}
+                        </a>
+                    @endif
                     <form method="POST" action="{{ route('admin.logout') }}">
                         @csrf
                         <button type="submit" class="flex items-center gap-3 w-full text-left px-3 py-2.5 rounded-2xl text-xs font-bold hover:bg-slate-800 transition-colors text-slate-500">
@@ -108,11 +110,13 @@
                                     <span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">📲</span> Scarica l'app
                                 </button>
                             </li>
-                            <li>
-                                <a href="{{ route('admin.sviluppo') }}" class="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-xs font-bold {{ \App\Support\JluneDeveloperAccess::isGranted() ? 'text-slate-300' : 'text-slate-500' }} hover:bg-slate-800 transition-colors">
-                                    <span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">🔧</span> Sviluppo (team)@if (! \App\Support\JluneDeveloperAccess::isGranted()) 🔒@endif
-                                </a>
-                            </li>
+                            @if (auth()->user()?->isSuperAdmin())
+                                <li>
+                                    <a href="{{ route('admin.sviluppo') }}" class="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-xs font-bold {{ \App\Support\JluneDeveloperAccess::isGranted() ? 'text-slate-300' : 'text-slate-500' }} hover:bg-slate-800 transition-colors">
+                                        <span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">🔧</span> Sviluppo{{ ! \App\Support\JluneDeveloperAccess::isGranted() ? ' 🔒' : '' }}
+                                    </a>
+                                </li>
+                            @endif
                             <li>
                                 <form method="POST" action="{{ route('admin.logout') }}">
                                     @csrf

@@ -8,6 +8,7 @@
         </p>
     </div>
 
+    <x-admin.desktop-only title="Email (SMTP) — apri da desktop">
     <x-admin.channel-flash />
 
     {{-- Spiegazione e costi --}}
@@ -103,4 +104,5 @@
         <p class="font-bold mb-1">Prossimo passo</p>
         <p>Attiva «Email» in <a href="{{ route('admin.progetto') }}#notifiche" class="text-indigo-600 underline font-bold">Progetto → Notifiche</a> (sezione admin e/o ospiti).</p>
     </section>
+    </x-admin.desktop-only>
 </div>
