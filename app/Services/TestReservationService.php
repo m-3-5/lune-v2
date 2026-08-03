@@ -11,22 +11,25 @@ class TestReservationService
     /**
      * @param  array<int, string>  $extraSkus
      */
-    public function create(array $input, array $extraSkus = []): Reservation
+    public function create(array $input, array $extraSkus = [], bool $isTest = true): Reservation
     {
         $apartment = Apartment::findOrFail($input['apartment_id']);
         $checkIn = $input['check_in'].' 16:00:00';
         $checkOut = $input['check_out'].' 10:00:00';
         $suffix = strtoupper(Str::random(6));
-        $bookingId = 'TEST-'.now()->format('ymdHis').'-'.$suffix;
+        $prefix = $isTest ? 'TEST' : 'MAN';
+        $bookingId = "{$prefix}-".now()->format('ymdHis')."-{$suffix}";
 
         $lineItems = $this->buildLineItems($apartment, $extraSkus);
         $notes = trim((string) ($input['test_notes'] ?? ''));
+        $isPaid = (bool) ($input['is_paid'] ?? true);
+        $price = (float) ($input['total_price'] ?? 100);
 
         return Reservation::create([
             'apartment_id' => $apartment->id,
             'checkfront_booking_id' => $bookingId,
             'checkfront_item_id' => $apartment->checkfront_item_id,
-            'booking_code' => 'TEST-'.$suffix,
+            'booking_code' => "{$prefix}-{$suffix}",
             'status' => 'CONFIRMED',
             'checkfront_line_items' => $lineItems,
             'checkfront_fields' => [],
@@ -39,15 +42,17 @@ class TestReservationService
             'adults' => (int) ($input['adults'] ?? 1),
             'children' => (int) ($input['children'] ?? 0),
             'token' => Str::random(12),
-            'checkfront_payment_url' => config('checkfront.payment_url').'?code=TEST-'.$suffix,
-            'is_paid' => (bool) ($input['is_paid'] ?? true),
-            'total_price' => 100,
-            'paid_total' => ($input['is_paid'] ?? true) ? 100 : 0,
-            'balance' => ($input['is_paid'] ?? true) ? 0 : 100,
+            'checkfront_payment_url' => config('checkfront.payment_url').'?code='."{$prefix}-{$suffix}",
+            'is_paid' => $isPaid,
+            'total_price' => $price,
+            'paid_total' => $isPaid ? $price : 0,
+            'balance' => $isPaid ? 0 : $price,
             'documents_validated' => false,
-            'is_test' => true,
+            'is_test' => $isTest,
             'test_notes' => $notes,
-            'internal_comment' => '[TEST] Prenotazione creata manualmente da Sviluppo.'.($notes ? "\n".$notes : ''),
+            'internal_comment' => $isTest
+                ? '[TEST] Prenotazione creata manualmente da Sviluppo.'.($notes ? "\n".$notes : '')
+                : 'Prenotazione manuale inserita da admin (non da Checkfront).'.($notes ? "\n".$notes : ''),
         ]);
     }
 

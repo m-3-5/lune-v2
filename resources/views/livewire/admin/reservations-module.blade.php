@@ -191,6 +191,12 @@
 
     @else
         {{-- Pagina Arrivi e documenti --}}
+        <div class="flex justify-end mb-4">
+            <a href="{{ route('admin.prenotazioni.nuova') }}"
+                class="px-5 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest bg-indigo-600 text-white shadow-md hover:bg-indigo-700">
+                + Nuova prenotazione
+            </a>
+        </div>
         <div class="flex flex-wrap gap-3 mb-6">
             <button wire:click="setViewMode('upcoming')"
                 class="px-5 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest transition-all {{ $viewMode === 'upcoming' ? 'bg-indigo-600 text-white shadow-md' : 'bg-gray-100 text-gray-400' }}">

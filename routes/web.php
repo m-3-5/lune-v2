@@ -14,9 +14,11 @@ use App\Http\Controllers\TelegramWebhookController;
 use App\Http\Controllers\TicketTrackingController;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Volt;
+use App\Livewire\Admin\ApartmentsPage;
 use App\Livewire\Admin\ContrattiPage;
 use App\Livewire\Admin\DettaglioArrivo;
 use App\Livewire\Admin\EntryVideosPage;
+use App\Livewire\Admin\ManualReservationPage;
 use App\Livewire\Admin\Notifiche\CanaleEmailPage;
 use App\Livewire\Admin\Notifiche\CanalePushPage;
 use App\Livewire\Admin\Notifiche\CanaleTelegramPage;
@@ -104,6 +106,8 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('admin')->group(function () {
         Route::get('/arrivi', function () { return view('admin.arrivi'); })->name('admin.arrivi');
+        Route::get('/prenotazioni/nuova', ManualReservationPage::class)->name('admin.prenotazioni.nuova');
+        Route::get('/appartamenti', ApartmentsPage::class)->name('admin.appartamenti');
         Route::get('/video', EntryVideosPage::class)->name('admin.video');
         Route::get('/contratti', ContrattiPage::class)->name('admin.contratti');
         Route::get('/contratti/{reservation}/pdf', function (\App\Models\Reservation $reservation) {
