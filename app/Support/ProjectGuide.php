@@ -13,10 +13,10 @@ class ProjectGuide
             [
                 'id' => 'sintesi',
                 'icon' => '📋',
-                'title' => 'In sintesi — cosa fa Jlune oggi',
+                'title' => 'In sintesi — cosa fa l\'app oggi',
                 'badge' => 'Aggiornato giugno 2026',
                 'body' => <<<'MD'
-Jlune collega **Checkfront** (prenotazioni) con:
+L'app collega **Checkfront** (prenotazioni) con:
 - l’**area ospite** (link personale `/checkin/…` sul telefono),
 - il **pannello admin** (agenda, documenti, contratto, notifiche).
 
@@ -37,10 +37,10 @@ L’ospite apre il **link check-in** (email/SMS da Checkfront). Non serve passwo
 In alto a destra c’è la **campanella**: promemoria su pagamento, documenti, contratto, firma. Funziona **dentro il browser** anche senza installare nulla.
 
 ### 2. App sul telefono + push (consigliato)
-1. Compare il banner **«Jlune sul telefono»** (o voce menu **Scarica l’app**).
+1. Compare il banner **«App sul telefono»** (o voce menu **Scarica l’app**).
 2. **Android (Chrome):** «Installa app» / Aggiungi a schermata Home.
 3. **iPhone (Safari):** Condividi → **Aggiungi a schermata Home** (Apple non mostra il pulsante automatico).
-4. Apre l’icona **Jlune Check-in** → **Attiva notifiche** → Consenti.
+4. Apre l’icona **Check-in Ospiti** → **Attiva notifiche** → Consenti.
 5. Riceve **vibrazione/suono** per promemoria importanti (se il team ha acceso push in Progetto).
 
 ### 3. Telegram (opzionale, molto comodo)
@@ -68,7 +68,7 @@ MD,
                 'title' => 'Prenotazioni Checkfront e date',
                 'badge' => 'Fatto',
                 'body' => <<<'MD'
-- Webhook aggiorna Jlune quando cambia una prenotazione online.
+- Webhook aggiorna l'app quando cambia una prenotazione online.
 - Agenda admin: **Oggi**, **Domani**, striscia 7 giorni, **In casa**, arrivi/partenze.
 - Check-in **16:00** e check-out **10:00** (Europe/Rome).
 MD,

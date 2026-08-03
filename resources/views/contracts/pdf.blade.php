@@ -69,15 +69,15 @@
     @if ($reservation->contract_accepted)
         <div class="signature">
             @if ($locale === 'en')
-                <strong>Electronically signed</strong> by the Guest on {{ optional($reservation->contract_accepted_at)->format('d/m/Y H:i') ?? '—' }} via the Jlune check-in portal (Terms &amp; Conditions and Privacy Policy accepted).
+                <strong>Electronically signed</strong> by the Guest on {{ optional($reservation->contract_accepted_at)->format('d/m/Y H:i') ?? '—' }} via the check-in portal (Terms &amp; Conditions and Privacy Policy accepted).
             @else
-                <strong>Firmato elettronicamente</strong> dal Conduttore il {{ optional($reservation->contract_accepted_at)->format('d/m/Y H:i') ?? '—' }} tramite il portale di check-in Jlune (Termini e Condizioni e Informativa Privacy accettati).
+                <strong>Firmato elettronicamente</strong> dal Conduttore il {{ optional($reservation->contract_accepted_at)->format('d/m/Y H:i') ?? '—' }} tramite il portale di check-in (Termini e Condizioni e Informativa Privacy accettati).
             @endif
         </div>
     @endif
 
     <div class="footer">
-        {{ $locale === 'en' ? 'Contract electronically generated on' : 'Contratto generato elettronicamente il' }} {{ now()->format('d/m/Y H:i') }} — Jlune App
+        {{ $locale === 'en' ? 'Contract electronically generated on' : 'Contratto generato elettronicamente il' }} {{ now()->format('d/m/Y H:i') }}
     </div>
 </body>
 </html>

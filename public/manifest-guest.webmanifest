@@ -1,8 +1,8 @@
 {
   "id": "/checkin",
-  "name": "Jlune Check-in",
-  "short_name": "Jlune",
-  "description": "Area ospite Appartamenti Jlune — documenti, contratto e soggiorno",
+  "name": "Check-in Ospiti",
+  "short_name": "Check-in",
+  "description": "Area ospite — documenti, contratto e soggiorno",
   "start_url": "/",
   "scope": "/checkin",
   "display": "standalone",

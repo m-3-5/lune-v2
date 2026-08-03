@@ -56,7 +56,7 @@ BODY,
     public static function guideText(): string
     {
         return <<<'GUIDE'
-# Guida Jlune
+# Guida
 
 La guida dettagliata è in **Progetto e task** → riquadri apribili (giugno 2026).
 
@@ -131,7 +131,7 @@ Per la **Polizia di Stato** / registrazione ospiti, il file ufficiale ha spesso 
 Ci serve sapere:
 1. Lo fai già? Con quale software o portale?
 2. Hai un file XML di esempio che usi oggi?
-3. Ti serve che Jlune generi **quel** formato, o ti basta l’export attuale + copia manuale?
+3. Ti serve che l'app generi **quel** formato, o ti basta l’export attuale + copia manuale?
 
 Se serve integrazione specifica, la valutiamo come **voce extra** (tempi e costo da confermare).
 
@@ -145,7 +145,7 @@ Oggi le notifiche operative per te arrivano tramite **app installata + Attiva no
 
 Il team riceve anche **Telegram** (@jlune_notifiche_bot).
 
-Vuoi essere aggiunta anche su Telegram (oltre alla PWA), o ti basta il telefono con l’app Jlune Admin?
+Vuoi essere aggiunta anche su Telegram (oltre alla PWA), o ti basta il telefono con l’app Admin?
 
 Rispondi: «solo app» oppure «anche Telegram» (e avvia il bot se scegli Telegram).
 BODY,

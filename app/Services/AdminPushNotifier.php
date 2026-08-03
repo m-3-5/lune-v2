@@ -19,7 +19,7 @@ class AdminPushNotifier
         }
 
         $payload = json_encode([
-            'title' => 'Jlune Gestione',
+            'title' => 'Gestione Appartamenti',
             'body' => $title,
             'url' => $url ?? '/admin/progetto',
             'tag' => $type,
@@ -45,7 +45,7 @@ class AdminPushNotifier
         }
 
         $payload = json_encode([
-            'title' => 'Jlune',
+            'title' => 'Check-in',
             'body' => $title,
             'url' => $url ?? '/',
             'vibrate' => [200, 100, 200],

@@ -47,7 +47,7 @@ trait ConfiguresMailChannel
         AppSettings::set('mail_smtp_encryption', $this->mailEncryption);
         AppSettings::set('mail_smtp_username', trim($this->mailUsername));
         AppSettings::set('mail_from_address', trim($this->mailFromAddress));
-        AppSettings::set('mail_from_name', trim($this->mailFromName) ?: 'Jlune');
+        AppSettings::set('mail_from_name', trim($this->mailFromName) ?: 'Gestione Appartamenti');
 
         if (trim($this->mailPassword) !== '') {
             AppSettings::setMailSmtpPassword(trim($this->mailPassword));
@@ -79,7 +79,7 @@ trait ConfiguresMailChannel
 
         try {
             Mail::to($to)->send(new AdminTeamAlertMail(
-                'Test email Jlune',
+                'Test email',
                 "Messaggio di prova dal canale Email.\nMittente: ".AppSettings::mailFromAddress(),
                 url('/admin/notifiche/email'),
             ));

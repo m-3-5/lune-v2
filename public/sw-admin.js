@@ -8,7 +8,7 @@ self.addEventListener('push', function (event) {
     try {
         data = event.data.json();
     } catch (e) {
-        data = { title: 'Jlune', body: event.data.text() };
+        data = { title: 'Gestione', body: event.data.text() };
     }
     const options = {
         body: data.body || '',
@@ -19,7 +19,7 @@ self.addEventListener('push', function (event) {
         data: { url: data.url || '/admin/progetto' },
         requireInteraction: true,
     };
-    event.waitUntil(self.registration.showNotification(data.title || 'Jlune Gestione', options));
+    event.waitUntil(self.registration.showNotification(data.title || 'Gestione Appartamenti', options));
 });
 
 self.addEventListener('notificationclick', function (event) {

@@ -17,7 +17,7 @@ return new class extends Migration
             'mail_smtp_username' => 'appjlune@inm35.net',
             'mail_smtp_password' => null,
             'mail_from_address' => 'appjlune@inm35.net',
-            'mail_from_name' => 'Jlune',
+            'mail_from_name' => 'Gestione Appartamenti',
             'whatsapp_provider' => 'log',
             'whatsapp_callmebot_keys' => [],
         ];

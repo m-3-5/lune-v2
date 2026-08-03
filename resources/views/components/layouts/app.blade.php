@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#00D185">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Jlune Ospite">
+    <meta name="apple-mobile-web-app-title" content="Check-in Ospiti">
     @if(isset($reservation) && $reservation !== null)
         <link rel="manifest" href="{{ route('checkin.manifest', $reservation->token) }}">
     @else
@@ -15,7 +15,7 @@
     <link rel="icon" type="image/png" sizes="512x512" href="/pwa-icons/guest-512.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/pwa-icons/guest-192.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/pwa-icons/guest-180.png">
-    <title>{{ $title ?? 'Jlune App - Gestione Soggiorno' }}</title>
+    <title>{{ $title ?? 'Gestione Soggiorno' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
     <script src="/js/jlune-pwa-install.js?v=5" defer></script>
@@ -61,7 +61,7 @@
     <header class="fixed top-0 left-0 w-full bg-indigo-700 text-white shadow-md z-50">
         <div class="max-w-md mx-auto flex justify-between items-center p-4">
             <h1 class="text-xl font-extrabold tracking-tight">
-                {{ $apartmentName ?? 'Jlune App' }}
+                {{ $apartmentName ?? 'Check-in' }}
             </h1>
 
             <div class="flex items-center gap-2">

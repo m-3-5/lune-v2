@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 
 class PushTest extends Command
 {
-    protected $signature = 'jlune:push-test {--message=Test Web Push Jlune Admin}';
+    protected $signature = 'jlune:push-test {--message=Test Web Push Admin}';
 
     protected $description = 'Invia una notifica Web Push di prova ai dispositivi admin registrati';
 

@@ -24,7 +24,7 @@ class GuestAlertMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Jlune — '.$this->alertTitle,
+            subject: $this->alertTitle,
         );
     }
 

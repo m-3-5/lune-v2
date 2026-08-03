@@ -47,7 +47,7 @@ class TwilioWhatsAppTest extends Command
 
         $result = $twilio->send(
             $phone,
-            "Test Jlune CLI\n\nSe leggi questo, Twilio sandbox OK.\n".now()->format('d/m/Y H:i'),
+            "Test CLI\n\nSe leggi questo, Twilio sandbox OK.\n".now()->format('d/m/Y H:i'),
         );
 
         if ($result['ok']) {

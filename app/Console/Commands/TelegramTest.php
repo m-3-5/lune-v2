@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 
 class TelegramTest extends Command
 {
-    protected $signature = 'jlune:telegram-test {--message=Test Jlune: notifiche collegate.}';
+    protected $signature = 'jlune:telegram-test {--message=Test: notifiche collegate.}';
 
     protected $description = 'Invia un messaggio di prova ai chat ID Telegram configurati';
 
@@ -19,7 +19,7 @@ class TelegramTest extends Command
             return self::FAILURE;
         }
 
-        $telegram->notifyAdmins('<b>Jlune</b> — '.$this->option('message'));
+        $telegram->notifyAdmins($this->option('message'));
         $this->info('Messaggio inviato (verifica Telegram sui telefoni configurati).');
 
         return self::SUCCESS;

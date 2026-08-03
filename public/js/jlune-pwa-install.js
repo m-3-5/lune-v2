@@ -32,7 +32,7 @@ window.jlunePwaInstall = (function () {
             + '<ol class="list-decimal list-inside space-y-1 text-[11px] text-gray-700 leading-relaxed">'
             + '<li>Tocca <strong>Condividi</strong> (quadrato con freccia in basso)</li>'
             + '<li>Scorri e scegli <strong>Aggiungi a Home</strong></li>'
-            + '<li>Tocca <strong>Aggiungi</strong> — l\'icona Jlune apparirà sulla home</li>'
+            + '<li>Tocca <strong>Aggiungi</strong> — l\'icona apparirà sulla home</li>'
             + '</ol>';
     }
 
@@ -40,7 +40,7 @@ window.jlunePwaInstall = (function () {
         return '<ol class="list-decimal list-inside space-y-1 text-[11px] text-gray-700 leading-relaxed">'
             + '<li>Tocca il menu <strong>⋮</strong> in alto a destra</li>'
             + '<li>Scegli <strong>Installa app</strong> o <strong>Aggiungi a schermata Home</strong></li>'
-            + '<li>Conferma — l\'icona Jlune apparirà sulla home</li>'
+            + '<li>Conferma — l\'icona apparirà sulla home</li>'
             + '</ol>';
     }
 

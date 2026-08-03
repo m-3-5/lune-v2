@@ -150,7 +150,7 @@ trait ConfiguresWhatsAppChannel
             $mode = AppSettings::twilioWhatsAppMode() === 'business' ? 'Business' : 'Sandbox';
             $result = $twilio->send(
                 $phone,
-                "Test WhatsApp Jlune ({$mode})\n\nMessaggio interno di prova.\n".url('/admin/notifiche/whatsapp'),
+                "Test WhatsApp ({$mode})\n\nMessaggio interno di prova.\n".url('/admin/notifiche/whatsapp'),
             );
 
             if ($result['ok']) {
@@ -166,7 +166,7 @@ trait ConfiguresWhatsAppChannel
         }
 
         $notifier->send(
-            'Test WhatsApp Jlune',
+            'Test WhatsApp',
             'Messaggio di prova dal canale WhatsApp (admin).',
             url('/admin/notifiche/whatsapp'),
             force: true,
@@ -199,7 +199,7 @@ trait ConfiguresWhatsAppChannel
 
         $result = $twilio->send(
             $phone,
-            "Test WhatsApp Jlune (ospite)\n\nSimula un promemoria check-in.\n".url('/admin/notifiche/whatsapp'),
+            "Test WhatsApp (ospite)\n\nSimula un promemoria check-in.\n".url('/admin/notifiche/whatsapp'),
         );
 
         if ($result['ok']) {

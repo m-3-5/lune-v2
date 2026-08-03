@@ -1,8 +1,8 @@
 {
   "id": "/admin",
-  "name": "Jlune Gestione",
-  "short_name": "Jlune Admin",
-  "description": "Pannello gestione Appartamenti Jlune per il team",
+  "name": "Gestione Appartamenti",
+  "short_name": "Gestione",
+  "description": "Pannello gestione appartamenti per il team",
   "start_url": "/admin?source=pwa",
   "scope": "/admin",
   "display": "standalone",

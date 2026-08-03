@@ -7,12 +7,12 @@
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Jlune Admin">
+    <meta name="apple-mobile-web-app-title" content="Gestione Admin">
     <link rel="manifest" href="{{ route('admin.manifest') }}">
     <link rel="icon" type="image/png" sizes="512x512" href="/pwa-icons/admin-512.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/pwa-icons/admin-192.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/pwa-icons/admin-180.png">
-    <title>{{ $title ?? 'Jlune Gestione' }}</title>
+    <title>{{ $title ?? 'Gestione Appartamenti' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
     <script src="/js/jlune-pwa-install.js?v=5" defer></script>
@@ -51,7 +51,7 @@
                 </div>
 
                 <div class="flex px-4 items-center h-12">
-                    <h1 class="text-xl font-black tracking-tight text-white">Jlune <span class="text-indigo-400">Admin</span></h1>
+                    <h1 class="text-xl font-black tracking-tight text-white">Gestione <span class="text-indigo-400">Admin</span></h1>
                 </div>
                 <nav class="mt-5 h-full overflow-y-auto px-4 space-y-1.5">
                     <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">📊</span> Dashboard</a>
@@ -75,7 +75,7 @@
     <div class="hidden md:fixed md:inset-y-0 md:z-50 md:flex md:w-64 md:flex-col">
         <div class="flex grow flex-col overflow-y-auto bg-slate-900 px-6 pb-4 shadow-2xl text-white">
             <div class="flex h-20 shrink-0 items-center border-b border-slate-800 mb-6">
-                <h1 class="text-xl font-black tracking-tight text-white">Jlune <span class="text-indigo-400">Admin</span></h1>
+                <h1 class="text-xl font-black tracking-tight text-white">Gestione <span class="text-indigo-400">Admin</span></h1>
             </div>
             <nav class="flex flex-1 flex-col">
                 <ul role="list" class="flex flex-1 flex-col gap-y-7">
@@ -115,7 +115,7 @@
                 <span class="sr-only">Apri sidebar</span>
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
             </button>
-            <div class="flex-1 text-lg font-black text-slate-900">Jlune <span class="text-indigo-600">Admin</span></div>
+            <div class="flex-1 text-lg font-black text-slate-900">Gestione <span class="text-indigo-600">Admin</span></div>
             <button type="button"
                     onclick="window.jlunePwaInstall && window.jlunePwaInstall.open('admin')"
                     class="shrink-0 rounded-full bg-slate-900 px-3 py-1.5 text-[10px] font-black uppercase text-white tracking-wide">

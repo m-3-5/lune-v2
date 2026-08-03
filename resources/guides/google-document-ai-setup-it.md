@@ -1,7 +1,7 @@
-# Istruzioni — Google Document AI per Jlune App
+# Istruzioni — Google Document AI
 
 **Per:** titolare struttura  
-**Obiettivo:** far leggere i documenti (CI, tessera sanitaria) dall’app Jlune usando **il vostro** account Google Cloud, con fatturazione sul vostro metodo di pagamento.
+**Obiettivo:** far leggere i documenti (CI, tessera sanitaria) dall’app usando **il vostro** account Google Cloud, con fatturazione sul vostro metodo di pagamento.
 
 ---
 
@@ -31,7 +31,7 @@ Document AI OCR si paga a pagina elaborata; per pochi check-in al mese l’impor
 
 ### 3.1 Accedi a Google Cloud
 1. Apri: https://console.cloud.google.com/
-2. Accedi con l’account Google che userete per Jlune.
+2. Accedi con l’account Google che userete per l'app.
 
 ### 3.2 Crea un progetto (se non ne avete già uno)
 1. In alto: seleziona progetto → **Nuovo progetto**.
@@ -62,7 +62,7 @@ Document AI OCR si paga a pagina elaborata; per pochi check-in al mese l’impor
 
 ---
 
-## 4. Cosa inviare al team Jlune
+## 4. Cosa inviare al team
 
 Inviate al tecnico che gestisce il server (Plesk) questi dati:
 
@@ -115,7 +115,7 @@ Il formato ufficiale per la questura è **diverso** (XML/portale Alloggiati Web)
 
 ## 7. Contatti
 
-Per problemi tecnici: team sviluppo Jlune.  
+Per problemi tecnici: team sviluppo.  
 Per decisioni su costi e formato Polizia: gestore + team.
 
 _Ultimo aggiornamento: maggio 2026_

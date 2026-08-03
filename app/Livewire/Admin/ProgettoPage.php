@@ -95,7 +95,7 @@ class ProgettoPage extends Component
     public function sendTestNotification(AdminOutboundNotifier $notifier, AdminWhatsAppNotifier $whatsapp): void
     {
         $notifier->notify(
-            'Test notifiche Jlune (admin)',
+            'Test notifiche (admin)',
             "Messaggio di prova inviato da Progetto.\nSe ricevi questa email/WhatsApp, la configurazione è ok.",
             url('/admin/progetto'),
             force: true,

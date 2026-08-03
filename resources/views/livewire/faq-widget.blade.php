@@ -3,7 +3,7 @@
         <div class="fixed bottom-24 {{ $position === 'left' ? 'left-5' : 'right-5' }} z-[80] w-[92vw] max-w-sm h-[70vh] max-h-[520px] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-gray-100">
             <div class="bg-emerald-600 text-white px-5 py-4 flex items-center justify-between shrink-0">
                 <div>
-                    <p class="font-black text-sm">Assistente Jlune</p>
+                    <p class="font-black text-sm">Assistente</p>
                     <p class="text-emerald-100 text-xs">Domande frequenti</p>
                 </div>
                 <button type="button" wire:click="toggle" class="text-white/80 hover:text-white text-2xl leading-none">&times;</button>

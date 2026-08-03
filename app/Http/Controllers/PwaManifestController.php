@@ -11,9 +11,9 @@ class PwaManifestController extends Controller
     {
         return response()->json([
             'id' => '/admin',
-            'name' => 'Jlune Gestione',
-            'short_name' => 'Jlune Admin',
-            'description' => 'Pannello gestione Appartamenti Jlune per il team',
+            'name' => 'Gestione Appartamenti',
+            'short_name' => 'Gestione',
+            'description' => 'Pannello gestione appartamenti per il team',
             'start_url' => '/admin?source=pwa',
             'scope' => '/admin',
             'display' => 'standalone',
@@ -52,9 +52,9 @@ class PwaManifestController extends Controller
 
         return response()->json([
             'id' => '/checkin/'.$reservation->token,
-            'name' => 'Jlune Check-in',
-            'short_name' => 'Jlune',
-            'description' => 'Area ospite Appartamenti Jlune — documenti, contratto e soggiorno',
+            'name' => 'Check-in Ospiti',
+            'short_name' => 'Check-in',
+            'description' => 'Area ospite — documenti, contratto e soggiorno',
             'start_url' => '/checkin/'.$reservation->token.'?source=pwa',
             'scope' => '/checkin',
             'display' => 'standalone',

@@ -3,7 +3,7 @@
         <a href="{{ route('admin.notifiche') }}" class="text-indigo-600 font-bold text-sm">← Notifiche</a>
         <h1 class="text-3xl font-black text-sky-950 mt-2">📲 Web Push (PWA)</h1>
         <p class="text-gray-500 text-sm mt-1">
-            Notifiche sul telefono quando l'app Jlune è installata («Aggiungi a schermata Home»). Funziona per admin e ospiti.
+            Notifiche sul telefono quando l'app è installata («Aggiungi a schermata Home»). Funziona per admin e ospiti.
         </p>
     </div>
 

@@ -127,7 +127,7 @@
 
             <div class="border-t pt-3 space-y-2">
                 <div class="bg-gray-50 p-3 rounded-xl">
-                    <p class="text-[10px] font-black uppercase text-gray-400 mb-1">Link area ospite (Jlune App)</p>
+                    <p class="text-[10px] font-black uppercase text-gray-400 mb-1">Link area ospite</p>
                     <code class="text-xs break-all text-indigo-800">{{ $reservation->guest_portal_url }}</code>
                 </div>
                 @if($reservation->checkfront_payment_url)

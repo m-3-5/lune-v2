@@ -1,7 +1,7 @@
 <div class="max-w-4xl mx-auto space-y-8 pb-16" x-on:guide-ticket-created.window="document.getElementById('task-board')?.scrollIntoView({ behavior: 'smooth', block: 'start' })">
     <div>
         <a href="{{ route('admin.dashboard') }}" class="text-indigo-600 font-bold text-sm">← Dashboard</a>
-        <h1 class="text-3xl font-black text-indigo-950 mt-2">Progetto Jlune</h1>
+        <h1 class="text-3xl font-black text-indigo-950 mt-2">Progetto</h1>
         <p class="text-gray-500 text-sm mt-1">Guida, costi e richieste di sviluppo.</p>
     </div>
 

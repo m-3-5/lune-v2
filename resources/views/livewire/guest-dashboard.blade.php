@@ -46,7 +46,7 @@ mount(function (Reservation $reservation) {
         <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
         <div class="relative p-6 text-white w-full">
             <h2 class="text-2xl font-bold mb-1">Benvenuto, {{ explode(' ', $guestName)[0] }}!</h2>
-            <p class="text-indigo-100">{{ $apartmentName }} • Jlune App</p>
+            <p class="text-indigo-100">{{ $apartmentName }}</p>
         </div>
     </div>
 

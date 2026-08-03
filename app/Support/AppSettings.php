@@ -198,7 +198,7 @@ class AppSettings
 
     public static function mailFromName(): string
     {
-        return (string) static::get('mail_from_name', 'Jlune');
+        return (string) static::get('mail_from_name', 'Gestione Appartamenti');
     }
 
     public static function mailPasswordIsSet(): bool

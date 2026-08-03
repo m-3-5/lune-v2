@@ -8,7 +8,7 @@ self.addEventListener('push', function (event) {
     try {
         data = event.data.json();
     } catch (e) {
-        data = { title: 'Jlune', body: event.data.text() };
+        data = { title: 'Check-in', body: event.data.text() };
     }
     const options = {
         body: data.body || '',
@@ -19,7 +19,7 @@ self.addEventListener('push', function (event) {
         data: { url: data.url || '/' },
         requireInteraction: true,
     };
-    event.waitUntil(self.registration.showNotification(data.title || 'Jlune', options));
+    event.waitUntil(self.registration.showNotification(data.title || 'Check-in', options));
 });
 
 self.addEventListener('notificationclick', function (event) {

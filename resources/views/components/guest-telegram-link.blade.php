@@ -15,7 +15,7 @@
                 </p>
             @else
                 <p class="text-sky-800 text-xs mb-3">
-                    Apri Telegram e premi <strong>Avvia</strong> sul bot Jlune per collegare questa prenotazione.
+                    Apri Telegram e premi <strong>Avvia</strong> sul bot per collegare questa prenotazione.
                     Più comodo di email e WhatsApp sul telefono.
                 </p>
                 <a href="{{ $link }}" target="_blank" rel="noopener"

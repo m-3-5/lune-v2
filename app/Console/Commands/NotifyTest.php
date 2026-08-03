@@ -48,7 +48,7 @@ class NotifyTest extends Command
         }
 
         $notifier->notify(
-            'Test Jlune (CLI)',
+            'Test (CLI)',
             'Messaggio di prova da php artisan jlune:notify-test',
             url('/admin/progetto'),
             force: $force,

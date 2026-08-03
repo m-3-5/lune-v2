@@ -53,10 +53,10 @@ return new class extends Migration
     protected function defaultGuide(): string
     {
         return <<<'GUIDE'
-# Jlune App — Guida (bozza)
+# Guida App (bozza)
 
 ## Cosa fa l'app
-Jlune collega le prenotazioni Checkfront con l'area ospite e il pannello admin.
+Collega le prenotazioni Checkfront con l'area ospite e il pannello admin.
 
 ### Area ospite (link con token)
 - Pagamento / promemoria Checkfront

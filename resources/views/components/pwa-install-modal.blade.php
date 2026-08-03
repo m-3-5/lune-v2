@@ -3,7 +3,7 @@
 @php
     $isGuest = $channel === 'guest';
     $icon = url('/pwa-icons/'.($isGuest ? 'guest-180.png' : 'admin-180.png'));
-    $appName = $isGuest ? 'Jlune Check-in' : 'Jlune Gestione';
+    $appName = $isGuest ? 'Check-in Ospiti' : 'Gestione Appartamenti';
     $tagline = $isGuest
         ? 'Documenti, contratto e soggiorno sul telefono.'
         : 'Pannello admin e notifiche sul telefono.';
@@ -89,7 +89,7 @@
                 + '<ol class="list-decimal list-inside space-y-1 text-[11px] text-gray-700 leading-relaxed">'
                 + '<li>Tocca <strong>Condividi</strong> (quadrato con freccia in basso)</li>'
                 + '<li>Scorri e scegli <strong>Aggiungi a Home</strong></li>'
-                + '<li>Tocca <strong>Aggiungi</strong> — l\'icona Jlune apparirà sulla home</li>'
+                + '<li>Tocca <strong>Aggiungi</strong> — l\'icona apparirà sulla home</li>'
                 + '</ol>';
         }
     });

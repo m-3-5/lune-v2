@@ -76,7 +76,7 @@
                 <li><strong>Test interno:</strong> da WhatsApp invia un messaggio al numero business, poi usa «Test admin» — oppure usa un template approvato.</li>
             </ol>
             <p class="text-xs text-emerald-800/80">
-                Stima costi: ~0,05–0,10 € a messaggio · volume Jlune ~5–15 €/mese in alta stagione.
+                Stima costi: ~0,05–0,10 € a messaggio · volume previsto ~5–15 €/mese in alta stagione.
             </p>
         </section>
     @else

@@ -1,7 +1,5 @@
-Jlune
-=====
-
 {!! $alertTitle !!}
+=====
 
 {!! $alertBody !!}
 
@@ -10,4 +8,4 @@ Apri: {!! $actionUrl !!}
 @endif
 
 —
-Messaggio automatico da Jlune. Non rispondere a questa email.
+Messaggio automatico. Non rispondere a questa email.

@@ -34,7 +34,7 @@ class TelegramWebhookController extends Controller
         if ($payload === '') {
             app(TelegramNotifier::class)->sendToChat(
                 $chatId,
-                "👋 Ciao! Per collegare le notifiche Jlune apri il link dal tuo check-in (pulsante «Ricevi su Telegram»)."
+                '👋 Ciao! Per collegare le notifiche apri il link dal tuo check-in (pulsante «Ricevi su Telegram»).'
             );
 
             return response('ok');
@@ -45,7 +45,7 @@ class TelegramWebhookController extends Controller
         if (! $reservation) {
             app(TelegramNotifier::class)->sendToChat(
                 $chatId,
-                '❌ Link non valido o scaduto. Apri di nuovo il link dal portale check-in Jlune.'
+                '❌ Link non valido o scaduto. Apri di nuovo il link dal portale check-in.'
             );
 
             return response('ok');

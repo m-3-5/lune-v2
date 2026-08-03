@@ -52,6 +52,28 @@ class CleanupLegacyClientLabels extends Command
             $updated++;
         });
 
+        if (AppSettings::get('mail_from_name') === 'Jlune') {
+            AppSettings::set('mail_from_name', 'Gestione Appartamenti');
+            $updated++;
+        }
+
+        $guideAfterFirstPass = AppSettings::get('app_guide', '');
+        if (is_string($guideAfterFirstPass) && str_contains($guideAfterFirstPass, 'Jlune')) {
+            $jluneReplacements = [
+                'Jlune App' => 'l\'app',
+                'Jlune Check-in' => 'Check-in Ospiti',
+                'Jlune Admin' => 'Admin',
+                'Jlune collega' => 'L\'app collega',
+                'cosa fa Jlune' => 'cosa fa l\'app',
+                'aggiorna Jlune' => 'aggiorna l\'app',
+                'Jlune sul telefono' => 'App sul telefono',
+                'Jlune genera' => 'l\'app genera',
+                'Jlune' => 'l\'app',
+            ];
+            AppSettings::set('app_guide', strtr($guideAfterFirstPass, $jluneReplacements));
+            $updated++;
+        }
+
         $this->info($updated > 0 ? "Aggiornati {$updated} elementi." : 'Nessun dato legacy trovato — niente da fare.');
 
         return self::SUCCESS;
