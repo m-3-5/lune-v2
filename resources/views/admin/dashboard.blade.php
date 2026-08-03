@@ -1,4 +1,4 @@
-<x-layouts.admin title="Gestione Appartamenti">
+<x-layouts.admin>
     @php
         $docsPending = \App\Models\AdminNotification::unreadCount();
     @endphp
@@ -50,8 +50,6 @@
                     <span class="font-black text-gray-900 text-[11px] uppercase tracking-widest leading-tight">Progetto<br>e task</span>
                 </a>
             </div>
-
-            <x-client-open-questions />
 
             <div class="mt-6">
                 <div class="flex items-center justify-between mb-4 px-2">

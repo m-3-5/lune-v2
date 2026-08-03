@@ -61,7 +61,7 @@ class NotifichePage extends Component
             'whatsappReady' => $whatsappReady,
             'telegramBotReady' => $telegramBotReady,
             'telegramAdminReady' => $telegramAdminReady,
-            'telegramBotUsername' => ltrim((string) config('telegram.bot_username', 'jlune_notifiche_bot'), '@'),
+            'telegramBotUsername' => ltrim((string) config('telegram.bot_username', ''), '@'),
             'webhookUrl' => $webhookUrl,
             'telegramLinkedCount' => $telegramLinkedCount,
             'whatsappProvider' => AppSettings::whatsappProvider(),

@@ -51,6 +51,6 @@
 
     <div class="mt-8 border-t pt-4 grid grid-cols-2 text-xs text-gray-500">
         <div>Contratto generato elettronicamente il {{ now()->format('d/m/Y H:i') }}</div>
-        <div class="text-right">&nbsp;</div>
+        <div class="text-right">{{ \App\Support\AppSettings::appName() }}</div>
     </div>
 </div>

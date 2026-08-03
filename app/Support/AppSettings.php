@@ -42,6 +42,17 @@ class AppSettings
         return static::$cache;
     }
 
+    /** Nome del prodotto/struttura mostrato in tutta l'app — l'unico posto da cambiare per rinominare tutto. */
+    public static function appName(): string
+    {
+        return (string) static::get('app_name', 'Gestione Appartamenti');
+    }
+
+    public static function setAppName(string $name): void
+    {
+        static::set('app_name', trim($name) ?: 'Gestione Appartamenti');
+    }
+
     public static function underConstruction(): bool
     {
         return (bool) static::get('under_construction', false);
@@ -198,7 +209,7 @@ class AppSettings
 
     public static function mailFromName(): string
     {
-        return (string) static::get('mail_from_name', 'Gestione Appartamenti');
+        return (string) static::get('mail_from_name', static::appName());
     }
 
     public static function mailPasswordIsSet(): bool
@@ -417,62 +428,6 @@ class AppSettings
         }
 
         return array_values(array_unique($phones));
-    }
-
-    public static function siteMaintenanceOn(): bool
-    {
-        return (bool) static::get('site_maintenance_on', false);
-    }
-
-    public static function setSiteMaintenanceOn(bool $on): void
-    {
-        static::set('site_maintenance_on', $on);
-    }
-
-    /**
-     * Token per il link "accesso team" (bypass pagina di manutenzione).
-     * Ha una scadenza — viene rinnovato automaticamente a ogni nuova prenotazione reale.
-     */
-    public static function teamAccessToken(): string
-    {
-        $token = static::get('team_access_token');
-
-        if (is_string($token) && $token !== '') {
-            return $token;
-        }
-
-        return static::refreshTeamAccessToken();
-    }
-
-    public static function teamAccessExpiresAt(): ?\Illuminate\Support\Carbon
-    {
-        $value = static::get('team_access_expires_at');
-
-        return is_string($value) && $value !== '' ? \Illuminate\Support\Carbon::parse($value) : null;
-    }
-
-    public static function refreshTeamAccessToken(int $days = 30): string
-    {
-        $token = \Illuminate\Support\Str::random(40);
-        static::set('team_access_token', $token);
-        static::set('team_access_expires_at', now()->addDays($days)->toDateTimeString());
-
-        return $token;
-    }
-
-    public static function teamAccessValid(?string $token): bool
-    {
-        if (! is_string($token) || $token === '') {
-            return false;
-        }
-
-        $expiresAt = static::teamAccessExpiresAt();
-
-        if ($expiresAt !== null && $expiresAt->isPast()) {
-            return false;
-        }
-
-        return hash_equals(static::teamAccessToken(), $token);
     }
 
     /** Dati del locatore mostrati sui contratti generati — da configurare in Progetto → Contatti. */

@@ -32,7 +32,7 @@ class CanaleTelegramPage extends Component
             'telegramAdminReady' => $telegramAdminReady,
             'guestTelegramOn' => $guestTelegramOn,
             'adminTelegramOn' => AppSettings::adminNotificationsEnabled(),
-            'telegramBotUsername' => ltrim((string) config('telegram.bot_username', 'jlune_notifiche_bot'), '@'),
+            'telegramBotUsername' => ltrim((string) config('telegram.bot_username', ''), '@'),
             'webhookUrl' => $webhookUrl,
             'telegramLinkedCount' => $telegramLinkedCount,
             'notifyChatIds' => config('telegram.notify_chat_ids', []),

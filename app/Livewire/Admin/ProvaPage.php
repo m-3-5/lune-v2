@@ -110,7 +110,6 @@ class ProvaPage extends Component
                 ->orderByDesc('created_at')
                 ->limit(20)
                 ->get(),
-            'maintenanceOn' => AppSettings::siteMaintenanceOn(),
         ]);
     }
 }

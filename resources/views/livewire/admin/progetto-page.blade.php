@@ -2,31 +2,22 @@
     <div>
         <a href="{{ route('admin.dashboard') }}" class="text-indigo-600 font-bold text-sm">← Dashboard</a>
         <h1 class="text-3xl font-black text-indigo-950 mt-2">Progetto</h1>
-        <p class="text-gray-500 text-sm mt-1">Guida, costi e richieste di sviluppo.</p>
+        <p class="text-gray-500 text-sm mt-1">Nome, contatti e notifiche.</p>
     </div>
 
-    <section class="bg-indigo-50 rounded-3xl border border-indigo-100 p-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-            <h2 class="text-lg font-black text-indigo-950">Google Document AI</h2>
-            <p class="text-sm text-indigo-900/80 mt-1 max-w-xl">
-                Scarica le istruzioni per creare il servizio sul vostro account Google e inviarci le credenziali.
-            </p>
+    <section class="bg-white rounded-3xl shadow-sm border border-indigo-100 p-6 space-y-3">
+        <h2 class="text-lg font-black text-indigo-950">Nome</h2>
+        <p class="text-sm text-gray-600">
+            Compare in titoli, notifiche, PWA e email in tutta l'app — cambialo una volta sola qui.
+        </p>
+        <div class="flex flex-wrap gap-2">
+            <input type="text" wire:model="appName" placeholder="Es. Appartamenti Rossi"
+                class="flex-1 min-w-[200px] rounded-xl border-gray-200 text-sm">
+            <button type="button" wire:click="saveAppName"
+                class="px-5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase">
+                Salva nome
+            </button>
         </div>
-        <a href="{{ route('admin.guide.document-ai') }}"
-           class="inline-flex items-center gap-2 px-5 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-200 hover:bg-indigo-700">
-            Scarica istruzioni Document AI
-        </a>
-    </section>
-
-    <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-        <h2 class="text-lg font-black text-indigo-950 mb-1">Guida progetto</h2>
-        <p class="text-sm text-gray-500 mb-4">Argomenti in riquadri — clicca per aprire. Aggiornata giugno 2026.</p>
-        <livewire:admin.project-guide-accordion />
-    </section>
-
-    <section class="bg-white rounded-3xl shadow-sm border border-indigo-100 p-6">
-        <h2 class="text-lg font-black text-indigo-950 mb-2">Costi progetto</h2>
-        <p class="text-sm text-gray-500">In attesa di nuovo accordo — ne riparliamo insieme.</p>
     </section>
 
     <section id="notifiche" class="bg-white rounded-3xl shadow-sm border border-emerald-100 p-6 space-y-4">

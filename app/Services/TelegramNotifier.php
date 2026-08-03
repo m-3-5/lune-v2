@@ -21,7 +21,7 @@ class TelegramNotifier
 
     public function botUsername(): string
     {
-        return ltrim((string) config('telegram.bot_username', 'jlune_notifiche_bot'), '@');
+        return ltrim((string) config('telegram.bot_username', ''), '@');
     }
 
     public function deepLink(string $startPayload): string

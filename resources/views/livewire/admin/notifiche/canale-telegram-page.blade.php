@@ -3,9 +3,24 @@
         <a href="{{ route('admin.notifiche') }}" class="text-indigo-600 font-bold text-sm">← Notifiche</a>
         <h1 class="text-3xl font-black text-violet-950 mt-2">✈️ Telegram</h1>
         <p class="text-gray-500 text-sm mt-1">
-            Bot unico <strong>@{{ $telegramBotUsername }}</strong> per admin e ospiti. Token e webhook si configurano nel <code>.env</code> del server (prossima fase: pannello qui).
+            @if ($telegramBotUsername)
+                Bot unico <strong>@{{ $telegramBotUsername }}</strong> per admin e ospiti.
+            @else
+                Nessun bot configurato — crealo in pochi minuti (istruzioni qui sotto).
+            @endif
         </p>
     </div>
+
+    <section class="bg-amber-50 rounded-3xl border border-amber-100 p-6 space-y-3">
+        <h2 class="text-lg font-black text-amber-950">Crea il tuo bot (una tantum, gratis)</h2>
+        <ol class="text-sm text-gray-700 space-y-2 list-decimal list-inside">
+            <li>Su Telegram cerca <strong>@BotFather</strong> e apri la chat.</li>
+            <li>Scrivi <code class="bg-white px-1 rounded">/newbot</code> e segui i passi: nome a piacere, username che deve finire in <code class="bg-white px-1 rounded">bot</code> (es. <code class="bg-white px-1 rounded">appartamentirossi_bot</code>).</li>
+            <li>BotFather ti restituisce un <strong>token</strong> — copialo, serve al passo dopo.</li>
+            <li>Apri la chat col tuo nuovo bot e premi <strong>Avvia</strong> (serve per ottenere il tuo Chat ID: scrivi qualsiasi messaggio, poi visita <code class="bg-white px-1 rounded break-all">https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code> e cerca <code class="bg-white px-1 rounded">"chat":{"id":...}</code>).</li>
+            <li>Inserisci le variabili qui sotto nel <code class="bg-white px-1 rounded">.env</code> del server.</li>
+        </ol>
+    </section>
 
     <section class="bg-violet-50 rounded-3xl border border-violet-100 p-6 space-y-3">
         <h2 class="text-lg font-black text-violet-950">A cosa serve</h2>
@@ -40,7 +55,7 @@
         <ul class="text-xs font-mono bg-gray-50 rounded-xl p-4 space-y-1 text-gray-800">
             <li>TELEGRAM_ENABLED=true</li>
             <li>TELEGRAM_BOT_TOKEN=…</li>
-            <li>TELEGRAM_BOT_USERNAME=jlune_notifiche_bot</li>
+            <li>TELEGRAM_BOT_USERNAME=iltuobot_bot</li>
             <li>TELEGRAM_NOTIFY_CHAT_IDS=123456789</li>
             <li>TELEGRAM_WEBHOOK_SECRET=stringa-casuale-lunga</li>
         </ul>

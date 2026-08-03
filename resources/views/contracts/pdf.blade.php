@@ -77,7 +77,7 @@
     @endif
 
     <div class="footer">
-        {{ $locale === 'en' ? 'Contract electronically generated on' : 'Contratto generato elettronicamente il' }} {{ now()->format('d/m/Y H:i') }}
+        {{ $locale === 'en' ? 'Contract electronically generated on' : 'Contratto generato elettronicamente il' }} {{ now()->format('d/m/Y H:i') }} — {{ \App\Support\AppSettings::appName() }}
     </div>
 </body>
 </html>

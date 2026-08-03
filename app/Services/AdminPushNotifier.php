@@ -19,7 +19,7 @@ class AdminPushNotifier
         }
 
         $payload = json_encode([
-            'title' => 'Gestione Appartamenti',
+            'title' => AppSettings::appName(),
             'body' => $title,
             'url' => $url ?? '/admin/progetto',
             'tag' => $type,

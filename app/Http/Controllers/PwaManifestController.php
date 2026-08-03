@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Reservation;
+use App\Support\AppSettings;
 use Illuminate\Http\JsonResponse;
 
 class PwaManifestController extends Controller
@@ -11,7 +12,7 @@ class PwaManifestController extends Controller
     {
         return response()->json([
             'id' => '/admin',
-            'name' => 'Gestione Appartamenti',
+            'name' => AppSettings::appName().' — Gestione',
             'short_name' => 'Gestione',
             'description' => 'Pannello gestione appartamenti per il team',
             'start_url' => '/admin?source=pwa',
@@ -52,7 +53,7 @@ class PwaManifestController extends Controller
 
         return response()->json([
             'id' => '/checkin/'.$reservation->token,
-            'name' => 'Check-in Ospiti',
+            'name' => AppSettings::appName().' — Check-in',
             'short_name' => 'Check-in',
             'description' => 'Area ospite — documenti, contratto e soggiorno',
             'start_url' => '/checkin/'.$reservation->token.'?source=pwa',

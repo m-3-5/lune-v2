@@ -18,11 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'webhook/telegram/*',
         ]);
 
-        // Pagina di manutenzione "nostra" (dinamica, non lo down-file nativo di
-        // Laravel): serve stare nel gruppo "web" per leggere sessione/cookie già decifrati.
-        $middleware->web(append: [
-            \App\Http\Middleware\EnforceSiteMaintenance::class,
-        ]);
+        // La rotta di login si chiama "admin.login", non "login" (default Laravel).
+        $middleware->redirectGuestsTo(fn () => route('admin.login'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

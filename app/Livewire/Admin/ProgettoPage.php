@@ -35,6 +35,8 @@ class ProgettoPage extends Component
 
     public string $guestTestEmail = '';
 
+    public string $appName = '';
+
     public string $landlordName = '';
 
     public string $landlordAddress = '';
@@ -45,6 +47,8 @@ class ProgettoPage extends Component
 
     public function mount(): void
     {
+        $this->appName = AppSettings::appName();
+
         $this->adminNotificationsEnabled = AppSettings::adminNotificationsEnabled();
         $this->adminEmailNotificationsEnabled = AppSettings::adminEmailNotificationsEnabled();
         $this->adminWhatsAppNotificationsEnabled = AppSettings::adminWhatsAppNotificationsEnabled();
@@ -80,6 +84,14 @@ class ProgettoPage extends Component
         session()->flash('progetto_message', 'Impostazioni notifiche salvate.');
     }
 
+    public function saveAppName(): void
+    {
+        AppSettings::setAppName($this->appName);
+        $this->appName = AppSettings::appName();
+
+        session()->flash('progetto_message', 'Nome salvato — aggiornato in tutta l\'app.');
+    }
+
     public function saveLandlordDetails(): void
     {
         AppSettings::setLandlordDetails(
@@ -95,7 +107,7 @@ class ProgettoPage extends Component
     public function sendTestNotification(AdminOutboundNotifier $notifier, AdminWhatsAppNotifier $whatsapp): void
     {
         $notifier->notify(
-            'Test notifiche (admin)',
+            'Test notifiche '.AppSettings::appName().' (admin)',
             "Messaggio di prova inviato da Progetto.\nSe ricevi questa email/WhatsApp, la configurazione è ok.",
             url('/admin/progetto'),
             force: true,

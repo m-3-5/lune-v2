@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\CheckfrontWebhookController;
 use App\Http\Controllers\CheckinController;
 use App\Http\Controllers\EntryVideoController;
@@ -8,10 +9,9 @@ use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\PwaIconController;
 use App\Http\Controllers\PwaManifestController;
 use App\Http\Controllers\SupportTicketController;
-use App\Http\Controllers\TeamAccessController;
 use App\Http\Controllers\TelegramWebhookController;
 use App\Http\Controllers\TicketTrackingController;
-use App\Support\AppSettings;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Volt;
 use App\Livewire\Admin\ContrattiPage;
 use App\Livewire\Admin\DettaglioArrivo;
@@ -28,13 +28,10 @@ use App\Livewire\Admin\SviluppoPage;
 use App\Livewire\Admin\TestoContrattoPage;
 
 // Chi arriva sulla home nuda va reindirizzato dove ha davvero accesso:
-// il team (cookie di bypass valido + già "entrato") dritto in admin,
-// chiunque altro su una pagina minimale che rimanda al proprio link di prenotazione.
-Route::get('/', function (\Illuminate\Http\Request $request) {
-    $hasTeamAccess = AppSettings::teamAccessValid($request->cookie('jlune_bypass'))
-        && $request->session()->get('jlune_entered');
-
-    if ($hasTeamAccess) {
+// il team (già loggato) dritto in admin, chiunque altro su una pagina
+// minimale che rimanda al proprio link di prenotazione.
+Route::get('/', function () {
+    if (Auth::check()) {
         return redirect()->route('admin.dashboard');
     }
 
@@ -58,7 +55,7 @@ Route::post('/webhook/checkfront', [CheckfrontWebhookController::class, 'handle'
 
 Route::post('/webhook/telegram/{secret?}', [TelegramWebhookController::class, 'handle'])->name('webhook.telegram');
 
-// Ticket di assistenza — resta raggiungibile anche a sito in manutenzione (vedi AppServiceProvider).
+// Ticket di assistenza — pubblico, nessun login richiesto.
 Route::get('/assistenza', [SupportTicketController::class, 'show'])->name('assistenza');
 Route::post('/assistenza', [SupportTicketController::class, 'store'])->name('assistenza.store');
 
@@ -69,18 +66,10 @@ Route::post('/ticket/{token}/reply', [TicketTrackingController::class, 'reply'])
 // Pagina pubblica del video di ingresso — raggiunta scansionando il QR fisico.
 Route::get('/qr/{token}', [EntryVideoController::class, 'show'])->name('qr.show');
 
-// Link personale "accesso team" — rinnovato a ogni prenotazione reale.
-// Chiede conferma email prima di attivare l'accesso permanente (non basta più il solo link).
-// La rotta /accesso/verifica va registrata PRIMA di /accesso/{token} (jolly), altrimenti
-// quest'ultima la intercetta trattando "verifica" come se fosse il token.
-Route::get('/accesso/verifica', [TeamAccessController::class, 'verify'])->name('team.access.verify')->middleware('signed');
-Route::get('/accesso/{token}', [TeamAccessController::class, 'confirm'])->name('team.access.confirm');
-Route::post('/accesso/{token}/richiedi', [TeamAccessController::class, 'requestAccess'])->name('team.access.request');
-Route::get('/entra', [TeamAccessController::class, 'enter'])->name('team.access.enter');
-
-// Richiesta accesso direttamente dalla pagina di manutenzione (senza link personale in mano):
-// basta un'email registrata tra i contatti admin, niente più password.
-Route::post('/accesso/richiedi', [TeamAccessController::class, 'requestGeneralAccess'])->name('team.access.request.general');
+// Login team per l'area admin.
+Route::get('/admin/login', [AdminLoginController::class, 'show'])->name('admin.login');
+Route::post('/admin/login', [AdminLoginController::class, 'login'])->name('admin.login.submit');
+Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
 
 // La porta d'ingresso per l'ospite (Super-Lucchetto)
 Route::get('/checkin/{token}/manifest.webmanifest', [PwaManifestController::class, 'guest'])
@@ -95,62 +84,50 @@ Route::get('/checkin/{token}/contract', [CheckinController::class, 'contract'])-
 
 Route::get('/checkin/{token}/elettrodomestici', [CheckinController::class, 'appliances'])->name('checkin.appliances');
 
-// Rotta per la Dashboard admin
+// Manifest PWA admin — metadati pubblici, nessun dato sensibile.
 Route::get('/admin/manifest.webmanifest', [PwaManifestController::class, 'admin'])
     ->name('admin.manifest');
 
-Route::get('/admin', function () {
-    return view('admin.dashboard');
-})->name('admin.dashboard');
+// Tutta l'area admin richiede login.
+Route::middleware('auth')->group(function () {
+    Route::get('/admin', function () {
+        return view('admin.dashboard');
+    })->name('admin.dashboard');
 
-// Rotte per i Moduli Admin
-Route::prefix('admin')->group(function () {
-    Route::get('/arrivi', function () { return view('admin.arrivi'); })->name('admin.arrivi');
-    Route::get('/video', EntryVideosPage::class)->name('admin.video');
-    Route::get('/contratti', ContrattiPage::class)->name('admin.contratti');
-    Route::get('/contratti/{reservation}/pdf', function (\App\Models\Reservation $reservation) {
-        abort_unless(
-            $reservation->contract_pdf_path && \Illuminate\Support\Facades\Storage::disk('local')->exists($reservation->contract_pdf_path),
-            404
-        );
+    Route::prefix('admin')->group(function () {
+        Route::get('/arrivi', function () { return view('admin.arrivi'); })->name('admin.arrivi');
+        Route::get('/video', EntryVideosPage::class)->name('admin.video');
+        Route::get('/contratti', ContrattiPage::class)->name('admin.contratti');
+        Route::get('/contratti/{reservation}/pdf', function (\App\Models\Reservation $reservation) {
+            abort_unless(
+                $reservation->contract_pdf_path && \Illuminate\Support\Facades\Storage::disk('local')->exists($reservation->contract_pdf_path),
+                404
+            );
 
-        return \Illuminate\Support\Facades\Storage::disk('local')->download(
-            $reservation->contract_pdf_path,
-            "contratto-{$reservation->booking_code}.pdf"
-        );
-    })->name('admin.contratti.pdf');
-    Route::get('/testo-contratto', TestoContrattoPage::class)->name('admin.testo-contratto');
-    Route::get('/progetto', ProgettoPage::class)->name('admin.progetto');
-    Route::redirect('/canali', '/admin/notifiche')->name('admin.canali');
-    Route::get('/notifiche', NotifichePage::class)->name('admin.notifiche');
-    Route::get('/notifiche/email', CanaleEmailPage::class)->name('admin.notifiche.email');
-    Route::get('/notifiche/whatsapp', CanaleWhatsAppPage::class)->name('admin.notifiche.whatsapp');
-    Route::get('/notifiche/telegram', CanaleTelegramPage::class)->name('admin.notifiche.telegram');
-    Route::get('/notifiche/push', CanalePushPage::class)->name('admin.notifiche.push');
-    Route::get('/prova', ProvaPage::class)->name('admin.prova');
-    Route::get('/sviluppo', SviluppoPage::class)->name('admin.sviluppo');
-    Route::redirect('/configura', '/admin/notifiche');
+            return \Illuminate\Support\Facades\Storage::disk('local')->download(
+                $reservation->contract_pdf_path,
+                "contratto-{$reservation->booking_code}.pdf"
+            );
+        })->name('admin.contratti.pdf');
+        Route::get('/testo-contratto', TestoContrattoPage::class)->name('admin.testo-contratto');
+        Route::get('/progetto', ProgettoPage::class)->name('admin.progetto');
+        Route::redirect('/canali', '/admin/notifiche')->name('admin.canali');
+        Route::get('/notifiche', NotifichePage::class)->name('admin.notifiche');
+        Route::get('/notifiche/email', CanaleEmailPage::class)->name('admin.notifiche.email');
+        Route::get('/notifiche/whatsapp', CanaleWhatsAppPage::class)->name('admin.notifiche.whatsapp');
+        Route::get('/notifiche/telegram', CanaleTelegramPage::class)->name('admin.notifiche.telegram');
+        Route::get('/notifiche/push', CanalePushPage::class)->name('admin.notifiche.push');
+        Route::get('/prova', ProvaPage::class)->name('admin.prova');
+        Route::get('/sviluppo', SviluppoPage::class)->name('admin.sviluppo');
+        Route::redirect('/configura', '/admin/notifiche');
+    });
+
+    // Rotta per il modulo di controllo documenti (Livewire)
+    Route::get('/admin/arrivi/{id}', DettaglioArrivo::class)->name('admin.arrivi.show');
+
+    Route::get('/admin/arrivi/{id}/export/{format}', function (int $id, string $format) {
+        $reservation = \App\Models\Reservation::with('guestDocuments')->findOrFail($id);
+
+        return app(\App\Services\GuestDataExportService::class)->download($reservation, $format);
+    })->where('format', 'json|csv|xml')->name('admin.arrivo.export');
 });
-
-// Rotta per il modulo di controllo documenti (Livewire)
-Route::get('/admin/arrivi/{id}', DettaglioArrivo::class)->name('admin.arrivi.show');
-
-Route::get('/admin/arrivi/{id}/export/{format}', function (int $id, string $format) {
-    $reservation = \App\Models\Reservation::with('guestDocuments')->findOrFail($id);
-
-    return app(\App\Services\GuestDataExportService::class)->download($reservation, $format);
-})->where('format', 'json|csv|xml')->name('admin.arrivo.export');
-
-Route::get('/admin/progetto/guida-document-ai', function () {
-    $path = resource_path('guides/google-document-ai-setup-it.md');
-
-    if (! is_file($path)) {
-        abort(404);
-    }
-
-    return response()->download(
-        $path,
-        'jlune-istruzioni-google-document-ai.md',
-        ['Content-Type' => 'text/markdown; charset=UTF-8']
-    );
-})->name('admin.guide.document-ai');

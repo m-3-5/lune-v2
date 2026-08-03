@@ -19,8 +19,6 @@ class SviluppoPage extends Component
 
     public bool $underConstruction = false;
 
-    public bool $maintenanceOn = false;
-
     public string $adminEmailsText = '';
 
     public string $adminPhonesText = '';
@@ -97,7 +95,6 @@ class SviluppoPage extends Component
     protected function loadDevSettings(): void
     {
         $this->underConstruction = AppSettings::underConstruction();
-        $this->maintenanceOn = AppSettings::siteMaintenanceOn();
         $this->adminEmailsText = implode("\n", AppSettings::adminEmails());
         $this->adminPhonesText = implode("\n", AppSettings::adminPhones());
         $this->projectBaseCost = AppSettings::projectBaseCost();
@@ -166,22 +163,6 @@ class SviluppoPage extends Component
         session()->flash('dev_message', $this->underConstruction
             ? 'App in costruzione attivata.'
             : 'App in costruzione disattivata.');
-    }
-
-    public function toggleMaintenance(): void
-    {
-        $this->maintenanceOn = ! $this->maintenanceOn;
-        AppSettings::setSiteMaintenanceOn($this->maintenanceOn);
-
-        session()->flash('dev_message', $this->maintenanceOn
-            ? 'Sito in manutenzione: attivato. Admin e /assistenza restano raggiungibili.'
-            : 'Sito in manutenzione: disattivato.');
-    }
-
-    public function generateAccessLink(): void
-    {
-        AppSettings::refreshTeamAccessToken();
-        session()->flash('dev_message', 'Nuovo link di accesso generato qui sotto — aprilo per vedere il sito vero durante la manutenzione.');
     }
 
     public function saveContacts(): void
@@ -267,10 +248,7 @@ class SviluppoPage extends Component
             'testReservations' => config('jlune.test_bookings_enabled')
                 ? Reservation::query()->test()->with('apartment')->orderByDesc('created_at')->limit(15)->get()
                 : collect(),
-            'accessLink' => url('/accesso/'.AppSettings::teamAccessToken()),
-            'accessExpiresAt' => AppSettings::teamAccessExpiresAt(),
-            'maintenanceAccessPassword' => AppSettings::maintenanceAccessPassword(),
-            'maintenanceLoginEmails' => AppSettings::adminEmails(),
+            'devPasswordDisplay' => AppSettings::maintenanceAccessPassword(),
         ]);
     }
 }

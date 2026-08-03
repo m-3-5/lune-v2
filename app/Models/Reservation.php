@@ -292,10 +292,12 @@ class Reservation extends Model
 
     public function telegramDeepLink(): ?string
     {
-        if (! config('telegram.enabled') || blank($this->token)) {
+        $telegram = app(\App\Services\TelegramNotifier::class);
+
+        if (! config('telegram.enabled') || blank($this->token) || blank($telegram->botUsername())) {
             return null;
         }
 
-        return app(\App\Services\TelegramNotifier::class)->deepLink($this->token);
+        return $telegram->deepLink($this->token);
     }
 }

@@ -13,7 +13,7 @@
     @endif
 
     <section class="bg-white rounded-3xl shadow-sm border border-amber-100 p-6">
-        <h2 class="text-lg font-black mb-2">App in costruzione <span class="text-xs font-normal text-gray-400">(solo notifiche — diverso da "Sito in manutenzione" qui sotto)</span></h2>
+        <h2 class="text-lg font-black mb-2">App in costruzione</h2>
         <p class="text-xs text-gray-500 mb-3">Blocca solo le notifiche reali agli ospiti (email/WhatsApp/Telegram/push). Il sito resta visitabile e raggiungibile da chiunque.</p>
         <button type="button" wire:click="toggleConstruction"
             class="px-6 py-3 rounded-2xl font-black text-sm uppercase {{ $underConstruction ? 'bg-amber-500 text-amber-950' : 'bg-indigo-600 text-white' }}">
@@ -21,40 +21,10 @@
         </button>
     </section>
 
-    <section class="bg-white rounded-3xl shadow-sm border border-red-100 p-6">
-        <h2 class="text-lg font-black mb-2">Sito in manutenzione</h2>
-        <p class="text-xs text-gray-500 mb-3">Blocca l'accesso a TUTTO il sito per i visitatori (pagina dedicata con link al ticket di assistenza). Admin e /assistenza restano sempre raggiungibili.</p>
-        <button type="button" wire:click="toggleMaintenance"
-            wire:confirm="Confermi? Il sito diventerà irraggiungibile per i visitatori tranne /admin e /assistenza."
-            class="px-6 py-3 rounded-2xl font-black text-sm uppercase {{ $maintenanceOn ? 'bg-red-500 text-white' : 'bg-indigo-600 text-white' }}">
-            {{ $maintenanceOn ? 'Disattiva' : 'Attiva' }}
-        </button>
-
-        @if ($maintenanceOn)
-            <div class="mt-4 pt-4 border-t border-gray-100">
-                <p class="text-xs text-gray-500 mb-2">
-                    Il tuo link per vedere il sito vero durante la manutenzione (lo stesso che arriva al team con ogni nuova prenotazione)
-                    @if ($accessExpiresAt)
-                        — valido fino al {{ $accessExpiresAt->format('d/m/Y H:i') }}
-                    @endif
-                    :
-                </p>
-                <a href="{{ $accessLink }}" target="_blank" rel="noopener" class="text-indigo-600 font-bold break-all underline text-sm">{{ $accessLink }}</a>
-                <div>
-                    <button type="button" wire:click="generateAccessLink" class="mt-3 px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-black uppercase">
-                        Genera nuovo link
-                    </button>
-                </div>
-            </div>
-
-            <div class="mt-4 pt-4 border-t border-gray-100">
-                <p class="text-xs text-gray-500 mb-2">
-                    In alternativa, nella pagina di manutenzione c'è un login diretto ("Accesso team"): email + questa stessa password che usi per entrare qui in Sviluppo.
-                    Funziona per: {{ implode(', ', $maintenanceLoginEmails) ?: 'nessuna email configurata sopra in Progetto → Contatti' }}.
-                </p>
-                <p class="font-mono text-lg font-black text-slate-900 bg-gray-50 rounded-xl px-4 py-2 inline-block">{{ $maintenanceAccessPassword }}</p>
-            </div>
-        @endif
+    <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
+        <h2 class="text-lg font-black mb-2">Password Sviluppo</h2>
+        <p class="text-xs text-gray-500 mb-3">Serve a chiunque nel team debba entrare qui. Impostabile in produzione con la variabile <code class="bg-gray-100 px-1 rounded">JLUNE_DEV_PASSWORD</code> nel <code class="bg-gray-100 px-1 rounded">.env</code>.</p>
+        <p class="font-mono text-lg font-black text-slate-900 bg-gray-50 rounded-xl px-4 py-2 inline-block">{{ $devPasswordDisplay }}</p>
     </section>
 
     @if ($testBookingsEnabled)

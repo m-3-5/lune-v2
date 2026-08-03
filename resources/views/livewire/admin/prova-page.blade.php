@@ -20,19 +20,6 @@
         </div>
     @endif
 
-    @if ($maintenanceOn)
-        <div class="bg-amber-50 text-amber-900 p-4 rounded-2xl text-sm border border-amber-200">
-            <p class="font-black uppercase text-xs mb-1">Manutenzione straordinaria attiva</p>
-            <p>
-                A ogni nuova prenotazione reale, oltre al link ospite, arriva via email/Telegram anche un
-                <strong>link PROVA</strong> collegato: puoi aprirlo e inserire documenti finti per verificare
-                l'app, senza toccare la prenotazione vera. Queste copie compaiono qui sotto con la scritta
-                <strong>auto</strong> e si cancellano da sole dopo 5 giorni. Quando disattivi la manutenzione,
-                questi link extra smettono di arrivare.
-            </p>
-        </div>
-    @endif
-
     <section class="bg-white rounded-3xl shadow-sm border border-amber-100 p-6 flex flex-wrap items-center justify-between gap-4">
         <div>
             <h2 class="text-lg font-black text-gray-900">Creazione prove</h2>

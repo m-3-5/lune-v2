@@ -15,7 +15,7 @@ return [
 
     'enabled' => env('TELEGRAM_ENABLED', false),
 
-    'bot_username' => env('TELEGRAM_BOT_USERNAME', 'jlune_notifiche_bot'),
+    'bot_username' => env('TELEGRAM_BOT_USERNAME', ''),
 
     /*
     | Segreto opzionale per l'URL webhook (consigliato in produzione).
