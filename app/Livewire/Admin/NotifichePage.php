@@ -68,7 +68,6 @@ class NotifichePage extends Component
             'adminEmails' => AppSettings::adminEmails(),
             'adminPhones' => AppSettings::adminPhones(),
             'isSuperAdmin' => auth()->user()?->isSuperAdmin() ?? false,
-            'notificationMatrix' => self::notificationMatrix(),
             'liveChecklist' => self::liveChecklist(
                 $mailReady,
                 $whatsappReady,
@@ -78,63 +77,6 @@ class NotifichePage extends Component
                 $guestCanReceive,
             ),
         ])->title('Notifiche');
-    }
-
-    /**
-     * @return array<int, array{event: string, admin: string, guest: string, when: string}>
-     */
-    protected static function notificationMatrix(): array
-    {
-        return [
-            [
-                'event' => 'Nuova prenotazione Checkfront',
-                'admin' => 'Campanella + email/WhatsApp (se attivi)',
-                'guest' => '—',
-                'when' => 'All\'arrivo webhook',
-            ],
-            [
-                'event' => 'Ospite carica documenti',
-                'admin' => 'Campanella + email/WhatsApp',
-                'guest' => 'Conferma ricezione + «in verifica»',
-                'when' => 'Subito dopo l\'invio',
-            ],
-            [
-                'event' => 'Documenti approvati / rifiutati',
-                'admin' => 'Campanella',
-                'guest' => 'Email/WhatsApp/push (se attivi)',
-                'when' => 'Quando il gestore approva o rifiuta',
-            ],
-            [
-                'event' => 'Contratto pronto per la firma',
-                'admin' => 'Campanella',
-                'guest' => '«Firma il contratto» (link diretto)',
-                'when' => 'Dopo «Contratto pronto» in admin',
-            ],
-            [
-                'event' => 'Codice fiscale mancante',
-                'admin' => '—',
-                'guest' => 'Promemoria «Inserisci il CF»',
-                'when' => 'Contratto pronto ma CF assente',
-            ],
-            [
-                'event' => 'Contratto firmato',
-                'admin' => 'Campanella + email/WhatsApp',
-                'guest' => 'Email con PDF allegato',
-                'when' => 'Alla firma elettronica',
-            ],
-            [
-                'event' => 'Pagamento / documenti in sospeso',
-                'admin' => '—',
-                'guest' => 'Promemoria automatici (cron 10:00)',
-                'when' => 'Arrivo entro 14 giorni',
-            ],
-            [
-                'event' => 'Promemoria arrivo / check-out',
-                'admin' => '—',
-                'guest' => 'Email/WhatsApp/push (se attivi)',
-                'when' => 'Cron giornaliero + visita portale',
-            ],
-        ];
     }
 
     /**
