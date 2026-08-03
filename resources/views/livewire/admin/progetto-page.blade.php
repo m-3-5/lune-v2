@@ -2,14 +2,20 @@
     <div>
         <a href="{{ route('admin.dashboard') }}" class="text-indigo-600 font-bold text-sm">← Dashboard</a>
         <h1 class="text-3xl font-black text-indigo-950 mt-2">Progetto</h1>
-        <p class="text-gray-500 text-sm mt-1">Nome, contatti e notifiche.</p>
     </div>
 
-    <section class="bg-white rounded-3xl shadow-sm border border-indigo-100 p-6 space-y-3">
-        <h2 class="text-lg font-black text-indigo-950">Nome</h2>
-        <p class="text-sm text-gray-600">
-            Compare in titoli, notifiche, PWA e email in tutta l'app — cambialo una volta sola qui.
-        </p>
+    {{-- Salto rapido --}}
+    <section class="flex flex-wrap gap-2">
+        <a href="#nome" class="px-4 py-2 bg-white border border-gray-200 rounded-full text-xs font-black uppercase text-gray-700 hover:border-indigo-300">🏷️ Nome</a>
+        <a href="#account" class="px-4 py-2 bg-white border border-gray-200 rounded-full text-xs font-black uppercase text-gray-700 hover:border-indigo-300">🔑 Account</a>
+        <a href="#notifiche" class="px-4 py-2 bg-white border border-gray-200 rounded-full text-xs font-black uppercase text-gray-700 hover:border-indigo-300">🔔 Team</a>
+        <a href="#locatore" class="px-4 py-2 bg-white border border-gray-200 rounded-full text-xs font-black uppercase text-gray-700 hover:border-indigo-300">🏠 Locatore</a>
+        <a href="#ospiti" class="px-4 py-2 bg-white border border-gray-200 rounded-full text-xs font-black uppercase text-gray-700 hover:border-indigo-300">🛎️ Ospiti</a>
+        <a href="#task-board" class="px-4 py-2 bg-white border border-gray-200 rounded-full text-xs font-black uppercase text-gray-700 hover:border-indigo-300">📋 Task</a>
+    </section>
+
+    <section id="nome" class="bg-white rounded-3xl shadow-sm border border-indigo-100 p-6 space-y-3">
+        <h2 class="text-lg font-black text-indigo-950">🏷️ Nome</h2>
         <div class="flex flex-wrap gap-2">
             <input type="text" wire:model="appName" placeholder="Es. Appartamenti Rossi"
                 class="flex-1 min-w-[200px] rounded-xl border-gray-200 text-sm">
@@ -20,9 +26,9 @@
         </div>
     </section>
 
-    <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 space-y-3">
-        <h2 class="text-lg font-black text-gray-900">Il tuo account</h2>
-        <p class="text-sm text-gray-600">Accesso: <strong>{{ auth()->user()->email }}</strong></p>
+    <section id="account" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 space-y-3">
+        <h2 class="text-lg font-black text-gray-900">🔑 Il tuo account</h2>
+        <p class="text-sm text-gray-600">{{ auth()->user()->email }}</p>
 
         @error('currentPassword')
             <p class="text-red-600 text-xs font-bold">{{ $message }}</p>
@@ -46,11 +52,7 @@
     </section>
 
     <section id="notifiche" class="bg-white rounded-3xl shadow-sm border border-emerald-100 p-6 space-y-4">
-        <h2 class="text-lg font-black text-emerald-950">Notifiche email e WhatsApp (team admin)</h2>
-        <p class="text-sm text-gray-600">
-            Avvisi operativi (documenti, contratti, prove TEST) verso i contatti sotto.
-            Telegram e push PWA restano attivi separatamente. <strong>Di default tutto è disattivato</strong> finché non attivate e testate.
-        </p>
+        <h2 class="text-lg font-black text-emerald-950">🔔 Notifiche team (email/WhatsApp)</h2>
 
         @if (session()->has('progetto_message'))
             <div class="bg-green-50 text-green-800 p-3 rounded-xl text-sm font-bold border border-green-200">
@@ -84,11 +86,10 @@
         </div>
 
         <p class="text-xs text-gray-500">
-            SMTP e WhatsApp: configura in
-            <a href="{{ route('admin.notifiche.whatsapp') }}" class="text-emerald-700 underline font-bold">Notifiche → WhatsApp</a>.
-            Driver attuale: <code class="bg-gray-100 px-1 rounded">{{ $effectiveMailDriver }}</code>
-            @if (! $mailSmtpReady)
-                — <span class="text-amber-700">SMTP non pronto (manca password o toggle)</span>
+            @if ($mailSmtpReady)
+                ✅ SMTP pronto ({{ $effectiveMailDriver }})
+            @else
+                ⬜ SMTP non pronto — <a href="{{ route('admin.notifiche.whatsapp') }}" class="text-emerald-700 underline font-bold">configura in Notifiche → WhatsApp</a>
             @endif
         </p>
 
@@ -104,11 +105,8 @@
         </div>
     </section>
 
-    <section class="bg-white rounded-3xl shadow-sm border border-indigo-100 p-6 space-y-4">
-        <h2 class="text-lg font-black text-indigo-950">Dati locatore (contratti)</h2>
-        <p class="text-sm text-gray-600">
-            Questi dati compaiono come "Locatore" nei contratti di locazione generati per gli ospiti (PDF e pagina firma).
-        </p>
+    <section id="locatore" class="bg-white rounded-3xl shadow-sm border border-indigo-100 p-6 space-y-4">
+        <h2 class="text-lg font-black text-indigo-950">🏠 Dati locatore (per i contratti)</h2>
 
         <div class="grid md:grid-cols-2 gap-4">
             <div>
@@ -139,13 +137,9 @@
         </button>
     </section>
 
-    <section class="bg-white rounded-3xl shadow-sm border border-sky-100 p-6 space-y-4">
-        <h2 class="text-lg font-black text-sky-950">Notifiche verso gli ospiti</h2>
-        <p class="text-sm text-gray-600">
-            Email, WhatsApp, <strong>Telegram</strong> e push verso i contatti Checkfront (<code>guest_email</code> / <code>guest_phone</code>) o Telegram collegato dal portale ospite.
-            <strong>Restano disattivate di default</strong> per evitare invii ai clienti reali prima di aver provato l'app.
-            Le prenotazioni TEST non ricevono mai email/WhatsApp reali (solo il pulsante test sotto).
-        </p>
+    <section id="ospiti" class="bg-white rounded-3xl shadow-sm border border-sky-100 p-6 space-y-4">
+        <h2 class="text-lg font-black text-sky-950">🛎️ Notifiche verso gli ospiti</h2>
+        <p class="text-xs text-gray-500">Spente di default finché non le attivi tu.</p>
 
         <div class="space-y-1 divide-y divide-gray-100">
             <x-admin.toggle-switch wire:model="guestNotificationsEnabled" label="Notifiche ospite attive" color="sky" />
@@ -177,16 +171,12 @@
     </section>
 
     <section class="bg-white rounded-3xl shadow-sm border border-indigo-50 p-6">
-        <h2 class="text-lg font-black text-indigo-950 mb-2">Notifiche sul telefono</h2>
-        <p class="text-sm text-gray-600 mb-3">
-            Task e avvisi operativi (documenti, contratti…): installa come app (Aggiungi a schermata Home) e attiva qui.
-        </p>
+        <h2 class="text-lg font-black text-indigo-950 mb-2">📲 Notifiche sul telefono</h2>
         <x-pwa-push-register channel="admin" class="mb-0" />
     </section>
 
     <section id="task-board" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-        <h2 class="text-lg font-black text-gray-900 mb-2">Task e avanzamenti</h2>
-        <p class="text-sm text-gray-600 mb-4">Le domande dalla guida compaiono qui. Aggiungi richieste e segui le risposte del team.</p>
+        <h2 class="text-lg font-black text-gray-900 mb-2">📋 Task e avanzamenti</h2>
         <livewire:admin.development-tasks-board :developer-mode="false" />
     </section>
 </div>
