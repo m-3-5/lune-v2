@@ -63,6 +63,9 @@
                     <a href="{{ route('admin.prova') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">🧪</span> Prova flusso</a>
                     <a href="{{ route('admin.progetto') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-colors mt-4 border-t border-slate-800 pt-4"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">📋</span> Progetto e task</a>
                     <a href="{{ route('admin.notifiche') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">🔔</span> Notifiche e canali</a>
+                    @if (auth()->user()?->isSuperAdmin())
+                        <a href="{{ route('admin.utenti') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">👥</span> Utenti</a>
+                    @endif
                     <button type="button" onclick="window.jlunePwaInstall && window.jlunePwaInstall.open('admin'); sidebarOpen = false" class="flex items-center gap-3 w-full text-left px-3 py-2.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-colors text-teal-300"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">📲</span> Scarica l'app</button>
                     <a href="{{ route('admin.sviluppo') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl text-xs font-bold hover:bg-slate-800 transition-colors {{ \App\Support\JluneDeveloperAccess::isGranted() ? 'text-slate-300' : 'text-slate-500' }}">
                         <span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">🔧</span> Sviluppo (team)@if (! \App\Support\JluneDeveloperAccess::isGranted()) 🔒@endif
@@ -97,6 +100,9 @@
                             <li><a href="{{ route('admin.prova') }}" class="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-bold hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">🧪</span> Prova flusso</a></li>
                             <li><a href="{{ route('admin.progetto') }}" class="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-bold hover:bg-slate-800 border-t border-slate-800 pt-4 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">📋</span> Progetto e task</a></li>
                             <li><a href="{{ route('admin.notifiche') }}" class="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-bold hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">🔔</span> Notifiche e canali</a></li>
+                            @if (auth()->user()?->isSuperAdmin())
+                                <li><a href="{{ route('admin.utenti') }}" class="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-bold hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">👥</span> Utenti</a></li>
+                            @endif
                             <li>
                                 <button type="button" onclick="window.jlunePwaInstall && window.jlunePwaInstall.open('admin')" class="flex items-center gap-3 w-full text-left rounded-2xl px-3 py-2.5 text-sm font-bold hover:bg-slate-800 transition-colors text-teal-300">
                                     <span class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center">📲</span> Scarica l'app

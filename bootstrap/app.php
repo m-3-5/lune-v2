@@ -20,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // La rotta di login si chiama "admin.login", non "login" (default Laravel).
         $middleware->redirectGuestsTo(fn () => route('admin.login'));
+
+        $middleware->alias([
+            'super_admin' => \App\Http\Middleware\EnsureSuperAdmin::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

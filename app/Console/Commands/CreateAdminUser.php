@@ -10,7 +10,7 @@ use Illuminate\Validation\Rules\Password;
 
 class CreateAdminUser extends Command
 {
-    protected $signature = 'admin:create {email? : Email di accesso} {--password= : Password (se omessa, viene generata)} {--name= : Nome visualizzato}';
+    protected $signature = 'admin:create {email? : Email di accesso} {--password= : Password (se omessa, viene generata)} {--name= : Nome visualizzato} {--role= : admin oppure super_admin (default: super_admin se è il primo utente, admin altrimenti)}';
 
     protected $description = 'Crea (o aggiorna la password di) un utente per il login admin';
 
@@ -43,15 +43,28 @@ class CreateAdminUser extends Command
             return self::FAILURE;
         }
 
-        $user = User::updateOrCreate(
-            ['email' => $email],
-            [
-                'name' => $this->option('name') ?: Str::before($email, '@'),
-                'password' => Hash::make($password),
-            ]
-        );
+        $role = $this->option('role');
+        if ($role && ! in_array($role, [User::ROLE_ADMIN, User::ROLE_SUPER_ADMIN], true)) {
+            $this->error('--role deve essere "admin" oppure "super_admin".');
 
-        $this->info(($user->wasRecentlyCreated ? 'Utente creato: ' : 'Password aggiornata per: ').$email);
+            return self::FAILURE;
+        }
+
+        $exists = User::where('email', $email)->exists();
+        $attributes = [
+            'name' => $this->option('name') ?: Str::before($email, '@'),
+            'password' => Hash::make($password),
+        ];
+
+        if ($role) {
+            $attributes['role'] = $role;
+        } elseif (! $exists) {
+            $attributes['role'] = User::query()->doesntExist() ? User::ROLE_SUPER_ADMIN : User::ROLE_ADMIN;
+        }
+
+        $user = User::updateOrCreate(['email' => $email], $attributes);
+
+        $this->info(($user->wasRecentlyCreated ? 'Utente creato (' : 'Password aggiornata (').$user->roleLabel().'): '.$email);
 
         if ($generated) {
             $this->warn('Password generata (segnala solo qui, non è recuperabile in altro modo):');

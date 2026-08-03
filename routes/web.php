@@ -29,6 +29,7 @@ use App\Livewire\Admin\ProvaPage;
 use App\Livewire\Admin\ReservationsModule;
 use App\Livewire\Admin\SviluppoPage;
 use App\Livewire\Admin\TestoContrattoPage;
+use App\Livewire\Admin\UsersPage;
 
 // Chi arriva sulla home nuda va reindirizzato dove ha davvero accesso:
 // il team (già loggato) dritto in admin, chiunque altro su una pagina
@@ -132,6 +133,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/prova', ProvaPage::class)->name('admin.prova');
         Route::get('/sviluppo', SviluppoPage::class)->name('admin.sviluppo');
         Route::redirect('/configura', '/admin/notifiche');
+
+        Route::middleware('super_admin')->group(function () {
+            Route::get('/utenti', UsersPage::class)->name('admin.utenti');
+        });
     });
 
     // Rotta per il modulo di controllo documenti (Livewire)

@@ -107,8 +107,6 @@ class GeneratePwaIcons extends Command
             : [255, 255, 255];
 
         $out = imagecreatetruecolor($size, $size);
-        imagealphablending($out, false);
-        imagesavealpha($out, true);
         $bgColor = imagecolorallocate($out, $bg[0], $bg[1], $bg[2]);
         imagefill($out, 0, 0, $bgColor);
 
@@ -120,9 +118,14 @@ class GeneratePwaIcons extends Command
         $destX = (int) round(($size - $destW) / 2);
         $destY = (int) round(($size - $destH) / 2);
 
+        // Alpha blending ON: le zone trasparenti dell'artwork si fondono con lo sfondo
+        // pieno invece di "bucarlo" (bug precedente: lasciava trasparenza nel PNG finale).
+        imagealphablending($out, true);
         imagecopyresampled($out, $cropped, $destX, $destY, 0, 0, $destW, $destH, $cropW, $cropH);
         imagedestroy($cropped);
 
+        // Icona finale sempre completamente opaca: più affidabile su iOS/Android.
+        imagesavealpha($out, false);
         imagepng($out, $target, 6);
         imagedestroy($out);
     }
