@@ -20,6 +20,31 @@
         </div>
     </section>
 
+    <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 space-y-3">
+        <h2 class="text-lg font-black text-gray-900">Il tuo account</h2>
+        <p class="text-sm text-gray-600">Accesso: <strong>{{ auth()->user()->email }}</strong></p>
+
+        @error('currentPassword')
+            <p class="text-red-600 text-xs font-bold">{{ $message }}</p>
+        @enderror
+        @error('newPassword')
+            <p class="text-red-600 text-xs font-bold">{{ $message }}</p>
+        @enderror
+
+        <div class="grid sm:grid-cols-3 gap-2">
+            <input type="password" wire:model="currentPassword" placeholder="Password attuale"
+                class="rounded-xl border-gray-200 text-sm">
+            <input type="password" wire:model="newPassword" placeholder="Nuova password"
+                class="rounded-xl border-gray-200 text-sm">
+            <input type="password" wire:model="newPassword_confirmation" placeholder="Conferma nuova password"
+                class="rounded-xl border-gray-200 text-sm">
+        </div>
+        <button type="button" wire:click="changePassword"
+            class="px-5 py-2 bg-gray-800 text-white rounded-xl text-xs font-black uppercase">
+            Cambia password
+        </button>
+    </section>
+
     <section id="notifiche" class="bg-white rounded-3xl shadow-sm border border-emerald-100 p-6 space-y-4">
         <h2 class="text-lg font-black text-emerald-950">Notifiche email e WhatsApp (team admin)</h2>
         <p class="text-sm text-gray-600">

@@ -7,6 +7,9 @@ use App\Services\AdminOutboundNotifier;
 use App\Services\AdminWhatsAppNotifier;
 use App\Services\GuestOutboundNotifier;
 use App\Support\AppSettings;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -36,6 +39,12 @@ class ProgettoPage extends Component
     public string $guestTestEmail = '';
 
     public string $appName = '';
+
+    public string $currentPassword = '';
+
+    public string $newPassword = '';
+
+    public string $newPassword_confirmation = '';
 
     public string $landlordName = '';
 
@@ -90,6 +99,30 @@ class ProgettoPage extends Component
         $this->appName = AppSettings::appName();
 
         session()->flash('progetto_message', 'Nome salvato — aggiornato in tutta l\'app.');
+    }
+
+    public function changePassword(): void
+    {
+        $this->validate([
+            'currentPassword' => 'required|string',
+            'newPassword' => ['required', 'string', 'confirmed', Password::min(8)],
+        ], [], ['newPassword' => 'nuova password']);
+
+        $user = Auth::user();
+
+        if (! Hash::check($this->currentPassword, $user->password)) {
+            $this->addError('currentPassword', 'Password attuale non corretta.');
+
+            return;
+        }
+
+        $user->update(['password' => Hash::make($this->newPassword)]);
+
+        $this->currentPassword = '';
+        $this->newPassword = '';
+        $this->newPassword_confirmation = '';
+
+        session()->flash('progetto_message', 'Password aggiornata.');
     }
 
     public function saveLandlordDetails(): void

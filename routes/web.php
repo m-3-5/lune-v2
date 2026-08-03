@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AdminLoginController;
+use App\Http\Controllers\Auth\AdminPasswordResetController;
 use App\Http\Controllers\CheckfrontWebhookController;
 use App\Http\Controllers\CheckinController;
 use App\Http\Controllers\EntryVideoController;
@@ -70,6 +71,13 @@ Route::get('/qr/{token}', [EntryVideoController::class, 'show'])->name('qr.show'
 Route::get('/admin/login', [AdminLoginController::class, 'show'])->name('admin.login');
 Route::post('/admin/login', [AdminLoginController::class, 'login'])->name('admin.login.submit');
 Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
+
+// Password dimenticata. Il nome "password.reset" è quello atteso dalla notifica
+// di reset di Laravel per costruire il link nell'email — non rinominarlo.
+Route::get('/admin/password/forgot', [AdminPasswordResetController::class, 'showRequestForm'])->name('admin.password.request');
+Route::post('/admin/password/forgot', [AdminPasswordResetController::class, 'sendResetLink'])->name('admin.password.email');
+Route::get('/admin/password/reset/{token}', [AdminPasswordResetController::class, 'showResetForm'])->name('password.reset');
+Route::post('/admin/password/reset', [AdminPasswordResetController::class, 'reset'])->name('admin.password.update');
 
 // La porta d'ingresso per l'ospite (Super-Lucchetto)
 Route::get('/checkin/{token}/manifest.webmanifest', [PwaManifestController::class, 'guest'])
