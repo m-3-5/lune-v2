@@ -7,7 +7,7 @@ return [
     | Checkfront API (solo server-side: mai esporre key/secret al browser)
     |--------------------------------------------------------------------------
     */
-    'host' => env('CHECKFRONT_HOST', 'jlune.checkfront.com'),
+    'host' => env('CHECKFRONT_HOST', ''),
 
     // Fuso per interpretare start_date / end_date dei webhook e API
     'timezone' => env('CHECKFRONT_TIMEZONE', 'Europe/Rome'),
@@ -16,8 +16,8 @@ return [
 
     'api_secret' => env('CHECKFRONT_API_SECRET'),
 
-    // URL pagamento cliente (senza /payment/ — quella path dà 404 su jlune)
-    'payment_url' => env('CHECKFRONT_PAYMENT_URL', 'https://jlune.checkfront.com/reserve/'),
+    // URL pagamento cliente (senza /payment/ — quella path dà spesso 404)
+    'payment_url' => env('CHECKFRONT_PAYMENT_URL', ''),
 
     /*
     | Log webhook (opzionale). Se vuoto, import-log usa il primo file esistente tra:
