@@ -22,7 +22,6 @@ class CanaleWhatsAppPage extends Component
         return view('livewire.admin.notifiche.canale-whatsapp-page', array_merge(
             $this->whatsAppChannelViewData(),
             [
-                'underConstruction' => AppSettings::underConstruction(),
                 'whatsappProviderLabel' => AppSettings::whatsappProvider(),
             ],
         ));

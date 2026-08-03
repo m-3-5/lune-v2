@@ -17,8 +17,6 @@ class SviluppoPage extends Component
 
     public string $devPassword = '';
 
-    public bool $underConstruction = false;
-
     public string $adminEmailsText = '';
 
     public string $adminPhonesText = '';
@@ -94,7 +92,6 @@ class SviluppoPage extends Component
 
     protected function loadDevSettings(): void
     {
-        $this->underConstruction = AppSettings::underConstruction();
         $this->adminEmailsText = implode("\n", AppSettings::adminEmails());
         $this->adminPhonesText = implode("\n", AppSettings::adminPhones());
         $this->projectBaseCost = AppSettings::projectBaseCost();
@@ -154,15 +151,6 @@ class SviluppoPage extends Component
         $reservation = Reservation::findOrFail($id);
         $tests->delete($reservation);
         session()->flash('dev_message', 'Prenotazione TEST eliminata.');
-    }
-
-    public function toggleConstruction(): void
-    {
-        $this->underConstruction = ! $this->underConstruction;
-        AppSettings::setUnderConstruction($this->underConstruction);
-        session()->flash('dev_message', $this->underConstruction
-            ? 'App in costruzione attivata.'
-            : 'App in costruzione disattivata.');
     }
 
     public function saveContacts(): void

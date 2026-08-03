@@ -36,16 +36,6 @@ class Reservation extends Model
         'telegram_linked_at' => 'datetime',
     ];
 
-    /** In fase costruzione: solo questa prenotazione può ricevere notifiche reali all'ospite. */
-    public function allowsGuestNotificationsDelivery(): bool
-    {
-        if (! \App\Support\AppSettings::underConstruction()) {
-            return true;
-        }
-
-        return (bool) $this->notifications_pilot;
-    }
-
     protected $appends = [
         'guest_portal_url',
     ];

@@ -40,12 +40,12 @@
             <svg class="absolute right-[-20px] bottom-[-20px] w-48 h-48 text-white opacity-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2H7a1 1 0 100-2h.01zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path></svg>
         </div>
 
-        @if (\App\Support\AppSettings::underConstruction())
+        @if ($reservation->is_test)
             <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
                 <div class="text-sm text-amber-950 max-w-xl">
-                    <p class="font-black uppercase text-[10px] tracking-widest text-amber-700 mb-1">Work in progress</p>
+                    <p class="font-black uppercase text-[10px] tracking-widest text-amber-700 mb-1">Prenotazione TEST</p>
                     <p>
-                        Con il banner attivo, le notifiche all'ospite restano in <strong>anteprima admin</strong>.
+                        Le prenotazioni TEST non inviano notifiche reali all'ospite di default.
                         Attiva qui solo su questa prenotazione per testare email/WhatsApp reali (serve anche accendere i toggle in Progetto).
                     </p>
                 </div>

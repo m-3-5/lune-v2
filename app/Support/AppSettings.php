@@ -53,16 +53,6 @@ class AppSettings
         static::set('app_name', trim($name) ?: 'Gestione Appartamenti');
     }
 
-    public static function underConstruction(): bool
-    {
-        return (bool) static::get('under_construction', false);
-    }
-
-    public static function setUnderConstruction(bool $on): void
-    {
-        static::set('under_construction', $on);
-    }
-
     public static function testBookingsAdminEnabled(): bool
     {
         return (bool) static::get('test_bookings_admin_enabled', false);

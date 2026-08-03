@@ -57,12 +57,6 @@
         />
     </section>
 
-    @if ($underConstruction)
-        <div class="rounded-xl bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 text-sm">
-            <strong>Work in progress attivo.</strong> Gli ospiti reali non ricevono WhatsApp finché non spegni WIP o usi «Prova notifiche» su una prenotazione.
-        </div>
-    @endif
-
     {{-- Setup Business Meta + Twilio --}}
     @if ($twilioBusinessMode)
         <section class="bg-emerald-50 rounded-3xl border border-emerald-200 p-6 space-y-3">

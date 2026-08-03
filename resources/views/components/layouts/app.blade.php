@@ -27,8 +27,6 @@
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased pb-20" x-data="{ menuOpen: false }">
 
-    <x-construction-banner />
-
     @php
         // Gestione sicura delle variabili nel layout globale
         $hasReservation = isset($reservation) && $reservation !== null;

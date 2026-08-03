@@ -52,12 +52,6 @@
             Telegram e push PWA restano attivi separatamente. <strong>Di default tutto è disattivato</strong> finché non attivate e testate.
         </p>
 
-        @if ($underConstruction)
-            <div class="bg-amber-50 text-amber-900 p-3 rounded-xl text-sm border border-amber-200">
-                «App in costruzione» attiva: le notifiche verso gli ospiti restano in anteprima admin, non al cliente.
-            </div>
-        @endif
-
         @if (session()->has('progetto_message'))
             <div class="bg-green-50 text-green-800 p-3 rounded-xl text-sm font-bold border border-green-200">
                 {{ session('progetto_message') }}
@@ -162,7 +156,7 @@
         </div>
 
         <p class="text-xs text-gray-500">
-            Attivare «Notifiche ospite attive» + almeno un canale. Con «App in costruzione» le anteprime restano solo agli admin.
+            Attivare «Notifiche ospite attive» + almeno un canale.
         </p>
 
         <div class="flex flex-wrap items-end gap-3">
@@ -186,7 +180,6 @@
         <h2 class="text-lg font-black text-indigo-950 mb-2">Notifiche sul telefono</h2>
         <p class="text-sm text-gray-600 mb-3">
             Task e avvisi operativi (documenti, contratti…): installa come app (Aggiungi a schermata Home) e attiva qui.
-            Con <strong>app in costruzione</strong> attiva, le anteprime ospite arrivano solo al team (Telegram + push), non al cliente.
         </p>
         <x-pwa-push-register channel="admin" class="mb-0" />
     </section>

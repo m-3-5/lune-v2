@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\AppSetting;
 use App\Models\DevelopmentItem;
 use App\Models\DevelopmentReply;
+use App\Models\FaqEntry;
 use App\Support\AppSettings;
 use Illuminate\Console\Command;
 
@@ -48,6 +49,14 @@ class CleanupLegacyClientLabels extends Command
 
         // Guida interna di sviluppo eliminata: la sua impostazione non serve più.
         $updated += AppSetting::where('key', 'app_guide')->delete();
+
+        // "App in costruzione" / "Sito in manutenzione" eliminati: impostazione e FAQ collegate non servono più.
+        $updated += AppSetting::where('key', 'under_construction')->delete();
+        $updated += FaqEntry::where('question', 'like', '%App in costruzione%')
+            ->orWhere('question', 'like', '%sito in manutenzione%')
+            ->orWhere('question', 'like', '%vedo il sito vero durante la manutenzione%')
+            ->orWhere('question', 'like', '%etichetta "auto" in Prova flusso%')
+            ->delete();
 
         $this->info($updated > 0 ? "Aggiornati {$updated} elementi." : 'Nessun dato legacy trovato — niente da fare.');
 

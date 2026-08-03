@@ -4,7 +4,6 @@ namespace App\Livewire\Admin;
 
 use App\Models\Reservation;
 use App\Support\AppSettings;
-use App\Support\JluneDeveloperAccess;
 use Illuminate\Support\Facades\URL;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -14,7 +13,6 @@ class NotifichePage extends Component
 {
     public function render()
     {
-        $underConstruction = AppSettings::underConstruction();
         $adminOn = AppSettings::adminNotificationsEnabled();
         $guestOn = AppSettings::guestNotificationsEnabled();
         $mailReady = AppSettings::mailSmtpReady();
@@ -23,7 +21,7 @@ class NotifichePage extends Component
         $telegramAdminReady = $telegramBotReady && config('telegram.notify_chat_ids') !== [];
         $guestTelegramOn = AppSettings::guestTelegramNotificationsEnabled();
 
-        $guestCanReceive = ! $underConstruction && $guestOn && (
+        $guestCanReceive = $guestOn && (
             (AppSettings::guestEmailNotificationsEnabled() && $mailReady)
             || (AppSettings::guestWhatsAppNotificationsEnabled() && $whatsappReady)
             || (AppSettings::guestTelegramNotificationsEnabled() && $telegramBotReady)
@@ -53,7 +51,6 @@ class NotifichePage extends Component
             : null;
 
         return view('livewire.admin.notifiche-page', [
-            'underConstruction' => $underConstruction,
             'adminOn' => $adminOn,
             'guestOn' => $guestOn,
             'guestTelegramOn' => $guestTelegramOn,
@@ -71,10 +68,8 @@ class NotifichePage extends Component
             'adminEmails' => AppSettings::adminEmails(),
             'adminPhones' => AppSettings::adminPhones(),
             'isSuperAdmin' => auth()->user()?->isSuperAdmin() ?? false,
-            'canToggleConstruction' => JluneDeveloperAccess::isGranted(),
             'notificationMatrix' => self::notificationMatrix(),
             'liveChecklist' => self::liveChecklist(
-                $underConstruction,
                 $mailReady,
                 $whatsappReady,
                 $adminOn,
@@ -146,7 +141,6 @@ class NotifichePage extends Component
      * @return array<int, array{label: string, done: bool, hint: string}>
      */
     protected static function liveChecklist(
-        bool $underConstruction,
         bool $mailReady,
         bool $whatsappReady,
         bool $adminOn,
@@ -181,14 +175,9 @@ class NotifichePage extends Component
                 'hint' => 'Restano spente finché non siete pronti.',
             ],
             [
-                'label' => 'Work in progress disattivato',
-                'done' => ! $underConstruction,
-                'hint' => 'Solo team sviluppo può spegnerlo (Sviluppo).',
-            ],
-            [
                 'label' => 'Pronto a inviare agli ospiti reali',
                 'done' => $guestCanReceive,
-                'hint' => 'Richiede ospite ON + canali ok + work in progress OFF.',
+                'hint' => 'Richiede ospite ON + almeno un canale pronto.',
             ],
         ];
     }

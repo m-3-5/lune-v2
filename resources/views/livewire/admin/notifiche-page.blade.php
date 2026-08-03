@@ -50,9 +50,8 @@
 
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             @foreach ([
-                ['Work in progress', $underConstruction, $underConstruction ? 'Gli ospiti reali NON ricevono email/WhatsApp' : 'Modalità live per gli ospiti (se i toggle sono ON)'],
                 ['Notifiche admin', $adminOn, $adminCanReceive ? 'Invio effettivo possibile' : 'Spento o canali non pronti'],
-                ['Notifiche ospiti', $guestOn, $guestCanReceive ? 'Gli ospiti possono ricevere messaggi' : ($underConstruction ? 'Bloccate da work in progress' : 'Spento o canali non pronti')],
+                ['Notifiche ospiti', $guestOn, $guestCanReceive ? 'Gli ospiti possono ricevere messaggi' : 'Spento o canali non pronti'],
                 ['Email SMTP', $mailReady, $mailReady ? 'Pronta per inviare' : 'Configura in Notifiche → Email'],
                 ['WhatsApp', $whatsappReady, $whatsappReady ? ucfirst($whatsappProvider).' attivo' : 'Provider: '.$whatsappProvider],
                 ['Telegram bot', $telegramBotReady, $telegramBotReady ? '@'.$telegramBotUsername.' attivo' : 'Configura TELEGRAM_BOT_TOKEN nel .env'],
@@ -69,12 +68,6 @@
             @endforeach
         </div>
 
-        @if ($underConstruction)
-            <div class="mt-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 text-sm">
-                <strong>App in costruzione attiva.</strong> I promemoria automatici (cron ore 10:00) girano, ma verso gli ospiti reali restano in <strong>anteprima admin</strong>.
-                Per testare su una prenotazione vera: apri il dettaglio arrivo e attiva <strong>«Prova notifiche»</strong>.
-            </div>
-        @endif
     </section>
 
     {{-- 3 passi --}}
@@ -109,14 +102,9 @@
                 <div>
                     <p class="font-bold text-indigo-950">Testa, poi vai live</p>
                     <p class="text-indigo-900/80 mt-0.5">
-                        Usa «Invia test admin» e una prenotazione TEST con «Prova notifiche».
-                        Quando sei pronta, il team disattiva <strong>Work in progress</strong>.
+                        Usa «Invia test admin» e una prenotazione TEST con «Prova notifiche» per verificare la consegna reale.
+                        Appena i toggle ospite del punto 2 sono accesi, le notifiche partono per davvero.
                     </p>
-                    @if ($isSuperAdmin)
-                        <a href="{{ route('admin.sviluppo') }}" class="inline-block mt-2 text-xs font-black uppercase text-indigo-700 underline">→ Sviluppo (work in progress)</a>
-                    @else
-                        <p class="text-xs text-indigo-700/70 mt-2">Solo il super admin può spegnere «Work in progress».</p>
-                    @endif
                 </div>
             </li>
         </ol>
@@ -257,7 +245,7 @@
             <li><strong>03:30</strong> — cancellazione documenti d'identità dopo il check-out (privacy)</li>
         </ul>
         <p class="text-xs text-sky-800/70 mt-3">
-            Rispettano le stesse regole: work in progress, toggle ospite e «Prova notifiche» su singola prenotazione.
+            Rispettano le stesse regole: toggle ospite e «Prova notifiche» su singola prenotazione.
         </p>
     </section>
 

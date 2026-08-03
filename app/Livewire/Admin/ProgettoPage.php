@@ -215,7 +215,6 @@ class ProgettoPage extends Component
             'parsedPhones' => AppSettings::adminPhones(),
             'mailSmtpReady' => AppSettings::mailSmtpReady(),
             'effectiveMailDriver' => config('mail.default'),
-            'underConstruction' => AppSettings::underConstruction(),
         ]);
     }
 }

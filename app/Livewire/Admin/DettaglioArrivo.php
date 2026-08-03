@@ -32,7 +32,7 @@ class DettaglioArrivo extends Component
             'message',
             $this->reservation->notifications_pilot
                 ? 'Prova notifiche attiva su questa prenotazione: l\'ospite riceverà email/WhatsApp se i toggle in Progetto sono accesi.'
-                : 'Prova notifiche disattivata: l\'ospite torna in sola anteprima admin (con Work in progress attivo).'
+                : 'Prova notifiche disattivata: essendo una prenotazione TEST, non riceverà notifiche reali.'
         );
     }
 

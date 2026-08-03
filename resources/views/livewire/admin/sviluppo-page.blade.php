@@ -3,7 +3,7 @@
         <div>
             <a href="{{ route('admin.progetto') }}" class="text-indigo-600 font-bold text-sm">← Progetto</a>
             <h1 class="text-3xl font-black text-slate-900 mt-2">Sviluppo (team)</h1>
-            <p class="text-gray-500 text-sm mt-1">Costruzione, contatti, guida modificabile, costi.</p>
+            <p class="text-gray-500 text-sm mt-1">Contatti, costi, task.</p>
         </div>
         <button type="button" wire:click="lock" class="text-xs font-bold text-gray-400 hover:text-red-600 uppercase">Esci</button>
     </div>
@@ -13,15 +13,6 @@
     @endif
 
     <x-admin.desktop-only title="Sviluppo — apri da desktop">
-    <section class="bg-white rounded-3xl shadow-sm border border-amber-100 p-6">
-        <h2 class="text-lg font-black mb-2">App in costruzione</h2>
-        <p class="text-xs text-gray-500 mb-3">Blocca solo le notifiche reali agli ospiti (email/WhatsApp/Telegram/push). Il sito resta visitabile e raggiungibile da chiunque.</p>
-        <button type="button" wire:click="toggleConstruction"
-            class="px-6 py-3 rounded-2xl font-black text-sm uppercase {{ $underConstruction ? 'bg-amber-500 text-amber-950' : 'bg-indigo-600 text-white' }}">
-            {{ $underConstruction ? 'Disattiva' : 'Attiva' }}
-        </button>
-    </section>
-
     <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
         <h2 class="text-lg font-black mb-2">Password Sviluppo</h2>
         <p class="text-xs text-gray-500 mb-3">Serve a chiunque nel team debba entrare qui. Impostabile in produzione con la variabile <code class="bg-gray-100 px-1 rounded">JLUNE_DEV_PASSWORD</code> nel <code class="bg-gray-100 px-1 rounded">.env</code>.</p>

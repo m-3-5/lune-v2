@@ -24,7 +24,6 @@
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans antialiased h-screen overflow-hidden" x-data="{ sidebarOpen: false }">
 
-    <x-construction-banner />
 
     <!-- OVERLAY E MENU A SCOMPARSA (SOLO MOBILE) -->
     <div x-show="sidebarOpen" class="relative z-50 md:hidden" style="display: none;">

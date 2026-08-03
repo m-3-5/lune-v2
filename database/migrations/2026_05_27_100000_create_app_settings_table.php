@@ -17,7 +17,6 @@ return new class extends Migration
 
         $now = now();
         $defaults = [
-            'under_construction' => false,
             'admin_emails' => [
                 'tuaemail@esempio.it — da aggiornare',
             ],
