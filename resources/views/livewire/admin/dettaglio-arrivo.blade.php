@@ -56,30 +56,20 @@
             </div>
         @endif
 
-        <!-- Dati Checkfront completi -->
-        <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 space-y-4">
-            <h3 class="text-[10px] font-black uppercase tracking-widest text-gray-400">Dati Checkfront</h3>
-
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-                <div>
-                    <span class="text-gray-400 text-xs uppercase font-bold">Codice</span>
-                    <p class="font-bold">{{ $reservation->booking_code ?? '—' }}</p>
+        <!-- Riepilogo pagamento + link, sempre visibili -->
+        <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 space-y-4" x-data="{ open: false }">
+            <div class="grid grid-cols-3 gap-3 text-center">
+                <div class="rounded-xl bg-gray-50 p-3">
+                    <p class="text-gray-400 text-[10px] uppercase font-bold">Totale</p>
+                    <p class="font-black text-gray-900">€ {{ number_format($reservation->total_price ?? 0, 2, ',', '.') }}</p>
                 </div>
-                <div>
-                    <span class="text-gray-400 text-xs uppercase font-bold">Cliente CF</span>
-                    <p class="font-mono text-xs">{{ $reservation->checkfront_customer_code ?? '—' }}</p>
+                <div class="rounded-xl bg-green-50 p-3">
+                    <p class="text-green-700 text-[10px] uppercase font-bold">Pagato</p>
+                    <p class="font-black text-green-700">€ {{ number_format($reservation->paid_total ?? 0, 2, ',', '.') }}</p>
                 </div>
-                <div>
-                    <span class="text-gray-400 text-xs uppercase font-bold">Notti</span>
-                    <p class="font-bold">{{ $reservation->nightsCount() }}</p>
-                </div>
-                <div>
-                    <span class="text-gray-400 text-xs uppercase font-bold">Ospiti</span>
-                    <p class="font-bold">{{ $reservation->checkfrontField('numpax', $reservation->adults) }}</p>
-                </div>
-                <div class="col-span-2">
-                    <span class="text-gray-400 text-xs uppercase font-bold">Letti</span>
-                    <p class="font-bold">{{ $reservation->checkfrontField('queen', '—') }}</p>
+                <div class="rounded-xl {{ ($reservation->balance ?? 0) > 0 ? 'bg-amber-50' : 'bg-gray-50' }} p-3">
+                    <p class="{{ ($reservation->balance ?? 0) > 0 ? 'text-amber-700' : 'text-gray-400' }} text-[10px] uppercase font-bold">Saldo</p>
+                    <p class="font-black {{ ($reservation->balance ?? 0) > 0 ? 'text-amber-700' : 'text-gray-400' }}">€ {{ number_format($reservation->balance ?? 0, 2, ',', '.') }}</p>
                 </div>
             </div>
 
@@ -90,51 +80,77 @@
                 </div>
             @endif
 
-            <div class="grid grid-cols-2 gap-3 text-sm border-t pt-3">
-                <div><span class="text-gray-400 text-xs uppercase font-bold">Subtotale</span><p>€ {{ number_format($reservation->sub_total ?? 0, 2, ',', '.') }}</p></div>
-                <div><span class="text-gray-400 text-xs uppercase font-bold">Tasse</span><p>€ {{ number_format($reservation->tax_total ?? 0, 2, ',', '.') }}</p></div>
-                <div><span class="text-gray-400 text-xs uppercase font-bold">Totale</span><p class="font-bold">€ {{ number_format($reservation->total_price ?? 0, 2, ',', '.') }}</p></div>
-                <div><span class="text-gray-400 text-xs uppercase font-bold">Pagato</span><p class="font-bold text-green-700">€ {{ number_format($reservation->paid_total ?? 0, 2, ',', '.') }}</p></div>
-                <div><span class="text-gray-400 text-xs uppercase font-bold">Saldo</span><p class="font-bold text-amber-700">€ {{ number_format($reservation->balance ?? 0, 2, ',', '.') }}</p></div>
-            </div>
-
-            @if(count($reservation->extraLineItems()) > 0)
-                <div class="border-t pt-3">
-                    <p class="text-[10px] font-black uppercase text-gray-400 mb-2">Extra e servizi</p>
-                    <ul class="text-sm space-y-2">
-                        @foreach($reservation->extraLineItems() as $line)
-                            <li class="flex justify-between bg-gray-50 rounded-lg px-3 py-2">
-                                <span>{{ $line['label'] ?? $line['sku'] }}</span>
-                                <span class="font-bold">€ {{ number_format((float) ($line['total'] ?? 0), 2, ',', '.') }}</span>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            @if(is_array($reservation->checkfront_taxes) && count($reservation->checkfront_taxes))
-                <div class="border-t pt-3">
-                    <p class="text-[10px] font-black uppercase text-gray-400 mb-2">Dettaglio tasse / pulizie</p>
-                    <ul class="text-xs text-gray-600 space-y-1">
-                        @foreach($reservation->checkfront_taxes as $tax)
-                            @if((float) ($tax['amount'] ?? 0) > 0)
-                                <li>{{ $tax['name'] }} — € {{ $tax['amount'] }}</li>
-                            @endif
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            <div class="border-t pt-3 space-y-2">
-                <div class="bg-gray-50 p-3 rounded-xl">
-                    <p class="text-[10px] font-black uppercase text-gray-400 mb-1">Link area ospite</p>
-                    <code class="text-xs break-all text-indigo-800">{{ $reservation->guest_portal_url }}</code>
-                </div>
+            <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="navigator.clipboard.writeText('{{ $reservation->guest_portal_url }}')"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-xl text-xs font-black uppercase">
+                    🔗 Copia link ospite
+                </button>
                 @if($reservation->checkfront_payment_url)
                     <a href="{{ $reservation->checkfront_payment_url }}" target="_blank" rel="noopener"
-                       class="inline-block text-xs font-bold text-indigo-600 underline">
-                        Pagamento su Checkfront →
+                       class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-xs font-black uppercase">
+                        💳 Pagamento Checkfront
                     </a>
+                @endif
+                <button type="button" @click="open = !open"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-xs font-black uppercase ml-auto">
+                    <span x-text="open ? '▲ Nascondi dettagli' : '▼ Dettagli prenotazione'"></span>
+                </button>
+            </div>
+
+            <div x-show="open" x-cloak class="border-t pt-4 space-y-4">
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                    <div>
+                        <span class="text-gray-400 text-xs uppercase font-bold">Codice</span>
+                        <p class="font-bold">{{ $reservation->booking_code ?? '—' }}</p>
+                    </div>
+                    <div>
+                        <span class="text-gray-400 text-xs uppercase font-bold">Cliente CF</span>
+                        <p class="font-mono text-xs">{{ $reservation->checkfront_customer_code ?? '—' }}</p>
+                    </div>
+                    <div>
+                        <span class="text-gray-400 text-xs uppercase font-bold">Notti</span>
+                        <p class="font-bold">{{ $reservation->nightsCount() }}</p>
+                    </div>
+                    <div>
+                        <span class="text-gray-400 text-xs uppercase font-bold">Ospiti</span>
+                        <p class="font-bold">{{ $reservation->checkfrontField('numpax', $reservation->adults) }}</p>
+                    </div>
+                    <div class="col-span-2">
+                        <span class="text-gray-400 text-xs uppercase font-bold">Letti</span>
+                        <p class="font-bold">{{ $reservation->checkfrontField('queen', '—') }}</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 text-sm border-t pt-3">
+                    <div><span class="text-gray-400 text-xs uppercase font-bold">Subtotale</span><p>€ {{ number_format($reservation->sub_total ?? 0, 2, ',', '.') }}</p></div>
+                    <div><span class="text-gray-400 text-xs uppercase font-bold">Tasse</span><p>€ {{ number_format($reservation->tax_total ?? 0, 2, ',', '.') }}</p></div>
+                </div>
+
+                @if(count($reservation->extraLineItems()) > 0)
+                    <div class="border-t pt-3">
+                        <p class="text-[10px] font-black uppercase text-gray-400 mb-2">Extra e servizi</p>
+                        <ul class="text-sm space-y-2">
+                            @foreach($reservation->extraLineItems() as $line)
+                                <li class="flex justify-between bg-gray-50 rounded-lg px-3 py-2">
+                                    <span>{{ $line['label'] ?? $line['sku'] }}</span>
+                                    <span class="font-bold">€ {{ number_format((float) ($line['total'] ?? 0), 2, ',', '.') }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                @if(is_array($reservation->checkfront_taxes) && count($reservation->checkfront_taxes))
+                    <div class="border-t pt-3">
+                        <p class="text-[10px] font-black uppercase text-gray-400 mb-2">Dettaglio tasse / pulizie</p>
+                        <ul class="text-xs text-gray-600 space-y-1">
+                            @foreach($reservation->checkfront_taxes as $tax)
+                                @if((float) ($tax['amount'] ?? 0) > 0)
+                                    <li>{{ $tax['name'] }} — € {{ $tax['amount'] }}</li>
+                                @endif
+                            @endforeach
+                        </ul>
+                    </div>
                 @endif
             </div>
         </div>
@@ -196,11 +212,11 @@
                         @endforeach
                         <div class="flex flex-wrap gap-2 pt-2 border-t border-slate-200">
                             <a href="{{ route('admin.arrivo.export', ['id' => $reservation->id, 'format' => 'json']) }}"
-                               class="text-[10px] font-black uppercase text-indigo-600 underline">Esporta JSON</a>
+                               class="inline-flex items-center gap-1 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-[10px] font-black uppercase text-indigo-700">📦 JSON</a>
                             <a href="{{ route('admin.arrivo.export', ['id' => $reservation->id, 'format' => 'csv']) }}"
-                               class="text-[10px] font-black uppercase text-indigo-600 underline">Esporta CSV (Excel)</a>
+                               class="inline-flex items-center gap-1 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-[10px] font-black uppercase text-indigo-700">📊 CSV</a>
                             <a href="{{ route('admin.arrivo.export', ['id' => $reservation->id, 'format' => 'xml']) }}"
-                               class="text-[10px] font-black uppercase text-indigo-600 underline">Esporta XML</a>
+                               class="inline-flex items-center gap-1 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-[10px] font-black uppercase text-indigo-700">🗂️ XML</a>
                         </div>
                     </div>
                     <div class="bg-gray-50 rounded-xl p-4 text-xs space-y-3">
